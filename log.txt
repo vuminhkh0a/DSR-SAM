@@ -1,0 +1,2205 @@
+nohup: ignoring input
+
+======================================================================
+TRAINING (Stage 1: Segmentation Backbone)
+Source: OTU
+Targets: OVATUS, USOVA
+======================================================================
+
+Resnet params: 39.634M
+Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
+Dataset: OTU | Resnet train: 850
+Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
+Dataset: OTU | Resnet val: 150
+Epoch [1/100]
+/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/nn/modules/conv.py:549: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  return F.conv2d(
+/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/autograd/graph.py:825: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+  Train Loss: 0.8992 | Train Dice: 63.50 | Val Loss: 0.3488 | Best Val Loss: 0.3488
+  Dice: 61.41  IoU: 49.22  Prec: 58.75  Rec: 76.23  HD95: 144.84
+  Lr: 0.001000
+  Time: 00:01:57 | Avg: 00:01:57 | Elapsed: 00:01:57 | Remaining: 03:13:32
+  >>> New Best Validation Loss | Previous: N/A | Current : 0.3488
+Epoch [2/100]
+  Train Loss: 0.6690 | Train Dice: 70.94 | Val Loss: 0.3500 | Best Val Loss: 0.3488
+  Dice: 57.76  IoU: 45.26  Prec: 61.96  Rec: 64.55  HD95: 94.61
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:55 | Elapsed: 00:03:51 | Remaining: 03:09:01
+Epoch [3/100]
+  Train Loss: 0.6014 | Train Dice: 74.55 | Val Loss: 0.2688 | Best Val Loss: 0.2688
+  Dice: 70.53  IoU: 58.52  Prec: 76.79  Rec: 72.26  HD95: 72.15
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:55 | Elapsed: 00:05:45 | Remaining: 03:05:57
+  >>> New Best Validation Loss | Previous: 0.3488 | Current : 0.2688
+Epoch [4/100]
+  Train Loss: 0.5550 | Train Dice: 76.53 | Val Loss: 0.2120 | Best Val Loss: 0.2120
+  Dice: 76.15  IoU: 65.87  Prec: 79.57  Rec: 80.65  HD95: 61.06
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:55 | Elapsed: 00:07:40 | Remaining: 03:04:18
+  >>> New Best Validation Loss | Previous: 0.2688 | Current : 0.2120
+Epoch [5/100]
+  Train Loss: 0.5004 | Train Dice: 78.93 | Val Loss: 0.2314 | Best Val Loss: 0.2120
+  Dice: 76.02  IoU: 65.68  Prec: 77.31  Rec: 83.59  HD95: 59.85
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:09:34 | Remaining: 03:01:56
+Epoch [6/100]
+  Train Loss: 0.4624 | Train Dice: 80.51 | Val Loss: 0.2091 | Best Val Loss: 0.2091
+  Dice: 76.20  IoU: 66.03  Prec: 85.41  Rec: 73.80  HD95: 55.94
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 00:11:29 | Remaining: 03:00:06
+  >>> New Best Validation Loss | Previous: 0.2120 | Current : 0.2091
+Epoch [7/100]
+  Train Loss: 0.4527 | Train Dice: 80.98 | Val Loss: 0.2021 | Best Val Loss: 0.2021
+  Dice: 77.77  IoU: 67.80  Prec: 79.59  Rec: 84.16  HD95: 60.13
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:13:23 | Remaining: 02:57:51
+  >>> New Best Validation Loss | Previous: 0.2091 | Current : 0.2021
+Epoch [8/100]
+  Train Loss: 0.4095 | Train Dice: 82.85 | Val Loss: 0.2069 | Best Val Loss: 0.2021
+  Dice: 75.38  IoU: 65.50  Prec: 80.98  Rec: 77.74  HD95: 66.56
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 00:15:18 | Remaining: 02:56:00
+Epoch [9/100]
+  Train Loss: 0.3981 | Train Dice: 83.43 | Val Loss: 0.2034 | Best Val Loss: 0.2021
+  Dice: 76.99  IoU: 67.37  Prec: 77.77  Rec: 84.82  HD95: 64.76
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 00:17:12 | Remaining: 02:53:59
+Epoch [10/100]
+  Train Loss: 0.3684 | Train Dice: 84.34 | Val Loss: 0.1969 | Best Val Loss: 0.1969
+  Dice: 77.53  IoU: 67.81  Prec: 78.55  Rec: 83.66  HD95: 64.40
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:19:06 | Remaining: 02:51:56
+  >>> New Best Validation Loss | Previous: 0.2021 | Current : 0.1969
+Epoch [11/100]
+  Train Loss: 0.3509 | Train Dice: 85.35 | Val Loss: 0.2252 | Best Val Loss: 0.1969
+  Dice: 73.73  IoU: 63.67  Prec: 79.51  Rec: 74.74  HD95: 68.49
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:21:00 | Remaining: 02:49:55
+Epoch [12/100]
+  Train Loss: 0.3413 | Train Dice: 85.61 | Val Loss: 0.1688 | Best Val Loss: 0.1688
+  Dice: 81.04  IoU: 71.53  Prec: 84.39  Rec: 82.38  HD95: 46.62
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 00:22:55 | Remaining: 02:48:07
+  >>> New Best Validation Loss | Previous: 0.1969 | Current : 0.1688
+Epoch [13/100]
+  Train Loss: 0.3141 | Train Dice: 86.47 | Val Loss: 0.1782 | Best Val Loss: 0.1688
+  Dice: 80.26  IoU: 70.57  Prec: 81.02  Rec: 85.51  HD95: 50.75
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 00:24:49 | Remaining: 02:46:09
+Epoch [14/100]
+  Train Loss: 0.2786 | Train Dice: 88.25 | Val Loss: 0.2053 | Best Val Loss: 0.1688
+  Dice: 77.92  IoU: 67.96  Prec: 74.67  Rec: 89.49  HD95: 66.21
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 00:26:45 | Remaining: 02:44:20
+Epoch [15/100]
+  Train Loss: 0.2941 | Train Dice: 87.51 | Val Loss: 0.1925 | Best Val Loss: 0.1688
+  Dice: 78.79  IoU: 69.04  Prec: 76.33  Rec: 88.47  HD95: 61.53
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:28:39 | Remaining: 02:42:21
+Epoch [16/100]
+  Train Loss: 0.2679 | Train Dice: 88.58 | Val Loss: 0.2771 | Best Val Loss: 0.1688
+  Dice: 69.21  IoU: 57.99  Prec: 70.25  Rec: 78.72  HD95: 87.98
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 00:30:33 | Remaining: 02:40:23
+Epoch [17/100]
+  Train Loss: 0.2695 | Train Dice: 88.49 | Val Loss: 0.1840 | Best Val Loss: 0.1688
+  Dice: 79.59  IoU: 70.06  Prec: 77.44  Rec: 88.88  HD95: 57.78
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 00:32:27 | Remaining: 02:38:28
+Epoch [18/100]
+  Train Loss: 0.2474 | Train Dice: 89.36 | Val Loss: 0.1869 | Best Val Loss: 0.1688
+  Dice: 79.27  IoU: 70.04  Prec: 79.81  Rec: 85.28  HD95: 62.21
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:34:21 | Remaining: 02:36:30
+Epoch [19/100]
+  Train Loss: 0.2220 | Train Dice: 90.52 | Val Loss: 0.1603 | Best Val Loss: 0.1603
+  Dice: 82.17  IoU: 73.30  Prec: 81.91  Rec: 88.13  HD95: 48.27
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:36:14 | Remaining: 02:34:32
+  >>> New Best Validation Loss | Previous: 0.1688 | Current : 0.1603
+Epoch [20/100]
+  Train Loss: 0.2039 | Train Dice: 91.22 | Val Loss: 0.1856 | Best Val Loss: 0.1603
+  Dice: 78.33  IoU: 68.84  Prec: 83.73  Rec: 80.75  HD95: 60.71
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:38:08 | Remaining: 02:32:33
+Epoch [21/100]
+  Train Loss: 0.2152 | Train Dice: 90.78 | Val Loss: 0.1930 | Best Val Loss: 0.1603
+  Dice: 78.45  IoU: 69.06  Prec: 77.75  Rec: 86.71  HD95: 63.74
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:40:01 | Remaining: 02:30:34
+Epoch [22/100]
+  Train Loss: 0.1866 | Train Dice: 91.94 | Val Loss: 0.1687 | Best Val Loss: 0.1603
+  Dice: 80.85  IoU: 71.65  Prec: 80.67  Rec: 86.46  HD95: 51.33
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:41:54 | Remaining: 02:28:35
+Epoch [23/100]
+  Train Loss: 0.1697 | Train Dice: 92.68 | Val Loss: 0.1701 | Best Val Loss: 0.1603
+  Dice: 81.39  IoU: 72.08  Prec: 80.70  Rec: 88.46  HD95: 56.45
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:43:47 | Remaining: 02:26:38
+Epoch [24/100]
+  Train Loss: 0.1594 | Train Dice: 93.20 | Val Loss: 0.1640 | Best Val Loss: 0.1603
+  Dice: 81.31  IoU: 72.62  Prec: 80.91  Rec: 87.49  HD95: 52.81
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:45:41 | Remaining: 02:24:40
+Epoch [25/100]
+  Train Loss: 0.1444 | Train Dice: 93.78 | Val Loss: 0.1570 | Best Val Loss: 0.1570
+  Dice: 82.95  IoU: 73.99  Prec: 82.33  Rec: 88.61  HD95: 49.01
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:47:34 | Remaining: 02:22:44
+  >>> New Best Validation Loss | Previous: 0.1603 | Current : 0.1570
+Epoch [26/100]
+  Train Loss: 0.1302 | Train Dice: 94.38 | Val Loss: 0.1642 | Best Val Loss: 0.1570
+  Dice: 82.06  IoU: 73.11  Prec: 82.47  Rec: 86.90  HD95: 46.92
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:49:28 | Remaining: 02:20:49
+Epoch [27/100]
+  Train Loss: 0.1289 | Train Dice: 94.47 | Val Loss: 0.1687 | Best Val Loss: 0.1570
+  Dice: 80.93  IoU: 71.85  Prec: 83.61  Rec: 83.39  HD95: 51.08
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 00:51:23 | Remaining: 02:18:55
+Epoch [28/100]
+  Train Loss: 0.1271 | Train Dice: 94.53 | Val Loss: 0.1578 | Best Val Loss: 0.1570
+  Dice: 82.31  IoU: 73.35  Prec: 83.03  Rec: 86.02  HD95: 52.76
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:53:16 | Remaining: 02:16:59
+Epoch [29/100]
+  Train Loss: 0.1250 | Train Dice: 94.61 | Val Loss: 0.1888 | Best Val Loss: 0.1570
+  Dice: 79.99  IoU: 70.49  Prec: 78.13  Rec: 88.23  HD95: 59.02
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:55:09 | Remaining: 02:15:03
+Epoch [30/100]
+  Train Loss: 0.1342 | Train Dice: 94.30 | Val Loss: 0.1868 | Best Val Loss: 0.1570
+  Dice: 80.08  IoU: 70.30  Prec: 80.88  Rec: 85.79  HD95: 52.29
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 00:57:04 | Remaining: 02:13:09
+Epoch [31/100]
+  Train Loss: 0.1573 | Train Dice: 93.21 | Val Loss: 0.1840 | Best Val Loss: 0.1570
+  Dice: 79.93  IoU: 70.97  Prec: 81.06  Rec: 85.26  HD95: 53.55
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 00:58:57 | Remaining: 02:11:14
+Epoch [32/100]
+  Train Loss: 0.1687 | Train Dice: 92.72 | Val Loss: 0.1920 | Best Val Loss: 0.1570
+  Dice: 79.43  IoU: 69.81  Prec: 79.05  Rec: 87.42  HD95: 58.79
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 01:00:51 | Remaining: 02:09:18
+Epoch [33/100]
+  Train Loss: 0.1626 | Train Dice: 93.19 | Val Loss: 0.2030 | Best Val Loss: 0.1570
+  Dice: 77.21  IoU: 67.42  Prec: 81.23  Rec: 79.76  HD95: 57.40
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 01:02:45 | Remaining: 02:07:24
+Epoch [34/100]
+  Train Loss: 0.1285 | Train Dice: 94.42 | Val Loss: 0.1760 | Best Val Loss: 0.1570
+  Dice: 80.17  IoU: 70.54  Prec: 82.23  Rec: 82.87  HD95: 62.16
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 01:04:39 | Remaining: 02:05:29
+Epoch [35/100]
+  Train Loss: 0.1180 | Train Dice: 94.89 | Val Loss: 0.1965 | Best Val Loss: 0.1570
+  Dice: 78.90  IoU: 69.30  Prec: 75.42  Rec: 89.41  HD95: 61.87
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 01:06:32 | Remaining: 02:03:34
+Epoch [36/100]
+  Train Loss: 0.1058 | Train Dice: 95.41 | Val Loss: 0.1606 | Best Val Loss: 0.1570
+  Dice: 82.84  IoU: 74.06  Prec: 82.97  Rec: 87.03  HD95: 49.06
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 01:08:25 | Remaining: 02:01:38
+Epoch [37/100]
+  Train Loss: 0.0921 | Train Dice: 96.01 | Val Loss: 0.1654 | Best Val Loss: 0.1570
+  Dice: 82.37  IoU: 73.48  Prec: 83.18  Rec: 86.35  HD95: 51.52
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 01:10:19 | Remaining: 01:59:43
+Epoch [38/100]
+  Train Loss: 0.0820 | Train Dice: 96.45 | Val Loss: 0.1585 | Best Val Loss: 0.1570
+  Dice: 83.69  IoU: 75.07  Prec: 85.15  Rec: 86.71  HD95: 44.03
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 01:12:12 | Remaining: 01:57:48
+Epoch [39/100]
+  Train Loss: 0.0748 | Train Dice: 96.78 | Val Loss: 0.1592 | Best Val Loss: 0.1570
+  Dice: 83.71  IoU: 74.97  Prec: 83.32  Rec: 89.10  HD95: 49.00
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:14:05 | Remaining: 01:55:53
+Epoch [40/100]
+  Train Loss: 0.0685 | Train Dice: 97.02 | Val Loss: 0.1687 | Best Val Loss: 0.1570
+  Dice: 82.20  IoU: 73.32  Prec: 80.58  Rec: 88.88  HD95: 54.65
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:15:59 | Remaining: 01:53:59
+Epoch [41/100]
+  Train Loss: 0.0672 | Train Dice: 97.11 | Val Loss: 0.1838 | Best Val Loss: 0.1570
+  Dice: 82.29  IoU: 73.33  Prec: 81.19  Rec: 88.90  HD95: 53.61
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:17:52 | Remaining: 01:52:04
+Epoch [42/100]
+  Train Loss: 0.0676 | Train Dice: 97.07 | Val Loss: 0.1707 | Best Val Loss: 0.1570
+  Dice: 82.57  IoU: 73.72  Prec: 82.44  Rec: 87.48  HD95: 50.71
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:19:46 | Remaining: 01:50:09
+Epoch [43/100]
+  Train Loss: 0.0661 | Train Dice: 97.13 | Val Loss: 0.1754 | Best Val Loss: 0.1570
+  Dice: 82.39  IoU: 73.47  Prec: 83.35  Rec: 86.24  HD95: 48.91
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:21:39 | Remaining: 01:48:14
+Epoch [44/100]
+  Train Loss: 0.0622 | Train Dice: 97.32 | Val Loss: 0.1730 | Best Val Loss: 0.1570
+  Dice: 83.05  IoU: 73.97  Prec: 81.04  Rec: 90.25  HD95: 55.55
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:23:32 | Remaining: 01:46:19
+Epoch [45/100]
+  Train Loss: 0.0576 | Train Dice: 97.51 | Val Loss: 0.1774 | Best Val Loss: 0.1570
+  Dice: 83.18  IoU: 74.17  Prec: 83.23  Rec: 87.85  HD95: 52.26
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:53 | Elapsed: 01:25:26 | Remaining: 01:44:25
+Epoch [46/100]
+  Train Loss: 0.0529 | Train Dice: 97.72 | Val Loss: 0.1840 | Best Val Loss: 0.1570
+  Dice: 83.17  IoU: 74.32  Prec: 83.35  Rec: 87.96  HD95: 49.58
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:27:20 | Remaining: 01:42:31
+Epoch [47/100]
+  Train Loss: 0.0526 | Train Dice: 97.71 | Val Loss: 0.1885 | Best Val Loss: 0.1570
+  Dice: 82.51  IoU: 73.17  Prec: 83.73  Rec: 86.48  HD95: 52.94
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:29:13 | Remaining: 01:40:37
+Epoch [48/100]
+  Train Loss: 0.0540 | Train Dice: 97.67 | Val Loss: 0.1900 | Best Val Loss: 0.1570
+  Dice: 82.75  IoU: 73.59  Prec: 86.18  Rec: 84.20  HD95: 44.71
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:31:07 | Remaining: 01:38:43
+Epoch [49/100]
+  Train Loss: 0.2047 | Train Dice: 91.74 | Val Loss: 0.4574 | Best Val Loss: 0.1570
+  Dice: 63.51  IoU: 50.62  Prec: 57.75  Rec: 83.16  HD95: 130.24
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:53 | Elapsed: 01:33:03 | Remaining: 01:36:50
+Epoch [50/100]
+  Train Loss: 0.3100 | Train Dice: 86.74 | Val Loss: 0.1911 | Best Val Loss: 0.1570
+  Dice: 78.00  IoU: 68.39  Prec: 80.56  Rec: 81.14  HD95: 64.40
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:53 | Elapsed: 01:34:56 | Remaining: 01:34:56
+Epoch [51/100]
+  Train Loss: 0.2227 | Train Dice: 90.42 | Val Loss: 0.1947 | Best Val Loss: 0.1570
+  Dice: 78.53  IoU: 69.24  Prec: 78.43  Rec: 84.82  HD95: 55.28
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:53 | Elapsed: 01:36:51 | Remaining: 01:33:03
+Epoch [52/100]
+  Train Loss: 0.1357 | Train Dice: 94.17 | Val Loss: 0.1599 | Best Val Loss: 0.1570
+  Dice: 81.65  IoU: 72.74  Prec: 83.05  Rec: 85.27  HD95: 51.99
+  Lr: 0.001000
+  Time: 00:01:56 | Avg: 00:01:53 | Elapsed: 01:38:47 | Remaining: 01:31:11
+Epoch [53/100]
+  Train Loss: 0.0891 | Train Dice: 96.15 | Val Loss: 0.1604 | Best Val Loss: 0.1570
+  Dice: 82.87  IoU: 74.17  Prec: 81.90  Rec: 89.32  HD95: 48.74
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 01:40:42 | Remaining: 01:29:18
+Epoch [54/100]
+  Train Loss: 0.0668 | Train Dice: 97.11 | Val Loss: 0.1676 | Best Val Loss: 0.1570
+  Dice: 82.65  IoU: 74.04  Prec: 81.96  Rec: 88.95  HD95: 49.75
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 01:42:37 | Remaining: 01:27:25
+Epoch [55/100]
+  Train Loss: 0.0550 | Train Dice: 97.63 | Val Loss: 0.1656 | Best Val Loss: 0.1570
+  Dice: 83.47  IoU: 74.76  Prec: 83.54  Rec: 88.07  HD95: 48.60
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 01:44:33 | Remaining: 01:25:32
+Epoch [56/100]
+  Train Loss: 0.0502 | Train Dice: 97.82 | Val Loss: 0.2030 | Best Val Loss: 0.1570
+  Dice: 81.44  IoU: 72.13  Prec: 81.73  Rec: 86.05  HD95: 52.57
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 01:46:27 | Remaining: 01:23:39
+Epoch [57/100]
+  Train Loss: 0.0576 | Train Dice: 97.53 | Val Loss: 0.1701 | Best Val Loss: 0.1570
+  Dice: 83.45  IoU: 74.67  Prec: 85.14  Rec: 86.75  HD95: 49.68
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 01:48:22 | Remaining: 01:21:45
+Epoch [58/100]
+  Train Loss: 0.0487 | Train Dice: 97.87 | Val Loss: 0.1723 | Best Val Loss: 0.1570
+  Dice: 83.56  IoU: 74.94  Prec: 83.68  Rec: 88.27  HD95: 48.13
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 01:50:17 | Remaining: 01:19:52
+Epoch [59/100]
+  Train Loss: 0.0435 | Train Dice: 98.09 | Val Loss: 0.1837 | Best Val Loss: 0.1570
+  Dice: 83.32  IoU: 74.58  Prec: 82.60  Rec: 88.83  HD95: 50.07
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 01:52:11 | Remaining: 01:17:57
+Epoch [60/100]
+  Train Loss: 0.0430 | Train Dice: 98.08 | Val Loss: 0.1880 | Best Val Loss: 0.1570
+  Dice: 83.64  IoU: 74.87  Prec: 85.66  Rec: 86.35  HD95: 50.56
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 01:54:05 | Remaining: 01:16:03
+Epoch [61/100]
+  Train Loss: 0.0488 | Train Dice: 97.91 | Val Loss: 0.1786 | Best Val Loss: 0.1570
+  Dice: 83.48  IoU: 74.83  Prec: 84.01  Rec: 87.73  HD95: 49.93
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 01:56:00 | Remaining: 01:14:10
+Epoch [62/100]
+  Train Loss: 0.0410 | Train Dice: 98.22 | Val Loss: 0.1869 | Best Val Loss: 0.1570
+  Dice: 83.14  IoU: 74.41  Prec: 83.17  Rec: 88.24  HD95: 50.95
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 01:57:54 | Remaining: 01:12:16
+Epoch [63/100]
+  Train Loss: 0.0361 | Train Dice: 98.43 | Val Loss: 0.1960 | Best Val Loss: 0.1570
+  Dice: 83.33  IoU: 74.65  Prec: 82.98  Rec: 88.52  HD95: 51.37
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 01:59:49 | Remaining: 01:10:22
+Epoch [64/100]
+  Train Loss: 0.0337 | Train Dice: 98.53 | Val Loss: 0.2110 | Best Val Loss: 0.1570
+  Dice: 83.02  IoU: 74.24  Prec: 82.34  Rec: 88.96  HD95: 52.28
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:01:44 | Remaining: 01:08:28
+Epoch [65/100]
+  Train Loss: 0.0335 | Train Dice: 98.53 | Val Loss: 0.2169 | Best Val Loss: 0.1570
+  Dice: 83.48  IoU: 74.65  Prec: 82.44  Rec: 89.63  HD95: 51.09
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 02:03:37 | Remaining: 01:06:34
+Epoch [66/100]
+  Train Loss: 0.0328 | Train Dice: 98.55 | Val Loss: 0.2200 | Best Val Loss: 0.1570
+  Dice: 83.11  IoU: 74.31  Prec: 83.76  Rec: 87.94  HD95: 55.01
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:05:32 | Remaining: 01:04:40
+Epoch [67/100]
+  Train Loss: 0.0310 | Train Dice: 98.63 | Val Loss: 0.2083 | Best Val Loss: 0.1570
+  Dice: 83.29  IoU: 74.55  Prec: 83.81  Rec: 87.49  HD95: 50.79
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 02:07:27 | Remaining: 01:02:46
+Epoch [68/100]
+  Train Loss: 0.0302 | Train Dice: 98.68 | Val Loss: 0.2288 | Best Val Loss: 0.1570
+  Dice: 83.02  IoU: 74.16  Prec: 82.48  Rec: 88.70  HD95: 55.86
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:09:21 | Remaining: 01:00:52
+Epoch [69/100]
+  Train Loss: 0.0299 | Train Dice: 98.68 | Val Loss: 0.2324 | Best Val Loss: 0.1570
+  Dice: 82.70  IoU: 74.00  Prec: 82.66  Rec: 88.02  HD95: 53.63
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:11:15 | Remaining: 00:58:58
+Epoch [70/100]
+  Train Loss: 0.0294 | Train Dice: 98.71 | Val Loss: 0.2398 | Best Val Loss: 0.1570
+  Dice: 83.31  IoU: 74.48  Prec: 82.90  Rec: 88.88  HD95: 55.85
+  Lr: 0.001000
+  Time: 00:01:56 | Avg: 00:01:54 | Elapsed: 02:13:12 | Remaining: 00:57:05
+Epoch [71/100]
+  Train Loss: 0.0289 | Train Dice: 98.72 | Val Loss: 0.2405 | Best Val Loss: 0.1570
+  Dice: 82.86  IoU: 74.04  Prec: 82.52  Rec: 88.37  HD95: 54.30
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:15:06 | Remaining: 00:55:11
+Epoch [72/100]
+  Train Loss: 0.0280 | Train Dice: 98.76 | Val Loss: 0.2395 | Best Val Loss: 0.1570
+  Dice: 83.39  IoU: 74.58  Prec: 83.29  Rec: 88.68  HD95: 53.39
+  Lr: 0.001000
+  Time: 00:01:56 | Avg: 00:01:54 | Elapsed: 02:17:02 | Remaining: 00:53:17
+Epoch [73/100]
+  Train Loss: 0.0269 | Train Dice: 98.81 | Val Loss: 0.2548 | Best Val Loss: 0.1570
+  Dice: 82.79  IoU: 74.07  Prec: 83.10  Rec: 87.68  HD95: 53.29
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:18:57 | Remaining: 00:51:23
+Epoch [74/100]
+  Train Loss: 0.0262 | Train Dice: 98.83 | Val Loss: 0.2518 | Best Val Loss: 0.1570
+  Dice: 83.24  IoU: 74.59  Prec: 82.78  Rec: 88.94  HD95: 53.13
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 02:20:51 | Remaining: 00:49:29
+Epoch [75/100]
+  Train Loss: 0.0260 | Train Dice: 98.85 | Val Loss: 0.2626 | Best Val Loss: 0.1570
+  Dice: 82.80  IoU: 73.95  Prec: 82.45  Rec: 88.49  HD95: 55.42
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:22:45 | Remaining: 00:47:35
+Epoch [76/100]
+  Train Loss: 0.0259 | Train Dice: 98.86 | Val Loss: 0.2535 | Best Val Loss: 0.1570
+  Dice: 82.84  IoU: 73.98  Prec: 82.53  Rec: 88.32  HD95: 56.68
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 02:24:41 | Remaining: 00:45:41
+Epoch [77/100]
+  Train Loss: 0.0252 | Train Dice: 98.89 | Val Loss: 0.2486 | Best Val Loss: 0.1570
+  Dice: 83.12  IoU: 74.37  Prec: 83.26  Rec: 87.85  HD95: 56.62
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:26:35 | Remaining: 00:43:47
+Epoch [78/100]
+  Train Loss: 0.0244 | Train Dice: 98.93 | Val Loss: 0.2504 | Best Val Loss: 0.1570
+  Dice: 83.02  IoU: 74.34  Prec: 83.43  Rec: 87.36  HD95: 53.31
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 02:28:31 | Remaining: 00:41:53
+Epoch [79/100]
+  Train Loss: 0.0252 | Train Dice: 98.89 | Val Loss: 0.2597 | Best Val Loss: 0.1570
+  Dice: 82.67  IoU: 73.90  Prec: 82.44  Rec: 88.09  HD95: 54.95
+  Lr: 0.001000
+  Time: 00:01:56 | Avg: 00:01:54 | Elapsed: 02:30:27 | Remaining: 00:39:59
+Epoch [80/100]
+  Train Loss: 0.0249 | Train Dice: 98.90 | Val Loss: 0.2672 | Best Val Loss: 0.1570
+  Dice: 82.72  IoU: 74.14  Prec: 82.59  Rec: 87.94  HD95: 54.07
+  Lr: 0.001000
+  Time: 00:01:56 | Avg: 00:01:54 | Elapsed: 02:32:23 | Remaining: 00:38:05
+Epoch [81/100]
+  Train Loss: 0.0239 | Train Dice: 98.94 | Val Loss: 0.2615 | Best Val Loss: 0.1570
+  Dice: 83.08  IoU: 74.24  Prec: 83.60  Rec: 87.32  HD95: 55.45
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 02:34:17 | Remaining: 00:36:11
+Epoch [82/100]
+  Train Loss: 0.0224 | Train Dice: 99.00 | Val Loss: 0.2870 | Best Val Loss: 0.1570
+  Dice: 82.90  IoU: 74.19  Prec: 83.04  Rec: 87.77  HD95: 55.22
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:36:11 | Remaining: 00:34:17
+Epoch [83/100]
+  Train Loss: 0.0224 | Train Dice: 99.01 | Val Loss: 0.2846 | Best Val Loss: 0.1570
+  Dice: 82.78  IoU: 74.03  Prec: 83.25  Rec: 87.16  HD95: 56.05
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 02:38:05 | Remaining: 00:32:22
+Epoch [84/100]
+  Train Loss: 0.0255 | Train Dice: 98.87 | Val Loss: 0.2801 | Best Val Loss: 0.1570
+  Dice: 81.78  IoU: 72.72  Prec: 83.57  Rec: 85.28  HD95: 57.12
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:39:59 | Remaining: 00:30:28
+Epoch [85/100]
+  Train Loss: 0.3353 | Train Dice: 86.27 | Val Loss: 0.2657 | Best Val Loss: 0.1570
+  Dice: 71.24  IoU: 59.26  Prec: 71.39  Rec: 80.85  HD95: 84.70
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 02:41:55 | Remaining: 00:28:34
+Epoch [86/100]
+  Train Loss: 0.3046 | Train Dice: 86.99 | Val Loss: 0.2292 | Best Val Loss: 0.1570
+  Dice: 73.58  IoU: 63.63  Prec: 75.46  Rec: 78.91  HD95: 63.40
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 02:43:50 | Remaining: 00:26:40
+Epoch [87/100]
+  Train Loss: 0.1779 | Train Dice: 92.25 | Val Loss: 0.1738 | Best Val Loss: 0.1570
+  Dice: 81.04  IoU: 72.17  Prec: 81.15  Rec: 86.19  HD95: 54.55
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 02:45:45 | Remaining: 00:24:46
+Epoch [88/100]
+  Train Loss: 0.0999 | Train Dice: 95.72 | Val Loss: 0.1779 | Best Val Loss: 0.1570
+  Dice: 80.70  IoU: 71.33  Prec: 79.41  Rec: 87.38  HD95: 61.03
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 02:47:41 | Remaining: 00:22:52
+Epoch [89/100]
+  Train Loss: 0.0643 | Train Dice: 97.28 | Val Loss: 0.1692 | Best Val Loss: 0.1570
+  Dice: 82.72  IoU: 74.03  Prec: 83.65  Rec: 86.05  HD95: 50.14
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 02:49:37 | Remaining: 00:20:57
+Epoch [90/100]
+  Train Loss: 0.0424 | Train Dice: 98.18 | Val Loss: 0.1763 | Best Val Loss: 0.1570
+  Dice: 82.61  IoU: 73.97  Prec: 82.01  Rec: 87.96  HD95: 52.54
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 02:51:31 | Remaining: 00:19:03
+Epoch [91/100]
+  Train Loss: 0.0337 | Train Dice: 98.52 | Val Loss: 0.1861 | Best Val Loss: 0.1570
+  Dice: 82.47  IoU: 73.79  Prec: 82.92  Rec: 86.42  HD95: 52.61
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 02:53:25 | Remaining: 00:17:09
+Epoch [92/100]
+  Train Loss: 0.0289 | Train Dice: 98.73 | Val Loss: 0.1956 | Best Val Loss: 0.1570
+  Dice: 82.51  IoU: 73.82  Prec: 81.77  Rec: 88.37  HD95: 54.33
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:55:19 | Remaining: 00:15:14
+Epoch [93/100]
+  Train Loss: 0.0257 | Train Dice: 98.86 | Val Loss: 0.2077 | Best Val Loss: 0.1570
+  Dice: 82.42  IoU: 73.67  Prec: 82.31  Rec: 87.35  HD95: 53.52
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 02:57:13 | Remaining: 00:13:20
+Epoch [94/100]
+  Train Loss: 0.0235 | Train Dice: 98.97 | Val Loss: 0.2435 | Best Val Loss: 0.1570
+  Dice: 82.80  IoU: 74.18  Prec: 82.76  Rec: 87.79  HD95: 54.00
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 02:59:08 | Remaining: 00:11:26
+Epoch [95/100]
+  Train Loss: 0.0225 | Train Dice: 99.00 | Val Loss: 0.2458 | Best Val Loss: 0.1570
+  Dice: 82.65  IoU: 73.90  Prec: 82.75  Rec: 87.53  HD95: 53.39
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 03:01:02 | Remaining: 00:09:31
+Epoch [96/100]
+  Train Loss: 0.0212 | Train Dice: 99.06 | Val Loss: 0.2551 | Best Val Loss: 0.1570
+  Dice: 82.81  IoU: 74.20  Prec: 82.83  Rec: 87.79  HD95: 53.78
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 03:02:56 | Remaining: 00:07:37
+Epoch [97/100]
+  Train Loss: 0.0203 | Train Dice: 99.09 | Val Loss: 0.2806 | Best Val Loss: 0.1570
+  Dice: 82.62  IoU: 73.99  Prec: 82.57  Rec: 87.86  HD95: 54.41
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 03:04:50 | Remaining: 00:05:43
+Epoch [98/100]
+  Train Loss: 0.0202 | Train Dice: 99.10 | Val Loss: 0.2936 | Best Val Loss: 0.1570
+  Dice: 82.54  IoU: 73.86  Prec: 81.63  Rec: 89.12  HD95: 54.94
+  Lr: 0.001000
+  Time: 00:01:54 | Avg: 00:01:54 | Elapsed: 03:06:44 | Remaining: 00:03:48
+Epoch [99/100]
+  Train Loss: 0.0231 | Train Dice: 99.00 | Val Loss: 0.2474 | Best Val Loss: 0.1570
+  Dice: 82.29  IoU: 73.40  Prec: 81.90  Rec: 87.79  HD95: 56.68
+  Lr: 0.001000
+  Time: 00:01:53 | Avg: 00:01:54 | Elapsed: 03:08:38 | Remaining: 00:01:54
+Epoch [100/100]
+  Train Loss: 0.0217 | Train Dice: 99.04 | Val Loss: 0.2662 | Best Val Loss: 0.1570
+  Dice: 82.36  IoU: 73.59  Prec: 82.12  Rec: 87.75  HD95: 56.89
+  Lr: 0.001000
+  Time: 00:01:55 | Avg: 00:01:54 | Elapsed: 03:10:33 | Remaining: 00:00:00
+
+SAMMed resnet training complete. Best Val Loss: 0.1570 -> weights/sammed/sammed_resnet_s_OTU_best.pth
+
+Best resnet weight is loaded: weights/sammed/sammed_resnet_s_OTU_best.pth
+
+======================================================================
+TRAINING (Stage 2: Mask-Filtering -> Refined Bounding Boxes)
+Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
+BBoxes saved: 850 -> weights/sammed/bboxes/src_domain_idx_OTU_75/OTU
+Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
+BBoxes saved: 150 -> weights/sammed/bboxes/src_domain_idx_OTU_75/OTU
+Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
+BBoxes saved: 112 -> weights/sammed/bboxes/src_domain_idx_OTU_75/OVATUS
+Dataset: USOVA | Training data: 2593 | Validation data: 398 | Testing data: 428
+/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py:625: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(f, map_location='cpu')
+BBoxes saved: 428 -> weights/sammed/bboxes/src_domain_idx_OTU_75/USOVA
+
+======================================================================
+TRAINING (Stage 3: SAM fine-tuning with refined bboxes)
+
+Model params: 93.735M (mask decoder fine-tuned per repo/paper; image + prompt encoders frozen via no_grad)
+Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
+Dataset: OTU | Source train: 850
+Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
+Dataset: OTU | Source val: 150
+Epoch [1/200]
+/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py:161: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  attn = (q * self.scale) @ k.transpose(-2, -1)
+/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/functional.py:402: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  return _VF.einsum(equation, operands)  # type: ignore[attr-defined]
+/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py:165: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  x = (attn @ v).view(B, self.num_heads, H, W, -1).permute(0, 2, 3, 1, 4).reshape(B, H, W, -1)
+/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py:277: UserWarning: cumsum_cuda_kernel does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at ../aten/src/ATen/Context.cpp:91.)
+  y_embed = grid.cumsum(dim=0) - 0.5
+/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py:278: UserWarning: cumsum_cuda_kernel does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at ../aten/src/ATen/Context.cpp:91.)
+  x_embed = grid.cumsum(dim=1) - 0.5
+/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py:269: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  coords = coords @ self.positional_encoding_gaussian_matrix
+/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py:377: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  attn = q @ k.permute(0, 1, 3, 2)
+/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py:380: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  out = attn @ v
+/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/nn/modules/linear.py:125: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  return F.linear(input, self.weight, self.bias)
+/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py:536: UserWarning: Deterministic behavior was enabled with either `torch.use_deterministic_algorithms(True)` or `at::Context::setDeterministicAlgorithms(true)`, but this operation is not deterministic because it uses CuBLAS and you have CUDA >= 10.2. To enable deterministic behavior in this case, you must set an environment variable before running your PyTorch application: CUBLAS_WORKSPACE_CONFIG=:4096:8 or CUBLAS_WORKSPACE_CONFIG=:16:8. For more information, go to https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility (Triggered internally at ../aten/src/ATen/Context.cpp:208.)
+  masks = (hyper_in @ upscaled_embedding.view(b, c, h * w)).view(b, -1, h, w)
+  Train Loss: 1.0168 | Train Dice: 47.56 | Val Loss: 0.2862 | Best Val Loss: 0.2862
+  Dice: 68.41  IoU: 53.49  Prec: 70.25  Rec: 68.57  HD95: 112.51
+  Lr: 0.000100
+  Time: 00:00:54 | Avg: 00:00:54 | Elapsed: 00:00:54 | Remaining: 03:00:58
+  >>> New Best Validation Loss | Previous: N/A | Current : 0.2862
+Epoch [2/200]
+  Train Loss: 0.4674 | Train Dice: 76.18 | Val Loss: 0.2201 | Best Val Loss: 0.2201
+  Dice: 77.20  IoU: 63.85  Prec: 77.35  Rec: 78.82  HD95: 81.36
+  Lr: 0.000100
+  Time: 00:00:52 | Avg: 00:00:53 | Elapsed: 00:01:46 | Remaining: 02:56:29
+  >>> New Best Validation Loss | Previous: 0.2862 | Current : 0.2201
+Epoch [3/200]
+  Train Loss: 0.3682 | Train Dice: 80.94 | Val Loss: 0.2060 | Best Val Loss: 0.2060
+  Dice: 78.15  IoU: 65.28  Prec: 79.67  Rec: 78.57  HD95: 72.29
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:52 | Elapsed: 00:02:38 | Remaining: 02:53:35
+  >>> New Best Validation Loss | Previous: 0.2201 | Current : 0.2060
+Epoch [4/200]
+  Train Loss: 0.3218 | Train Dice: 83.27 | Val Loss: 0.2040 | Best Val Loss: 0.2040
+  Dice: 79.37  IoU: 67.03  Prec: 78.83  Rec: 81.34  HD95: 75.10
+  Lr: 0.000100
+  Time: 00:00:52 | Avg: 00:00:52 | Elapsed: 00:03:31 | Remaining: 02:52:20
+  >>> New Best Validation Loss | Previous: 0.2060 | Current : 0.2040
+Epoch [5/200]
+  Train Loss: 0.3003 | Train Dice: 84.40 | Val Loss: 0.1995 | Best Val Loss: 0.1995
+  Dice: 79.59  IoU: 67.14  Prec: 79.18  Rec: 81.84  HD95: 75.03
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:52 | Elapsed: 00:04:22 | Remaining: 02:50:38
+  >>> New Best Validation Loss | Previous: 0.2040 | Current : 0.1995
+Epoch [6/200]
+  Train Loss: 0.2769 | Train Dice: 85.60 | Val Loss: 0.1903 | Best Val Loss: 0.1903
+  Dice: 80.29  IoU: 68.26  Prec: 80.64  Rec: 81.71  HD95: 71.13
+  Lr: 0.000100
+  Time: 00:00:52 | Avg: 00:00:52 | Elapsed: 00:05:15 | Remaining: 02:49:52
+  >>> New Best Validation Loss | Previous: 0.1995 | Current : 0.1903
+Epoch [7/200]
+  Train Loss: 0.2499 | Train Dice: 87.02 | Val Loss: 0.1859 | Best Val Loss: 0.1859
+  Dice: 80.34  IoU: 68.18  Prec: 84.28  Rec: 78.12  HD95: 70.49
+  Lr: 0.000100
+  Time: 00:00:53 | Avg: 00:00:52 | Elapsed: 00:06:08 | Remaining: 02:49:17
+  >>> New Best Validation Loss | Previous: 0.1903 | Current : 0.1859
+Epoch [8/200]
+  Train Loss: 0.2424 | Train Dice: 87.33 | Val Loss: 0.1793 | Best Val Loss: 0.1793
+  Dice: 81.52  IoU: 69.94  Prec: 84.04  Rec: 80.49  HD95: 70.36
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:52 | Elapsed: 00:06:59 | Remaining: 02:47:38
+  >>> New Best Validation Loss | Previous: 0.1859 | Current : 0.1793
+Epoch [9/200]
+  Train Loss: 0.2355 | Train Dice: 87.65 | Val Loss: 0.1780 | Best Val Loss: 0.1780
+  Dice: 81.05  IoU: 69.22  Prec: 84.67  Rec: 79.10  HD95: 68.50
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:52 | Elapsed: 00:07:49 | Remaining: 02:46:05
+  >>> New Best Validation Loss | Previous: 0.1793 | Current : 0.1780
+Epoch [10/200]
+  Train Loss: 0.2220 | Train Dice: 88.38 | Val Loss: 0.1762 | Best Val Loss: 0.1762
+  Dice: 81.83  IoU: 70.40  Prec: 82.60  Rec: 82.30  HD95: 65.92
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:08:39 | Remaining: 02:44:38
+  >>> New Best Validation Loss | Previous: 0.1780 | Current : 0.1762
+Epoch [11/200]
+  Train Loss: 0.2147 | Train Dice: 88.76 | Val Loss: 0.1787 | Best Val Loss: 0.1762
+  Dice: 81.69  IoU: 70.08  Prec: 82.58  Rec: 82.12  HD95: 65.56
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:09:30 | Remaining: 02:43:28
+Epoch [12/200]
+  Train Loss: 0.2078 | Train Dice: 89.14 | Val Loss: 0.1803 | Best Val Loss: 0.1762
+  Dice: 81.04  IoU: 69.14  Prec: 86.07  Rec: 77.67  HD95: 68.30
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:10:21 | Remaining: 02:42:17
+Epoch [13/200]
+  Train Loss: 0.1996 | Train Dice: 89.56 | Val Loss: 0.1816 | Best Val Loss: 0.1762
+  Dice: 81.03  IoU: 69.24  Prec: 85.09  Rec: 78.54  HD95: 66.88
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:51 | Elapsed: 00:11:11 | Remaining: 02:40:59
+Epoch [14/200]
+  Train Loss: 0.2023 | Train Dice: 89.37 | Val Loss: 0.1738 | Best Val Loss: 0.1738
+  Dice: 82.14  IoU: 70.81  Prec: 84.35  Rec: 81.16  HD95: 69.37
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:12:01 | Remaining: 02:39:49
+  >>> New Best Validation Loss | Previous: 0.1762 | Current : 0.1738
+Epoch [15/200]
+  Train Loss: 0.1886 | Train Dice: 89.99 | Val Loss: 0.1694 | Best Val Loss: 0.1694
+  Dice: 82.35  IoU: 71.02  Prec: 85.94  Rec: 80.18  HD95: 62.28
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:12:52 | Remaining: 02:38:50
+  >>> New Best Validation Loss | Previous: 0.1738 | Current : 0.1694
+Epoch [16/200]
+  Train Loss: 0.1888 | Train Dice: 90.01 | Val Loss: 0.1702 | Best Val Loss: 0.1694
+  Dice: 82.56  IoU: 71.36  Prec: 84.94  Rec: 81.49  HD95: 67.14
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:13:43 | Remaining: 02:37:47
+Epoch [17/200]
+  Train Loss: 0.1858 | Train Dice: 90.10 | Val Loss: 0.1701 | Best Val Loss: 0.1694
+  Dice: 82.68  IoU: 71.80  Prec: 84.21  Rec: 82.34  HD95: 61.22
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:14:33 | Remaining: 02:36:41
+Epoch [18/200]
+  Train Loss: 0.1786 | Train Dice: 90.64 | Val Loss: 0.1655 | Best Val Loss: 0.1655
+  Dice: 82.99  IoU: 72.05  Prec: 86.44  Rec: 80.89  HD95: 58.78
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:51 | Elapsed: 00:15:24 | Remaining: 02:35:49
+  >>> New Best Validation Loss | Previous: 0.1694 | Current : 0.1655
+Epoch [19/200]
+  Train Loss: 0.1771 | Train Dice: 90.73 | Val Loss: 0.1643 | Best Val Loss: 0.1643
+  Dice: 83.07  IoU: 72.22  Prec: 85.33  Rec: 82.05  HD95: 60.00
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:16:15 | Remaining: 02:34:52
+  >>> New Best Validation Loss | Previous: 0.1655 | Current : 0.1643
+Epoch [20/200]
+  Train Loss: 0.1688 | Train Dice: 91.11 | Val Loss: 0.1636 | Best Val Loss: 0.1636
+  Dice: 83.53  IoU: 72.89  Prec: 85.04  Rec: 83.23  HD95: 60.49
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:17:06 | Remaining: 02:33:54
+  >>> New Best Validation Loss | Previous: 0.1643 | Current : 0.1636
+Epoch [21/200]
+  Train Loss: 0.1704 | Train Dice: 91.01 | Val Loss: 0.1699 | Best Val Loss: 0.1636
+  Dice: 82.34  IoU: 71.15  Prec: 86.33  Rec: 79.87  HD95: 65.85
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:51 | Elapsed: 00:17:55 | Remaining: 02:32:50
+Epoch [22/200]
+  Train Loss: 0.1753 | Train Dice: 90.74 | Val Loss: 0.1631 | Best Val Loss: 0.1631
+  Dice: 83.22  IoU: 72.42  Prec: 85.00  Rec: 82.64  HD95: 59.50
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:18:46 | Remaining: 02:31:54
+  >>> New Best Validation Loss | Previous: 0.1636 | Current : 0.1631
+Epoch [23/200]
+  Train Loss: 0.1647 | Train Dice: 91.38 | Val Loss: 0.1681 | Best Val Loss: 0.1631
+  Dice: 82.57  IoU: 71.52  Prec: 86.76  Rec: 79.77  HD95: 60.45
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:19:37 | Remaining: 02:31:01
+Epoch [24/200]
+  Train Loss: 0.1604 | Train Dice: 91.53 | Val Loss: 0.1643 | Best Val Loss: 0.1631
+  Dice: 83.37  IoU: 72.62  Prec: 86.50  Rec: 81.57  HD95: 64.76
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:20:27 | Remaining: 02:30:05
+Epoch [25/200]
+  Train Loss: 0.1643 | Train Dice: 91.38 | Val Loss: 0.1610 | Best Val Loss: 0.1610
+  Dice: 83.74  IoU: 73.21  Prec: 85.88  Rec: 82.80  HD95: 59.65
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:21:18 | Remaining: 02:29:07
+  >>> New Best Validation Loss | Previous: 0.1631 | Current : 0.1610
+Epoch [26/200]
+  Train Loss: 0.1599 | Train Dice: 91.47 | Val Loss: 0.1629 | Best Val Loss: 0.1610
+  Dice: 84.02  IoU: 73.56  Prec: 84.68  Rec: 84.55  HD95: 59.48
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:22:09 | Remaining: 02:28:14
+Epoch [27/200]
+  Train Loss: 0.1630 | Train Dice: 91.47 | Val Loss: 0.1563 | Best Val Loss: 0.1563
+  Dice: 84.34  IoU: 74.03  Prec: 84.67  Rec: 85.24  HD95: 66.32
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:22:59 | Remaining: 02:27:18
+  >>> New Best Validation Loss | Previous: 0.1610 | Current : 0.1563
+Epoch [28/200]
+  Train Loss: 0.1616 | Train Dice: 91.42 | Val Loss: 0.1651 | Best Val Loss: 0.1563
+  Dice: 83.55  IoU: 73.01  Prec: 85.21  Rec: 83.00  HD95: 60.18
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:51 | Elapsed: 00:23:49 | Remaining: 02:26:19
+Epoch [29/200]
+  Train Loss: 0.1519 | Train Dice: 92.04 | Val Loss: 0.1642 | Best Val Loss: 0.1563
+  Dice: 83.94  IoU: 73.48  Prec: 84.65  Rec: 84.48  HD95: 65.89
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:51 | Elapsed: 00:24:39 | Remaining: 02:25:23
+Epoch [30/200]
+  Train Loss: 0.1589 | Train Dice: 91.69 | Val Loss: 0.1628 | Best Val Loss: 0.1563
+  Dice: 83.85  IoU: 73.38  Prec: 84.56  Rec: 84.30  HD95: 60.73
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:25:29 | Remaining: 02:24:25
+Epoch [31/200]
+  Train Loss: 0.1559 | Train Dice: 91.82 | Val Loss: 0.1628 | Best Val Loss: 0.1563
+  Dice: 83.80  IoU: 73.21  Prec: 86.97  Rec: 82.03  HD95: 58.08
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:26:18 | Remaining: 02:23:26
+Epoch [32/200]
+  Train Loss: 0.1609 | Train Dice: 91.53 | Val Loss: 0.1629 | Best Val Loss: 0.1563
+  Dice: 84.01  IoU: 73.60  Prec: 82.50  Rec: 86.92  HD95: 68.29
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:27:08 | Remaining: 02:22:30
+Epoch [33/200]
+  Train Loss: 0.1516 | Train Dice: 92.02 | Val Loss: 0.1605 | Best Val Loss: 0.1563
+  Dice: 83.98  IoU: 73.50  Prec: 86.67  Rec: 82.54  HD95: 58.53
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:27:58 | Remaining: 02:21:32
+Epoch [34/200]
+  Train Loss: 0.1504 | Train Dice: 92.01 | Val Loss: 0.1608 | Best Val Loss: 0.1563
+  Dice: 84.32  IoU: 74.10  Prec: 84.24  Rec: 85.54  HD95: 64.97
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:28:48 | Remaining: 02:20:38
+Epoch [35/200]
+  Train Loss: 0.1487 | Train Dice: 92.14 | Val Loss: 0.1579 | Best Val Loss: 0.1563
+  Dice: 84.44  IoU: 74.27  Prec: 85.14  Rec: 84.91  HD95: 60.19
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:29:38 | Remaining: 02:19:46
+Epoch [36/200]
+  Train Loss: 0.1505 | Train Dice: 92.04 | Val Loss: 0.1551 | Best Val Loss: 0.1551
+  Dice: 84.75  IoU: 74.81  Prec: 84.96  Rec: 85.65  HD95: 58.58
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:30:29 | Remaining: 02:18:53
+  >>> New Best Validation Loss | Previous: 0.1563 | Current : 0.1551
+Epoch [37/200]
+  Train Loss: 0.1533 | Train Dice: 91.93 | Val Loss: 0.1573 | Best Val Loss: 0.1551
+  Dice: 84.44  IoU: 74.24  Prec: 86.07  Rec: 83.98  HD95: 57.83
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:31:18 | Remaining: 02:17:57
+Epoch [38/200]
+  Train Loss: 0.1503 | Train Dice: 92.01 | Val Loss: 0.1573 | Best Val Loss: 0.1551
+  Dice: 84.13  IoU: 73.70  Prec: 85.94  Rec: 83.52  HD95: 59.10
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:32:08 | Remaining: 02:17:01
+Epoch [39/200]
+  Train Loss: 0.1432 | Train Dice: 92.49 | Val Loss: 0.1592 | Best Val Loss: 0.1551
+  Dice: 84.44  IoU: 74.31  Prec: 85.74  Rec: 84.23  HD95: 58.70
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:32:58 | Remaining: 02:16:06
+Epoch [40/200]
+  Train Loss: 0.1450 | Train Dice: 92.35 | Val Loss: 0.1565 | Best Val Loss: 0.1551
+  Dice: 84.16  IoU: 73.83  Prec: 85.93  Rec: 83.52  HD95: 59.03
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:33:48 | Remaining: 02:15:13
+Epoch [41/200]
+  Train Loss: 0.1467 | Train Dice: 92.18 | Val Loss: 0.1592 | Best Val Loss: 0.1551
+  Dice: 84.64  IoU: 74.61  Prec: 83.11  Rec: 87.33  HD95: 59.30
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:34:37 | Remaining: 02:14:18
+Epoch [42/200]
+  Train Loss: 0.1474 | Train Dice: 92.23 | Val Loss: 0.1603 | Best Val Loss: 0.1551
+  Dice: 84.44  IoU: 74.22  Prec: 84.08  Rec: 86.02  HD95: 60.28
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:35:28 | Remaining: 02:13:27
+Epoch [43/200]
+  Train Loss: 0.1468 | Train Dice: 92.23 | Val Loss: 0.1542 | Best Val Loss: 0.1542
+  Dice: 84.74  IoU: 74.58  Prec: 86.51  Rec: 84.12  HD95: 56.69
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 00:36:19 | Remaining: 02:12:37
+  >>> New Best Validation Loss | Previous: 0.1551 | Current : 0.1542
+Epoch [44/200]
+  Train Loss: 0.1427 | Train Dice: 92.51 | Val Loss: 0.1599 | Best Val Loss: 0.1542
+  Dice: 84.24  IoU: 73.90  Prec: 84.69  Rec: 84.94  HD95: 59.92
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 00:37:10 | Remaining: 02:11:48
+Epoch [45/200]
+  Train Loss: 0.1435 | Train Dice: 92.35 | Val Loss: 0.1561 | Best Val Loss: 0.1542
+  Dice: 84.60  IoU: 74.45  Prec: 85.30  Rec: 85.04  HD95: 58.44
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:38:00 | Remaining: 02:10:54
+Epoch [46/200]
+  Train Loss: 0.1436 | Train Dice: 92.44 | Val Loss: 0.1575 | Best Val Loss: 0.1542
+  Dice: 84.23  IoU: 73.91  Prec: 85.58  Rec: 83.94  HD95: 58.49
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:38:50 | Remaining: 02:10:00
+Epoch [47/200]
+  Train Loss: 0.1410 | Train Dice: 92.55 | Val Loss: 0.1564 | Best Val Loss: 0.1542
+  Dice: 84.88  IoU: 74.80  Prec: 84.44  Rec: 86.49  HD95: 57.85
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 00:39:41 | Remaining: 02:09:13
+Epoch [48/200]
+  Train Loss: 0.1384 | Train Dice: 92.71 | Val Loss: 0.1601 | Best Val Loss: 0.1542
+  Dice: 84.30  IoU: 73.91  Prec: 85.10  Rec: 84.69  HD95: 58.98
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:40:32 | Remaining: 02:08:22
+Epoch [49/200]
+  Train Loss: 0.1349 | Train Dice: 92.93 | Val Loss: 0.1558 | Best Val Loss: 0.1542
+  Dice: 84.88  IoU: 74.90  Prec: 84.75  Rec: 86.11  HD95: 57.94
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:41:22 | Remaining: 02:07:29
+Epoch [50/200]
+  Train Loss: 0.1409 | Train Dice: 92.50 | Val Loss: 0.1552 | Best Val Loss: 0.1542
+  Dice: 84.78  IoU: 74.67  Prec: 84.30  Rec: 86.44  HD95: 63.89
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:42:11 | Remaining: 02:06:35
+Epoch [51/200]
+  Train Loss: 0.1376 | Train Dice: 92.69 | Val Loss: 0.1561 | Best Val Loss: 0.1542
+  Dice: 84.35  IoU: 74.10  Prec: 86.83  Rec: 83.10  HD95: 58.07
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:43:02 | Remaining: 02:05:45
+Epoch [52/200]
+  Train Loss: 0.1395 | Train Dice: 92.56 | Val Loss: 0.1535 | Best Val Loss: 0.1535
+  Dice: 85.08  IoU: 75.28  Prec: 85.09  Rec: 86.20  HD95: 57.16
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:43:53 | Remaining: 02:04:54
+  >>> New Best Validation Loss | Previous: 0.1542 | Current : 0.1535
+Epoch [53/200]
+  Train Loss: 0.1364 | Train Dice: 92.77 | Val Loss: 0.1551 | Best Val Loss: 0.1535
+  Dice: 84.90  IoU: 74.89  Prec: 85.69  Rec: 85.21  HD95: 57.58
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:44:42 | Remaining: 02:04:01
+Epoch [54/200]
+  Train Loss: 0.1403 | Train Dice: 92.55 | Val Loss: 0.1548 | Best Val Loss: 0.1535
+  Dice: 84.64  IoU: 74.53  Prec: 84.67  Rec: 85.74  HD95: 57.69
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:45:32 | Remaining: 02:03:08
+Epoch [55/200]
+  Train Loss: 0.1390 | Train Dice: 92.65 | Val Loss: 0.1574 | Best Val Loss: 0.1535
+  Dice: 84.67  IoU: 74.53  Prec: 85.98  Rec: 84.45  HD95: 57.49
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 00:46:23 | Remaining: 02:02:18
+Epoch [56/200]
+  Train Loss: 0.1321 | Train Dice: 92.99 | Val Loss: 0.1568 | Best Val Loss: 0.1535
+  Dice: 84.73  IoU: 74.71  Prec: 84.71  Rec: 85.80  HD95: 59.24
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 00:47:15 | Remaining: 02:01:30
+Epoch [57/200]
+  Train Loss: 0.1372 | Train Dice: 92.71 | Val Loss: 0.1550 | Best Val Loss: 0.1535
+  Dice: 84.38  IoU: 74.16  Prec: 86.72  Rec: 83.18  HD95: 58.52
+  Lr: 0.000100
+  Time: 00:00:53 | Avg: 00:00:50 | Elapsed: 00:48:08 | Remaining: 02:00:46
+Epoch [58/200]
+  Train Loss: 0.1332 | Train Dice: 92.99 | Val Loss: 0.1554 | Best Val Loss: 0.1535
+  Dice: 84.69  IoU: 74.59  Prec: 85.39  Rec: 85.02  HD95: 58.92
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:48:59 | Remaining: 01:59:56
+Epoch [59/200]
+  Train Loss: 0.1293 | Train Dice: 93.17 | Val Loss: 0.1554 | Best Val Loss: 0.1535
+  Dice: 84.89  IoU: 75.07  Prec: 85.25  Rec: 85.58  HD95: 63.44
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:49:49 | Remaining: 01:59:04
+Epoch [60/200]
+  Train Loss: 0.1305 | Train Dice: 93.11 | Val Loss: 0.1565 | Best Val Loss: 0.1535
+  Dice: 84.78  IoU: 74.70  Prec: 84.32  Rec: 86.39  HD95: 59.07
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:50:39 | Remaining: 01:58:11
+Epoch [61/200]
+  Train Loss: 0.1291 | Train Dice: 93.20 | Val Loss: 0.1559 | Best Val Loss: 0.1535
+  Dice: 85.02  IoU: 75.18  Prec: 85.06  Rec: 86.00  HD95: 57.34
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:51:29 | Remaining: 01:57:20
+Epoch [62/200]
+  Train Loss: 0.1340 | Train Dice: 92.95 | Val Loss: 0.1573 | Best Val Loss: 0.1535
+  Dice: 84.89  IoU: 74.86  Prec: 83.36  Rec: 87.62  HD95: 59.05
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:52:19 | Remaining: 01:56:28
+Epoch [63/200]
+  Train Loss: 0.1293 | Train Dice: 93.19 | Val Loss: 0.1581 | Best Val Loss: 0.1535
+  Dice: 84.82  IoU: 74.77  Prec: 83.30  Rec: 87.50  HD95: 59.71
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:53:09 | Remaining: 01:55:36
+Epoch [64/200]
+  Train Loss: 0.1269 | Train Dice: 93.29 | Val Loss: 0.1538 | Best Val Loss: 0.1535
+  Dice: 85.10  IoU: 75.17  Prec: 84.85  Rec: 86.44  HD95: 58.11
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:53:59 | Remaining: 01:54:43
+Epoch [65/200]
+  Train Loss: 0.1294 | Train Dice: 93.20 | Val Loss: 0.1574 | Best Val Loss: 0.1535
+  Dice: 84.76  IoU: 74.65  Prec: 84.67  Rec: 85.94  HD95: 58.84
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 00:54:50 | Remaining: 01:53:54
+Epoch [66/200]
+  Train Loss: 0.1263 | Train Dice: 93.35 | Val Loss: 0.1589 | Best Val Loss: 0.1535
+  Dice: 84.81  IoU: 74.67  Prec: 85.98  Rec: 84.77  HD95: 58.26
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:55:41 | Remaining: 01:53:04
+Epoch [67/200]
+  Train Loss: 0.1289 | Train Dice: 93.24 | Val Loss: 0.1604 | Best Val Loss: 0.1535
+  Dice: 84.18  IoU: 73.78  Prec: 85.32  Rec: 84.12  HD95: 59.14
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:56:31 | Remaining: 01:52:11
+Epoch [68/200]
+  Train Loss: 0.1291 | Train Dice: 93.19 | Val Loss: 0.1561 | Best Val Loss: 0.1535
+  Dice: 84.69  IoU: 74.57  Prec: 86.15  Rec: 84.30  HD95: 57.82
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 00:57:20 | Remaining: 01:51:19
+Epoch [69/200]
+  Train Loss: 0.1286 | Train Dice: 93.20 | Val Loss: 0.1517 | Best Val Loss: 0.1517
+  Dice: 85.03  IoU: 75.06  Prec: 85.12  Rec: 86.02  HD95: 58.20
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 00:58:12 | Remaining: 01:50:29
+  >>> New Best Validation Loss | Previous: 0.1535 | Current : 0.1517
+Epoch [70/200]
+  Train Loss: 0.1266 | Train Dice: 93.27 | Val Loss: 0.1545 | Best Val Loss: 0.1517
+  Dice: 84.92  IoU: 74.86  Prec: 85.86  Rec: 85.04  HD95: 58.45
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:59:02 | Remaining: 01:49:38
+Epoch [71/200]
+  Train Loss: 0.1239 | Train Dice: 93.39 | Val Loss: 0.1579 | Best Val Loss: 0.1517
+  Dice: 84.14  IoU: 73.76  Prec: 87.39  Rec: 82.01  HD95: 58.32
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 00:59:52 | Remaining: 01:48:47
+Epoch [72/200]
+  Train Loss: 0.1243 | Train Dice: 93.40 | Val Loss: 0.1533 | Best Val Loss: 0.1517
+  Dice: 85.14  IoU: 75.27  Prec: 85.08  Rec: 86.23  HD95: 57.43
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:00:42 | Remaining: 01:47:56
+Epoch [73/200]
+  Train Loss: 0.1275 | Train Dice: 93.30 | Val Loss: 0.1569 | Best Val Loss: 0.1517
+  Dice: 84.91  IoU: 74.87  Prec: 83.73  Rec: 87.26  HD95: 58.86
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:01:32 | Remaining: 01:47:04
+Epoch [74/200]
+  Train Loss: 0.1266 | Train Dice: 93.34 | Val Loss: 0.1583 | Best Val Loss: 0.1517
+  Dice: 84.56  IoU: 74.30  Prec: 87.22  Rec: 82.99  HD95: 58.60
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:02:22 | Remaining: 01:46:12
+Epoch [75/200]
+  Train Loss: 0.1306 | Train Dice: 93.09 | Val Loss: 0.1582 | Best Val Loss: 0.1517
+  Dice: 84.25  IoU: 74.01  Prec: 86.47  Rec: 83.10  HD95: 58.14
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:03:12 | Remaining: 01:45:21
+Epoch [76/200]
+  Train Loss: 0.1261 | Train Dice: 93.28 | Val Loss: 0.1598 | Best Val Loss: 0.1517
+  Dice: 84.69  IoU: 74.53  Prec: 84.39  Rec: 86.02  HD95: 58.96
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:04:03 | Remaining: 01:44:30
+Epoch [77/200]
+  Train Loss: 0.1235 | Train Dice: 93.51 | Val Loss: 0.1556 | Best Val Loss: 0.1517
+  Dice: 85.06  IoU: 75.11  Prec: 84.13  Rec: 87.09  HD95: 58.77
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:04:52 | Remaining: 01:43:37
+Epoch [78/200]
+  Train Loss: 0.1233 | Train Dice: 93.44 | Val Loss: 0.1553 | Best Val Loss: 0.1517
+  Dice: 85.02  IoU: 75.04  Prec: 85.89  Rec: 85.15  HD95: 57.43
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:05:43 | Remaining: 01:42:48
+Epoch [79/200]
+  Train Loss: 0.1257 | Train Dice: 93.33 | Val Loss: 0.1592 | Best Val Loss: 0.1517
+  Dice: 84.26  IoU: 73.87  Prec: 87.07  Rec: 82.64  HD95: 58.66
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:06:33 | Remaining: 01:41:56
+Epoch [80/200]
+  Train Loss: 0.1251 | Train Dice: 93.41 | Val Loss: 0.1567 | Best Val Loss: 0.1517
+  Dice: 84.50  IoU: 74.34  Prec: 86.16  Rec: 83.87  HD95: 64.11
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:07:25 | Remaining: 01:41:07
+Epoch [81/200]
+  Train Loss: 0.1243 | Train Dice: 93.37 | Val Loss: 0.1595 | Best Val Loss: 0.1517
+  Dice: 84.21  IoU: 73.85  Prec: 87.35  Rec: 82.26  HD95: 58.49
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:08:14 | Remaining: 01:40:15
+Epoch [82/200]
+  Train Loss: 0.1219 | Train Dice: 93.62 | Val Loss: 0.1544 | Best Val Loss: 0.1517
+  Dice: 85.05  IoU: 75.10  Prec: 86.26  Rec: 84.96  HD95: 57.39
+  Lr: 0.000100
+  Time: 00:00:53 | Avg: 00:00:50 | Elapsed: 01:09:07 | Remaining: 01:39:29
+Epoch [83/200]
+  Train Loss: 0.1226 | Train Dice: 93.54 | Val Loss: 0.1604 | Best Val Loss: 0.1517
+  Dice: 84.63  IoU: 74.47  Prec: 86.29  Rec: 84.04  HD95: 58.64
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:09:58 | Remaining: 01:38:38
+Epoch [84/200]
+  Train Loss: 0.1227 | Train Dice: 93.51 | Val Loss: 0.1604 | Best Val Loss: 0.1517
+  Dice: 84.43  IoU: 74.18  Prec: 86.17  Rec: 83.85  HD95: 59.15
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:10:48 | Remaining: 01:37:47
+Epoch [85/200]
+  Train Loss: 0.1238 | Train Dice: 93.45 | Val Loss: 0.1570 | Best Val Loss: 0.1517
+  Dice: 84.95  IoU: 74.96  Prec: 84.20  Rec: 86.88  HD95: 60.34
+  Lr: 0.000100
+  Time: 00:00:52 | Avg: 00:00:50 | Elapsed: 01:11:40 | Remaining: 01:36:58
+Epoch [86/200]
+  Train Loss: 0.1223 | Train Dice: 93.53 | Val Loss: 0.1595 | Best Val Loss: 0.1517
+  Dice: 84.97  IoU: 74.93  Prec: 85.97  Rec: 85.02  HD95: 58.91
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:12:31 | Remaining: 01:36:08
+Epoch [87/200]
+  Train Loss: 0.1230 | Train Dice: 93.51 | Val Loss: 0.1568 | Best Val Loss: 0.1517
+  Dice: 84.37  IoU: 74.03  Prec: 87.80  Rec: 82.23  HD95: 58.89
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:13:22 | Remaining: 01:35:17
+Epoch [88/200]
+  Train Loss: 0.1233 | Train Dice: 93.43 | Val Loss: 0.1578 | Best Val Loss: 0.1517
+  Dice: 84.71  IoU: 74.55  Prec: 85.80  Rec: 84.69  HD95: 57.87
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:14:11 | Remaining: 01:34:25
+Epoch [89/200]
+  Train Loss: 0.1228 | Train Dice: 93.51 | Val Loss: 0.1520 | Best Val Loss: 0.1517
+  Dice: 85.16  IoU: 75.25  Prec: 85.27  Rec: 86.13  HD95: 58.15
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:15:01 | Remaining: 01:33:34
+Epoch [90/200]
+  Train Loss: 0.1225 | Train Dice: 93.46 | Val Loss: 0.1617 | Best Val Loss: 0.1517
+  Dice: 84.20  IoU: 73.77  Prec: 87.86  Rec: 81.76  HD95: 59.26
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:15:51 | Remaining: 01:32:43
+Epoch [91/200]
+  Train Loss: 0.1222 | Train Dice: 93.57 | Val Loss: 0.1563 | Best Val Loss: 0.1517
+  Dice: 84.97  IoU: 74.96  Prec: 86.73  Rec: 84.30  HD95: 58.10
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:16:41 | Remaining: 01:31:52
+Epoch [92/200]
+  Train Loss: 0.1228 | Train Dice: 93.46 | Val Loss: 0.1557 | Best Val Loss: 0.1517
+  Dice: 85.05  IoU: 75.08  Prec: 86.63  Rec: 84.58  HD95: 58.35
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:17:32 | Remaining: 01:31:01
+Epoch [93/200]
+  Train Loss: 0.1195 | Train Dice: 93.60 | Val Loss: 0.1543 | Best Val Loss: 0.1517
+  Dice: 85.20  IoU: 75.32  Prec: 86.27  Rec: 85.24  HD95: 57.41
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:18:23 | Remaining: 01:30:11
+Epoch [94/200]
+  Train Loss: 0.1195 | Train Dice: 93.67 | Val Loss: 0.1545 | Best Val Loss: 0.1517
+  Dice: 85.21  IoU: 75.32  Prec: 85.09  Rec: 86.42  HD95: 59.58
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:19:13 | Remaining: 01:29:20
+Epoch [95/200]
+  Train Loss: 0.1167 | Train Dice: 93.78 | Val Loss: 0.1559 | Best Val Loss: 0.1517
+  Dice: 84.63  IoU: 74.41  Prec: 87.17  Rec: 83.24  HD95: 58.58
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:20:03 | Remaining: 01:28:29
+Epoch [96/200]
+  Train Loss: 0.1157 | Train Dice: 93.83 | Val Loss: 0.1547 | Best Val Loss: 0.1517
+  Dice: 85.30  IoU: 75.48  Prec: 85.33  Rec: 86.31  HD95: 57.34
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:20:54 | Remaining: 01:27:38
+Epoch [97/200]
+  Train Loss: 0.1169 | Train Dice: 93.77 | Val Loss: 0.1525 | Best Val Loss: 0.1517
+  Dice: 85.27  IoU: 75.50  Prec: 85.39  Rec: 86.26  HD95: 58.27
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:21:44 | Remaining: 01:26:47
+Epoch [98/200]
+  Train Loss: 0.1182 | Train Dice: 93.66 | Val Loss: 0.1555 | Best Val Loss: 0.1517
+  Dice: 84.67  IoU: 74.64  Prec: 86.85  Rec: 83.55  HD95: 59.26
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:22:33 | Remaining: 01:25:56
+Epoch [99/200]
+  Train Loss: 0.1198 | Train Dice: 93.65 | Val Loss: 0.1592 | Best Val Loss: 0.1517
+  Dice: 84.67  IoU: 74.46  Prec: 87.17  Rec: 83.35  HD95: 60.21
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:23:25 | Remaining: 01:25:06
+Epoch [100/200]
+  Train Loss: 0.1158 | Train Dice: 93.88 | Val Loss: 0.1595 | Best Val Loss: 0.1517
+  Dice: 85.09  IoU: 75.17  Prec: 84.93  Rec: 86.41  HD95: 58.65
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:24:15 | Remaining: 01:24:15
+Epoch [101/200]
+  Train Loss: 0.1153 | Train Dice: 93.86 | Val Loss: 0.1547 | Best Val Loss: 0.1517
+  Dice: 85.05  IoU: 75.08  Prec: 85.54  Rec: 85.58  HD95: 59.29
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:25:05 | Remaining: 01:23:23
+Epoch [102/200]
+  Train Loss: 0.1182 | Train Dice: 93.79 | Val Loss: 0.1526 | Best Val Loss: 0.1517
+  Dice: 85.07  IoU: 75.20  Prec: 85.73  Rec: 85.56  HD95: 58.97
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:25:56 | Remaining: 01:22:34
+Epoch [103/200]
+  Train Loss: 0.1131 | Train Dice: 94.02 | Val Loss: 0.1562 | Best Val Loss: 0.1517
+  Dice: 85.25  IoU: 75.43  Prec: 85.16  Rec: 86.45  HD95: 58.56
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:26:46 | Remaining: 01:21:43
+Epoch [104/200]
+  Train Loss: 0.1167 | Train Dice: 93.75 | Val Loss: 0.1576 | Best Val Loss: 0.1517
+  Dice: 84.93  IoU: 74.86  Prec: 86.01  Rec: 84.93  HD95: 59.79
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:27:36 | Remaining: 01:20:52
+Epoch [105/200]
+  Train Loss: 0.1146 | Train Dice: 93.90 | Val Loss: 0.1577 | Best Val Loss: 0.1517
+  Dice: 85.43  IoU: 75.69  Prec: 83.86  Rec: 88.22  HD95: 58.01
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:28:28 | Remaining: 01:20:02
+Epoch [106/200]
+  Train Loss: 0.1177 | Train Dice: 93.70 | Val Loss: 0.1589 | Best Val Loss: 0.1517
+  Dice: 85.08  IoU: 75.16  Prec: 84.84  Rec: 86.38  HD95: 59.58
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:29:18 | Remaining: 01:19:12
+Epoch [107/200]
+  Train Loss: 0.1137 | Train Dice: 93.98 | Val Loss: 0.1548 | Best Val Loss: 0.1517
+  Dice: 85.23  IoU: 75.31  Prec: 84.96  Rec: 86.60  HD95: 58.91
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:30:09 | Remaining: 01:18:21
+Epoch [108/200]
+  Train Loss: 0.1135 | Train Dice: 93.94 | Val Loss: 0.1551 | Best Val Loss: 0.1517
+  Dice: 85.35  IoU: 75.58  Prec: 86.28  Rec: 85.49  HD95: 58.33
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:30:59 | Remaining: 01:17:30
+Epoch [109/200]
+  Train Loss: 0.1137 | Train Dice: 93.98 | Val Loss: 0.1564 | Best Val Loss: 0.1517
+  Dice: 84.93  IoU: 74.96  Prec: 86.18  Rec: 84.72  HD95: 58.06
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:31:49 | Remaining: 01:16:39
+Epoch [110/200]
+  Train Loss: 0.1131 | Train Dice: 93.98 | Val Loss: 0.1594 | Best Val Loss: 0.1517
+  Dice: 85.24  IoU: 75.41  Prec: 86.16  Rec: 85.36  HD95: 58.56
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:32:40 | Remaining: 01:15:49
+Epoch [111/200]
+  Train Loss: 0.1100 | Train Dice: 94.16 | Val Loss: 0.1582 | Best Val Loss: 0.1517
+  Dice: 85.39  IoU: 75.62  Prec: 84.69  Rec: 87.22  HD95: 58.12
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:33:31 | Remaining: 01:14:59
+Epoch [112/200]
+  Train Loss: 0.1106 | Train Dice: 94.12 | Val Loss: 0.1544 | Best Val Loss: 0.1517
+  Dice: 85.24  IoU: 75.41  Prec: 85.53  Rec: 85.97  HD95: 57.67
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:34:22 | Remaining: 01:14:09
+Epoch [113/200]
+  Train Loss: 0.1163 | Train Dice: 93.78 | Val Loss: 0.1605 | Best Val Loss: 0.1517
+  Dice: 84.31  IoU: 73.99  Prec: 88.27  Rec: 81.59  HD95: 58.85
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:35:12 | Remaining: 01:13:17
+Epoch [114/200]
+  Train Loss: 0.1096 | Train Dice: 94.23 | Val Loss: 0.1568 | Best Val Loss: 0.1517
+  Dice: 85.14  IoU: 75.25  Prec: 86.25  Rec: 85.09  HD95: 58.80
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:36:02 | Remaining: 01:12:27
+Epoch [115/200]
+  Train Loss: 0.1100 | Train Dice: 94.17 | Val Loss: 0.1568 | Best Val Loss: 0.1517
+  Dice: 84.59  IoU: 74.37  Prec: 87.98  Rec: 82.39  HD95: 58.39
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:36:53 | Remaining: 01:11:37
+Epoch [116/200]
+  Train Loss: 0.1110 | Train Dice: 94.11 | Val Loss: 0.1638 | Best Val Loss: 0.1517
+  Dice: 84.84  IoU: 74.80  Prec: 85.80  Rec: 84.89  HD95: 58.23
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:37:44 | Remaining: 01:10:46
+Epoch [117/200]
+  Train Loss: 0.1117 | Train Dice: 94.08 | Val Loss: 0.1623 | Best Val Loss: 0.1517
+  Dice: 84.66  IoU: 74.49  Prec: 86.53  Rec: 83.96  HD95: 59.42
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:38:35 | Remaining: 01:09:56
+Epoch [118/200]
+  Train Loss: 0.1153 | Train Dice: 93.83 | Val Loss: 0.1561 | Best Val Loss: 0.1517
+  Dice: 84.64  IoU: 74.41  Prec: 86.27  Rec: 84.17  HD95: 58.97
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:39:25 | Remaining: 01:09:05
+Epoch [119/200]
+  Train Loss: 0.1130 | Train Dice: 94.00 | Val Loss: 0.1582 | Best Val Loss: 0.1517
+  Dice: 84.78  IoU: 74.64  Prec: 86.93  Rec: 83.77  HD95: 59.51
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:40:16 | Remaining: 01:08:14
+Epoch [120/200]
+  Train Loss: 0.1098 | Train Dice: 94.23 | Val Loss: 0.1594 | Best Val Loss: 0.1517
+  Dice: 84.94  IoU: 74.92  Prec: 86.03  Rec: 85.02  HD95: 58.73
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:41:05 | Remaining: 01:07:23
+Epoch [121/200]
+  Train Loss: 0.1117 | Train Dice: 94.05 | Val Loss: 0.1544 | Best Val Loss: 0.1517
+  Dice: 85.24  IoU: 75.43  Prec: 86.73  Rec: 84.89  HD95: 58.44
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:41:56 | Remaining: 01:06:33
+Epoch [122/200]
+  Train Loss: 0.1110 | Train Dice: 94.05 | Val Loss: 0.1618 | Best Val Loss: 0.1517
+  Dice: 85.17  IoU: 75.39  Prec: 86.08  Rec: 85.31  HD95: 57.63
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:42:45 | Remaining: 01:05:42
+Epoch [123/200]
+  Train Loss: 0.1096 | Train Dice: 94.21 | Val Loss: 0.1619 | Best Val Loss: 0.1517
+  Dice: 85.03  IoU: 75.08  Prec: 85.87  Rec: 85.28  HD95: 58.36
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:43:36 | Remaining: 01:04:51
+Epoch [124/200]
+  Train Loss: 0.1120 | Train Dice: 93.98 | Val Loss: 0.1568 | Best Val Loss: 0.1517
+  Dice: 85.08  IoU: 75.17  Prec: 83.90  Rec: 87.38  HD95: 58.50
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:44:27 | Remaining: 01:04:01
+Epoch [125/200]
+  Train Loss: 0.1123 | Train Dice: 94.03 | Val Loss: 0.1563 | Best Val Loss: 0.1517
+  Dice: 85.33  IoU: 75.53  Prec: 84.85  Rec: 86.96  HD95: 58.06
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:45:17 | Remaining: 01:03:10
+Epoch [126/200]
+  Train Loss: 0.1113 | Train Dice: 94.06 | Val Loss: 0.1580 | Best Val Loss: 0.1517
+  Dice: 85.15  IoU: 75.38  Prec: 84.79  Rec: 86.64  HD95: 59.02
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:46:07 | Remaining: 01:02:19
+Epoch [127/200]
+  Train Loss: 0.1120 | Train Dice: 94.00 | Val Loss: 0.1582 | Best Val Loss: 0.1517
+  Dice: 84.72  IoU: 74.62  Prec: 85.93  Rec: 84.58  HD95: 58.74
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:46:57 | Remaining: 01:01:28
+Epoch [128/200]
+  Train Loss: 0.1079 | Train Dice: 94.26 | Val Loss: 0.1587 | Best Val Loss: 0.1517
+  Dice: 85.07  IoU: 75.14  Prec: 86.34  Rec: 84.93  HD95: 58.08
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:47:49 | Remaining: 01:00:38
+Epoch [129/200]
+  Train Loss: 0.1053 | Train Dice: 94.42 | Val Loss: 0.1551 | Best Val Loss: 0.1517
+  Dice: 85.35  IoU: 75.59  Prec: 85.99  Rec: 85.75  HD95: 58.47
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:48:39 | Remaining: 00:59:48
+Epoch [130/200]
+  Train Loss: 0.1094 | Train Dice: 94.19 | Val Loss: 0.1553 | Best Val Loss: 0.1517
+  Dice: 85.20  IoU: 75.36  Prec: 86.00  Rec: 85.41  HD95: 57.21
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:49:29 | Remaining: 00:58:57
+Epoch [131/200]
+  Train Loss: 0.1077 | Train Dice: 94.27 | Val Loss: 0.1619 | Best Val Loss: 0.1517
+  Dice: 85.21  IoU: 75.44  Prec: 82.69  Rec: 89.01  HD95: 58.31
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:50:19 | Remaining: 00:58:06
+Epoch [132/200]
+  Train Loss: 0.1137 | Train Dice: 93.95 | Val Loss: 0.1546 | Best Val Loss: 0.1517
+  Dice: 85.47  IoU: 75.80  Prec: 83.80  Rec: 88.38  HD95: 58.05
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:51:10 | Remaining: 00:57:16
+Epoch [133/200]
+  Train Loss: 0.1146 | Train Dice: 93.87 | Val Loss: 0.1566 | Best Val Loss: 0.1517
+  Dice: 85.18  IoU: 75.35  Prec: 84.11  Rec: 87.32  HD95: 57.48
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:52:00 | Remaining: 00:56:25
+Epoch [134/200]
+  Train Loss: 0.1093 | Train Dice: 94.18 | Val Loss: 0.1581 | Best Val Loss: 0.1517
+  Dice: 85.42  IoU: 75.67  Prec: 85.28  Rec: 86.62  HD95: 57.25
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:52:51 | Remaining: 00:55:34
+Epoch [135/200]
+  Train Loss: 0.1074 | Train Dice: 94.29 | Val Loss: 0.1530 | Best Val Loss: 0.1517
+  Dice: 84.89  IoU: 74.88  Prec: 86.86  Rec: 83.94  HD95: 58.46
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 01:53:40 | Remaining: 00:54:44
+Epoch [136/200]
+  Train Loss: 0.1077 | Train Dice: 94.25 | Val Loss: 0.1591 | Best Val Loss: 0.1517
+  Dice: 84.69  IoU: 74.59  Prec: 86.36  Rec: 84.03  HD95: 58.89
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:54:31 | Remaining: 00:53:53
+Epoch [137/200]
+  Train Loss: 0.1082 | Train Dice: 94.21 | Val Loss: 0.1600 | Best Val Loss: 0.1517
+  Dice: 84.89  IoU: 74.89  Prec: 86.56  Rec: 84.23  HD95: 58.25
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:55:22 | Remaining: 00:53:03
+Epoch [138/200]
+  Train Loss: 0.1058 | Train Dice: 94.40 | Val Loss: 0.1582 | Best Val Loss: 0.1517
+  Dice: 85.07  IoU: 75.15  Prec: 85.27  Rec: 85.89  HD95: 58.73
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:56:13 | Remaining: 00:52:12
+Epoch [139/200]
+  Train Loss: 0.1068 | Train Dice: 94.35 | Val Loss: 0.1599 | Best Val Loss: 0.1517
+  Dice: 85.22  IoU: 75.43  Prec: 84.16  Rec: 87.42  HD95: 58.42
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:57:03 | Remaining: 00:51:22
+Epoch [140/200]
+  Train Loss: 0.1062 | Train Dice: 94.36 | Val Loss: 0.1617 | Best Val Loss: 0.1517
+  Dice: 85.04  IoU: 75.17  Prec: 84.72  Rec: 86.49  HD95: 57.73
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:57:54 | Remaining: 00:50:31
+Epoch [141/200]
+  Train Loss: 0.1065 | Train Dice: 94.30 | Val Loss: 0.1623 | Best Val Loss: 0.1517
+  Dice: 84.61  IoU: 74.44  Prec: 86.25  Rec: 84.02  HD95: 58.62
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 01:58:45 | Remaining: 00:49:41
+Epoch [142/200]
+  Train Loss: 0.1013 | Train Dice: 94.65 | Val Loss: 0.1620 | Best Val Loss: 0.1517
+  Dice: 85.10  IoU: 75.19  Prec: 86.28  Rec: 84.95  HD95: 58.34
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 01:59:36 | Remaining: 00:48:51
+Epoch [143/200]
+  Train Loss: 0.1062 | Train Dice: 94.33 | Val Loss: 0.1618 | Best Val Loss: 0.1517
+  Dice: 84.56  IoU: 74.35  Prec: 87.34  Rec: 82.94  HD95: 59.62
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:00:26 | Remaining: 00:48:00
+Epoch [144/200]
+  Train Loss: 0.1080 | Train Dice: 94.21 | Val Loss: 0.1622 | Best Val Loss: 0.1517
+  Dice: 85.17  IoU: 75.35  Prec: 83.98  Rec: 87.53  HD95: 58.51
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:01:16 | Remaining: 00:47:09
+Epoch [145/200]
+  Train Loss: 0.1053 | Train Dice: 94.42 | Val Loss: 0.1616 | Best Val Loss: 0.1517
+  Dice: 85.30  IoU: 75.52  Prec: 85.03  Rec: 86.64  HD95: 58.08
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 02:02:08 | Remaining: 00:46:19
+Epoch [146/200]
+  Train Loss: 0.1069 | Train Dice: 94.28 | Val Loss: 0.1653 | Best Val Loss: 0.1517
+  Dice: 84.66  IoU: 74.57  Prec: 86.76  Rec: 83.59  HD95: 58.52
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:02:58 | Remaining: 00:45:29
+Epoch [147/200]
+  Train Loss: 0.1012 | Train Dice: 94.63 | Val Loss: 0.1608 | Best Val Loss: 0.1517
+  Dice: 85.24  IoU: 75.38  Prec: 85.81  Rec: 85.73  HD95: 59.25
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:03:49 | Remaining: 00:44:38
+Epoch [148/200]
+  Train Loss: 0.1032 | Train Dice: 94.48 | Val Loss: 0.1632 | Best Val Loss: 0.1517
+  Dice: 84.97  IoU: 75.06  Prec: 84.15  Rec: 86.92  HD95: 59.02
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:04:38 | Remaining: 00:43:47
+Epoch [149/200]
+  Train Loss: 0.1054 | Train Dice: 94.36 | Val Loss: 0.1567 | Best Val Loss: 0.1517
+  Dice: 85.16  IoU: 75.33  Prec: 85.19  Rec: 86.17  HD95: 58.39
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:05:29 | Remaining: 00:42:57
+Epoch [150/200]
+  Train Loss: 0.1063 | Train Dice: 94.31 | Val Loss: 0.1571 | Best Val Loss: 0.1517
+  Dice: 85.21  IoU: 75.40  Prec: 84.59  Rec: 86.95  HD95: 57.88
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:06:19 | Remaining: 00:42:06
+Epoch [151/200]
+  Train Loss: 0.1081 | Train Dice: 94.19 | Val Loss: 0.1628 | Best Val Loss: 0.1517
+  Dice: 84.72  IoU: 74.62  Prec: 86.23  Rec: 84.23  HD95: 58.35
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:07:09 | Remaining: 00:41:15
+Epoch [152/200]
+  Train Loss: 0.1055 | Train Dice: 94.37 | Val Loss: 0.1694 | Best Val Loss: 0.1517
+  Dice: 85.03  IoU: 75.12  Prec: 86.35  Rec: 84.76  HD95: 57.81
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:07:59 | Remaining: 00:40:24
+Epoch [153/200]
+  Train Loss: 0.1021 | Train Dice: 94.57 | Val Loss: 0.1670 | Best Val Loss: 0.1517
+  Dice: 84.77  IoU: 74.74  Prec: 84.35  Rec: 86.32  HD95: 57.88
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:08:48 | Remaining: 00:39:34
+Epoch [154/200]
+  Train Loss: 0.1031 | Train Dice: 94.50 | Val Loss: 0.1611 | Best Val Loss: 0.1517
+  Dice: 85.06  IoU: 75.16  Prec: 85.38  Rec: 85.78  HD95: 58.20
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:09:39 | Remaining: 00:38:43
+Epoch [155/200]
+  Train Loss: 0.1031 | Train Dice: 94.53 | Val Loss: 0.1614 | Best Val Loss: 0.1517
+  Dice: 85.10  IoU: 75.22  Prec: 85.08  Rec: 86.20  HD95: 59.43
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:10:29 | Remaining: 00:37:52
+Epoch [156/200]
+  Train Loss: 0.1021 | Train Dice: 94.55 | Val Loss: 0.1611 | Best Val Loss: 0.1517
+  Dice: 85.26  IoU: 75.52  Prec: 85.31  Rec: 86.29  HD95: 57.93
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 02:11:20 | Remaining: 00:37:02
+Epoch [157/200]
+  Train Loss: 0.1046 | Train Dice: 94.38 | Val Loss: 0.1639 | Best Val Loss: 0.1517
+  Dice: 84.85  IoU: 74.86  Prec: 84.33  Rec: 86.50  HD95: 58.25
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:12:11 | Remaining: 00:36:12
+Epoch [158/200]
+  Train Loss: 0.1093 | Train Dice: 94.15 | Val Loss: 0.1577 | Best Val Loss: 0.1517
+  Dice: 85.22  IoU: 75.42  Prec: 86.13  Rec: 85.29  HD95: 58.30
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:13:01 | Remaining: 00:35:21
+Epoch [159/200]
+  Train Loss: 0.0997 | Train Dice: 94.68 | Val Loss: 0.1706 | Best Val Loss: 0.1517
+  Dice: 84.54  IoU: 74.34  Prec: 87.35  Rec: 82.81  HD95: 58.70
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:13:51 | Remaining: 00:34:31
+Epoch [160/200]
+  Train Loss: 0.1013 | Train Dice: 94.61 | Val Loss: 0.1656 | Best Val Loss: 0.1517
+  Dice: 85.21  IoU: 75.40  Prec: 85.83  Rec: 85.65  HD95: 58.47
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:14:42 | Remaining: 00:33:40
+Epoch [161/200]
+  Train Loss: 0.1024 | Train Dice: 94.55 | Val Loss: 0.1615 | Best Val Loss: 0.1517
+  Dice: 85.04  IoU: 75.08  Prec: 86.23  Rec: 84.96  HD95: 58.33
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:15:33 | Remaining: 00:32:50
+Epoch [162/200]
+  Train Loss: 0.1030 | Train Dice: 94.50 | Val Loss: 0.1589 | Best Val Loss: 0.1517
+  Dice: 85.18  IoU: 75.31  Prec: 86.28  Rec: 85.14  HD95: 58.62
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:16:23 | Remaining: 00:31:59
+Epoch [163/200]
+  Train Loss: 0.1006 | Train Dice: 94.65 | Val Loss: 0.1593 | Best Val Loss: 0.1517
+  Dice: 85.12  IoU: 75.31  Prec: 86.33  Rec: 84.91  HD95: 57.43
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:17:14 | Remaining: 00:31:09
+Epoch [164/200]
+  Train Loss: 0.1010 | Train Dice: 94.57 | Val Loss: 0.1652 | Best Val Loss: 0.1517
+  Dice: 84.62  IoU: 74.51  Prec: 86.38  Rec: 83.90  HD95: 59.02
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:18:04 | Remaining: 00:30:18
+Epoch [165/200]
+  Train Loss: 0.1012 | Train Dice: 94.61 | Val Loss: 0.1700 | Best Val Loss: 0.1517
+  Dice: 84.92  IoU: 74.92  Prec: 86.35  Rec: 84.48  HD95: 59.15
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:18:54 | Remaining: 00:29:28
+Epoch [166/200]
+  Train Loss: 0.0995 | Train Dice: 94.72 | Val Loss: 0.1642 | Best Val Loss: 0.1517
+  Dice: 84.83  IoU: 74.83  Prec: 85.10  Rec: 85.60  HD95: 59.69
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:19:45 | Remaining: 00:28:37
+Epoch [167/200]
+  Train Loss: 0.1011 | Train Dice: 94.59 | Val Loss: 0.1611 | Best Val Loss: 0.1517
+  Dice: 84.85  IoU: 74.82  Prec: 86.62  Rec: 84.16  HD95: 58.82
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:20:36 | Remaining: 00:27:47
+Epoch [168/200]
+  Train Loss: 0.1007 | Train Dice: 94.64 | Val Loss: 0.1603 | Best Val Loss: 0.1517
+  Dice: 85.06  IoU: 75.15  Prec: 87.16  Rec: 84.05  HD95: 58.00
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:21:26 | Remaining: 00:26:56
+Epoch [169/200]
+  Train Loss: 0.1006 | Train Dice: 94.64 | Val Loss: 0.1637 | Best Val Loss: 0.1517
+  Dice: 84.90  IoU: 74.87  Prec: 86.60  Rec: 84.29  HD95: 63.89
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:22:15 | Remaining: 00:26:05
+Epoch [170/200]
+  Train Loss: 0.1025 | Train Dice: 94.55 | Val Loss: 0.1591 | Best Val Loss: 0.1517
+  Dice: 84.75  IoU: 74.69  Prec: 86.89  Rec: 83.68  HD95: 58.34
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:23:05 | Remaining: 00:25:15
+Epoch [171/200]
+  Train Loss: 0.0992 | Train Dice: 94.68 | Val Loss: 0.1602 | Best Val Loss: 0.1517
+  Dice: 84.90  IoU: 74.90  Prec: 86.33  Rec: 84.56  HD95: 58.84
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:23:56 | Remaining: 00:24:24
+Epoch [172/200]
+  Train Loss: 0.0973 | Train Dice: 94.84 | Val Loss: 0.1631 | Best Val Loss: 0.1517
+  Dice: 84.75  IoU: 74.72  Prec: 87.12  Rec: 83.47  HD95: 57.71
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:24:46 | Remaining: 00:23:34
+Epoch [173/200]
+  Train Loss: 0.0990 | Train Dice: 94.70 | Val Loss: 0.1659 | Best Val Loss: 0.1517
+  Dice: 85.04  IoU: 75.10  Prec: 86.71  Rec: 84.44  HD95: 58.73
+  Lr: 0.000100
+  Time: 00:00:51 | Avg: 00:00:50 | Elapsed: 02:25:38 | Remaining: 00:22:43
+Epoch [174/200]
+  Train Loss: 0.0982 | Train Dice: 94.80 | Val Loss: 0.1657 | Best Val Loss: 0.1517
+  Dice: 85.11  IoU: 75.27  Prec: 85.48  Rec: 85.72  HD95: 57.98
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:26:28 | Remaining: 00:21:53
+Epoch [175/200]
+  Train Loss: 0.1007 | Train Dice: 94.63 | Val Loss: 0.1596 | Best Val Loss: 0.1517
+  Dice: 85.11  IoU: 75.27  Prec: 85.90  Rec: 85.41  HD95: 57.65
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:27:18 | Remaining: 00:21:02
+Epoch [176/200]
+  Train Loss: 0.1011 | Train Dice: 94.63 | Val Loss: 0.1632 | Best Val Loss: 0.1517
+  Dice: 84.97  IoU: 75.07  Prec: 85.85  Rec: 85.10  HD95: 58.06
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:28:08 | Remaining: 00:20:12
+Epoch [177/200]
+  Train Loss: 0.0987 | Train Dice: 94.69 | Val Loss: 0.1653 | Best Val Loss: 0.1517
+  Dice: 85.26  IoU: 75.44  Prec: 85.50  Rec: 86.02  HD95: 57.79
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:28:59 | Remaining: 00:19:21
+Epoch [178/200]
+  Train Loss: 0.0970 | Train Dice: 94.84 | Val Loss: 0.1625 | Best Val Loss: 0.1517
+  Dice: 84.84  IoU: 74.80  Prec: 86.65  Rec: 84.10  HD95: 63.98
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:29:49 | Remaining: 00:18:31
+Epoch [179/200]
+  Train Loss: 0.0977 | Train Dice: 94.78 | Val Loss: 0.1662 | Best Val Loss: 0.1517
+  Dice: 85.21  IoU: 75.36  Prec: 85.29  Rec: 86.20  HD95: 58.62
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:30:39 | Remaining: 00:17:40
+Epoch [180/200]
+  Train Loss: 0.0999 | Train Dice: 94.69 | Val Loss: 0.1612 | Best Val Loss: 0.1517
+  Dice: 84.72  IoU: 74.61  Prec: 86.93  Rec: 83.58  HD95: 60.29
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:31:30 | Remaining: 00:16:50
+Epoch [181/200]
+  Train Loss: 0.1015 | Train Dice: 94.56 | Val Loss: 0.1690 | Best Val Loss: 0.1517
+  Dice: 84.57  IoU: 74.48  Prec: 86.48  Rec: 83.73  HD95: 64.37
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:32:20 | Remaining: 00:15:59
+Epoch [182/200]
+  Train Loss: 0.0997 | Train Dice: 94.64 | Val Loss: 0.1660 | Best Val Loss: 0.1517
+  Dice: 84.91  IoU: 74.95  Prec: 85.89  Rec: 84.99  HD95: 58.78
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:33:10 | Remaining: 00:15:08
+Epoch [183/200]
+  Train Loss: 0.0971 | Train Dice: 94.80 | Val Loss: 0.1626 | Best Val Loss: 0.1517
+  Dice: 84.68  IoU: 74.61  Prec: 86.72  Rec: 83.67  HD95: 59.41
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:34:01 | Remaining: 00:14:18
+Epoch [184/200]
+  Train Loss: 0.0994 | Train Dice: 94.65 | Val Loss: 0.1606 | Best Val Loss: 0.1517
+  Dice: 84.83  IoU: 74.88  Prec: 86.35  Rec: 84.36  HD95: 59.90
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:34:52 | Remaining: 00:13:27
+Epoch [185/200]
+  Train Loss: 0.0970 | Train Dice: 94.82 | Val Loss: 0.1658 | Best Val Loss: 0.1517
+  Dice: 84.60  IoU: 74.49  Prec: 86.28  Rec: 83.94  HD95: 58.83
+  Lr: 0.000100
+  Time: 00:00:52 | Avg: 00:00:50 | Elapsed: 02:35:44 | Remaining: 00:12:37
+Epoch [186/200]
+  Train Loss: 0.0995 | Train Dice: 94.65 | Val Loss: 0.1632 | Best Val Loss: 0.1517
+  Dice: 85.02  IoU: 75.10  Prec: 84.10  Rec: 87.06  HD95: 59.32
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:36:34 | Remaining: 00:11:47
+Epoch [187/200]
+  Train Loss: 0.0993 | Train Dice: 94.74 | Val Loss: 0.1608 | Best Val Loss: 0.1517
+  Dice: 85.13  IoU: 75.32  Prec: 84.09  Rec: 87.24  HD95: 57.41
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:37:24 | Remaining: 00:10:56
+Epoch [188/200]
+  Train Loss: 0.1012 | Train Dice: 94.58 | Val Loss: 0.1656 | Best Val Loss: 0.1517
+  Dice: 84.39  IoU: 74.16  Prec: 86.33  Rec: 83.51  HD95: 65.88
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:38:14 | Remaining: 00:10:06
+Epoch [189/200]
+  Train Loss: 0.0990 | Train Dice: 94.71 | Val Loss: 0.1656 | Best Val Loss: 0.1517
+  Dice: 84.59  IoU: 74.43  Prec: 87.23  Rec: 83.03  HD95: 64.70
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:39:05 | Remaining: 00:09:15
+Epoch [190/200]
+  Train Loss: 0.0988 | Train Dice: 94.69 | Val Loss: 0.1658 | Best Val Loss: 0.1517
+  Dice: 84.85  IoU: 74.86  Prec: 86.08  Rec: 84.67  HD95: 58.84
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:39:55 | Remaining: 00:08:25
+Epoch [191/200]
+  Train Loss: 0.0966 | Train Dice: 94.81 | Val Loss: 0.1605 | Best Val Loss: 0.1517
+  Dice: 85.04  IoU: 75.14  Prec: 86.04  Rec: 85.07  HD95: 58.20
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:40:45 | Remaining: 00:07:34
+Epoch [192/200]
+  Train Loss: 0.0987 | Train Dice: 94.72 | Val Loss: 0.1610 | Best Val Loss: 0.1517
+  Dice: 85.32  IoU: 75.61  Prec: 84.70  Rec: 87.02  HD95: 58.11
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:41:36 | Remaining: 00:06:44
+Epoch [193/200]
+  Train Loss: 0.0985 | Train Dice: 94.77 | Val Loss: 0.1673 | Best Val Loss: 0.1517
+  Dice: 84.75  IoU: 74.65  Prec: 86.15  Rec: 84.38  HD95: 65.76
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:42:27 | Remaining: 00:05:53
+Epoch [194/200]
+  Train Loss: 0.0981 | Train Dice: 94.73 | Val Loss: 0.1618 | Best Val Loss: 0.1517
+  Dice: 84.80  IoU: 74.75  Prec: 86.79  Rec: 83.91  HD95: 58.98
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:43:17 | Remaining: 00:05:03
+Epoch [195/200]
+  Train Loss: 0.0967 | Train Dice: 94.86 | Val Loss: 0.1705 | Best Val Loss: 0.1517
+  Dice: 84.28  IoU: 74.01  Prec: 87.07  Rec: 82.59  HD95: 59.53
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:44:07 | Remaining: 00:04:12
+Epoch [196/200]
+  Train Loss: 0.0995 | Train Dice: 94.66 | Val Loss: 0.1664 | Best Val Loss: 0.1517
+  Dice: 84.74  IoU: 74.67  Prec: 86.26  Rec: 84.29  HD95: 65.12
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:44:57 | Remaining: 00:03:21
+Epoch [197/200]
+  Train Loss: 0.1000 | Train Dice: 94.66 | Val Loss: 0.1601 | Best Val Loss: 0.1517
+  Dice: 85.03  IoU: 75.13  Prec: 86.52  Rec: 84.57  HD95: 58.52
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:45:47 | Remaining: 00:02:31
+Epoch [198/200]
+  Train Loss: 0.0976 | Train Dice: 94.82 | Val Loss: 0.1699 | Best Val Loss: 0.1517
+  Dice: 85.14  IoU: 75.26  Prec: 84.94  Rec: 86.41  HD95: 58.23
+  Lr: 0.000100
+  Time: 00:00:49 | Avg: 00:00:50 | Elapsed: 02:46:37 | Remaining: 00:01:40
+Epoch [199/200]
+  Train Loss: 0.0980 | Train Dice: 94.74 | Val Loss: 0.1604 | Best Val Loss: 0.1517
+  Dice: 85.36  IoU: 75.58  Prec: 85.73  Rec: 86.03  HD95: 64.12
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:47:27 | Remaining: 00:00:50
+Epoch [200/200]
+  Train Loss: 0.0939 | Train Dice: 94.99 | Val Loss: 0.1751 | Best Val Loss: 0.1517
+  Dice: 85.24  IoU: 75.45  Prec: 85.00  Rec: 86.61  HD95: 63.76
+  Lr: 0.000100
+  Time: 00:00:50 | Avg: 00:00:50 | Elapsed: 02:48:18 | Remaining: 00:00:00
+
+SAMMed SAM training complete. Best Val Loss: 0.1517 -> weights/sammed/vit_b_sammed_s_OTU_best.pth
+
+Best weight is loaded: weights/sammed/vit_b_sammed_s_OTU_best.pth
+
+======================================================================
+TESTING
+Source: OTU
+Target: OVATUS
+Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
+Target OVATUS | Dice: 85.21 | IoU: 77.16 | Prec: 89.43 | Rec: 83.73 | HD95: 45.39
+
+======================================================================
+TESTING
+Source: OTU
+Target: USOVA
+Dataset: USOVA | Training data: 2593 | Validation data: 398 | Testing data: 428
+Target USOVA | Dice: 39.89 | IoU: 32.16 | Prec: 38.44 | Rec: 80.83 | HD95: 305.90
+======================================================================
+
+======================================================================
+TRAINING (Stage 1: Segmentation Backbone)
+Source: OVATUS
+Targets: OTU, USOVA
+======================================================================
+
+Resnet params: 39.634M
+Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
+Dataset: OVATUS | Resnet train: 899
+Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
+Dataset: OVATUS | Resnet val: 113
+Epoch [1/100]
+  Train Loss: 0.7471 | Train Dice: 80.75 | Val Loss: 0.2117 | Best Val Loss: 0.2117
+  Dice: 81.91  IoU: 71.18  Prec: 92.72  Rec: 75.68  HD95: 53.88
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 00:01:59 | Remaining: 03:17:09
+  >>> New Best Validation Loss | Previous: N/A | Current : 0.2117
+Epoch [2/100]
+  Train Loss: 0.3793 | Train Dice: 88.39 | Val Loss: 0.1337 | Best Val Loss: 0.1337
+  Dice: 88.75  IoU: 81.06  Prec: 89.41  Rec: 90.37  HD95: 39.95
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 00:03:59 | Remaining: 03:15:29
+  >>> New Best Validation Loss | Previous: 0.2117 | Current : 0.1337
+Epoch [3/100]
+  Train Loss: 0.3089 | Train Dice: 90.55 | Val Loss: 0.1088 | Best Val Loss: 0.1088
+  Dice: 90.66  IoU: 83.96  Prec: 94.25  Rec: 88.39  HD95: 34.39
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 00:05:57 | Remaining: 03:12:47
+  >>> New Best Validation Loss | Previous: 0.1337 | Current : 0.1088
+Epoch [4/100]
+  Train Loss: 0.2630 | Train Dice: 91.97 | Val Loss: 0.1079 | Best Val Loss: 0.1079
+  Dice: 91.18  IoU: 84.87  Prec: 92.15  Rec: 91.55  HD95: 33.24
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 00:07:56 | Remaining: 03:10:35
+  >>> New Best Validation Loss | Previous: 0.1088 | Current : 0.1079
+Epoch [5/100]
+  Train Loss: 0.2493 | Train Dice: 92.33 | Val Loss: 0.0948 | Best Val Loss: 0.0948
+  Dice: 92.29  IoU: 86.64  Prec: 92.97  Rec: 92.80  HD95: 33.25
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 00:09:55 | Remaining: 03:08:26
+  >>> New Best Validation Loss | Previous: 0.1079 | Current : 0.0948
+Epoch [6/100]
+  Train Loss: 0.2307 | Train Dice: 92.99 | Val Loss: 0.0883 | Best Val Loss: 0.0883
+  Dice: 92.95  IoU: 87.60  Prec: 92.94  Rec: 93.88  HD95: 27.79
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 00:11:53 | Remaining: 03:06:17
+  >>> New Best Validation Loss | Previous: 0.0948 | Current : 0.0883
+Epoch [7/100]
+  Train Loss: 0.2210 | Train Dice: 93.30 | Val Loss: 0.0981 | Best Val Loss: 0.0883
+  Dice: 91.75  IoU: 85.68  Prec: 92.35  Rec: 92.24  HD95: 31.07
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 00:13:51 | Remaining: 03:04:10
+Epoch [8/100]
+  Train Loss: 0.2172 | Train Dice: 93.40 | Val Loss: 0.0926 | Best Val Loss: 0.0883
+  Dice: 92.74  IoU: 87.10  Prec: 90.01  Rec: 96.63  HD95: 25.79
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 00:15:50 | Remaining: 03:02:12
+Epoch [9/100]
+  Train Loss: 0.1896 | Train Dice: 94.27 | Val Loss: 0.0919 | Best Val Loss: 0.0883
+  Dice: 92.39  IoU: 86.70  Prec: 93.16  Rec: 92.59  HD95: 30.13
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 00:17:48 | Remaining: 03:00:07
+Epoch [10/100]
+  Train Loss: 0.1732 | Train Dice: 94.71 | Val Loss: 0.0755 | Best Val Loss: 0.0755
+  Dice: 93.78  IoU: 88.98  Prec: 94.03  Rec: 94.27  HD95: 23.10
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 00:19:47 | Remaining: 02:58:06
+  >>> New Best Validation Loss | Previous: 0.0883 | Current : 0.0755
+Epoch [11/100]
+  Train Loss: 0.1577 | Train Dice: 95.14 | Val Loss: 0.0798 | Best Val Loss: 0.0755
+  Dice: 93.65  IoU: 88.68  Prec: 94.19  Rec: 93.95  HD95: 25.99
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 00:21:46 | Remaining: 02:56:10
+Epoch [12/100]
+  Train Loss: 0.1490 | Train Dice: 95.43 | Val Loss: 0.0746 | Best Val Loss: 0.0746
+  Dice: 93.85  IoU: 89.12  Prec: 94.73  Rec: 93.72  HD95: 24.01
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 00:23:45 | Remaining: 02:54:15
+  >>> New Best Validation Loss | Previous: 0.0755 | Current : 0.0746
+Epoch [13/100]
+  Train Loss: 0.1459 | Train Dice: 95.56 | Val Loss: 0.0987 | Best Val Loss: 0.0746
+  Dice: 91.96  IoU: 86.03  Prec: 91.58  Rec: 93.41  HD95: 30.10
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 00:25:44 | Remaining: 02:52:17
+Epoch [14/100]
+  Train Loss: 0.1649 | Train Dice: 94.90 | Val Loss: 0.1020 | Best Val Loss: 0.0746
+  Dice: 91.66  IoU: 85.70  Prec: 94.91  Rec: 90.05  HD95: 31.82
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 00:27:44 | Remaining: 02:50:21
+Epoch [15/100]
+  Train Loss: 0.1518 | Train Dice: 95.40 | Val Loss: 0.0745 | Best Val Loss: 0.0745
+  Dice: 93.98  IoU: 89.35  Prec: 93.75  Rec: 94.81  HD95: 23.25
+  Lr: 0.001000
+  Time: 00:02:00 | Avg: 00:01:58 | Elapsed: 00:29:44 | Remaining: 02:48:29
+  >>> New Best Validation Loss | Previous: 0.0746 | Current : 0.0745
+Epoch [16/100]
+  Train Loss: 0.1325 | Train Dice: 95.86 | Val Loss: 0.0896 | Best Val Loss: 0.0745
+  Dice: 92.85  IoU: 87.48  Prec: 91.17  Rec: 95.40  HD95: 29.27
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 00:31:43 | Remaining: 02:46:35
+Epoch [17/100]
+  Train Loss: 0.1211 | Train Dice: 96.31 | Val Loss: 0.0763 | Best Val Loss: 0.0745
+  Dice: 93.70  IoU: 88.86  Prec: 93.94  Rec: 94.14  HD95: 26.11
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 00:33:42 | Remaining: 02:44:34
+Epoch [18/100]
+  Train Loss: 0.1271 | Train Dice: 96.11 | Val Loss: 0.0911 | Best Val Loss: 0.0745
+  Dice: 92.51  IoU: 86.91  Prec: 92.10  Rec: 93.81  HD95: 29.15
+  Lr: 0.001000
+  Time: 00:02:00 | Avg: 00:01:59 | Elapsed: 00:35:42 | Remaining: 02:42:40
+Epoch [19/100]
+  Train Loss: 0.1687 | Train Dice: 94.84 | Val Loss: 0.2913 | Best Val Loss: 0.0745
+  Dice: 75.03  IoU: 63.68  Prec: 91.44  Rec: 68.57  HD95: 69.56
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 00:37:42 | Remaining: 02:40:43
+Epoch [20/100]
+  Train Loss: 0.2321 | Train Dice: 92.74 | Val Loss: 0.0846 | Best Val Loss: 0.0745
+  Dice: 93.12  IoU: 87.95  Prec: 92.47  Rec: 94.33  HD95: 27.22
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 00:39:41 | Remaining: 02:38:45
+Epoch [21/100]
+  Train Loss: 0.1641 | Train Dice: 95.00 | Val Loss: 0.0782 | Best Val Loss: 0.0745
+  Dice: 93.74  IoU: 88.91  Prec: 94.06  Rec: 94.42  HD95: 24.07
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 00:41:40 | Remaining: 02:36:44
+Epoch [22/100]
+  Train Loss: 0.1310 | Train Dice: 95.98 | Val Loss: 0.0745 | Best Val Loss: 0.0745
+  Dice: 93.86  IoU: 89.13  Prec: 94.13  Rec: 94.30  HD95: 23.65
+  Lr: 0.001000
+  Time: 00:02:00 | Avg: 00:01:59 | Elapsed: 00:43:40 | Remaining: 02:34:51
+  >>> New Best Validation Loss | Previous: 0.0745 | Current : 0.0745
+Epoch [23/100]
+  Train Loss: 0.1200 | Train Dice: 96.30 | Val Loss: 0.0678 | Best Val Loss: 0.0678
+  Dice: 94.35  IoU: 89.94  Prec: 95.09  Rec: 94.16  HD95: 21.45
+  Lr: 0.001000
+  Time: 00:02:00 | Avg: 00:01:59 | Elapsed: 00:45:40 | Remaining: 02:32:55
+  >>> New Best Validation Loss | Previous: 0.0745 | Current : 0.0678
+Epoch [24/100]
+  Train Loss: 0.1026 | Train Dice: 96.86 | Val Loss: 0.0683 | Best Val Loss: 0.0678
+  Dice: 94.50  IoU: 90.31  Prec: 94.46  Rec: 95.02  HD95: 20.89
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 00:47:38 | Remaining: 02:30:52
+Epoch [25/100]
+  Train Loss: 0.0955 | Train Dice: 97.06 | Val Loss: 0.0682 | Best Val Loss: 0.0678
+  Dice: 94.47  IoU: 90.19  Prec: 95.36  Rec: 94.17  HD95: 21.14
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 00:49:38 | Remaining: 02:28:55
+Epoch [26/100]
+  Train Loss: 0.0907 | Train Dice: 97.23 | Val Loss: 0.0714 | Best Val Loss: 0.0678
+  Dice: 94.39  IoU: 90.05  Prec: 93.78  Rec: 95.77  HD95: 21.45
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 00:51:37 | Remaining: 02:26:56
+Epoch [27/100]
+  Train Loss: 0.0875 | Train Dice: 97.31 | Val Loss: 0.0665 | Best Val Loss: 0.0665
+  Dice: 94.61  IoU: 90.44  Prec: 94.70  Rec: 95.12  HD95: 20.38
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 00:53:36 | Remaining: 02:24:55
+  >>> New Best Validation Loss | Previous: 0.0678 | Current : 0.0665
+Epoch [28/100]
+  Train Loss: 0.0847 | Train Dice: 97.40 | Val Loss: 0.0721 | Best Val Loss: 0.0665
+  Dice: 94.44  IoU: 90.17  Prec: 94.70  Rec: 94.90  HD95: 21.25
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 00:55:34 | Remaining: 02:22:53
+Epoch [29/100]
+  Train Loss: 0.0809 | Train Dice: 97.51 | Val Loss: 0.0744 | Best Val Loss: 0.0665
+  Dice: 94.47  IoU: 90.20  Prec: 94.13  Rec: 95.51  HD95: 20.82
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 00:57:32 | Remaining: 02:20:52
+Epoch [30/100]
+  Train Loss: 0.0762 | Train Dice: 97.65 | Val Loss: 0.0729 | Best Val Loss: 0.0665
+  Dice: 94.26  IoU: 89.78  Prec: 94.17  Rec: 95.02  HD95: 22.96
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 00:59:30 | Remaining: 02:18:52
+Epoch [31/100]
+  Train Loss: 0.0733 | Train Dice: 97.77 | Val Loss: 0.0714 | Best Val Loss: 0.0665
+  Dice: 94.57  IoU: 90.35  Prec: 95.05  Rec: 94.66  HD95: 20.99
+  Lr: 0.001000
+  Time: 00:02:00 | Avg: 00:01:59 | Elapsed: 01:01:31 | Remaining: 02:16:55
+Epoch [32/100]
+  Train Loss: 0.0713 | Train Dice: 97.76 | Val Loss: 0.0753 | Best Val Loss: 0.0665
+  Dice: 94.51  IoU: 90.24  Prec: 93.83  Rec: 95.89  HD95: 21.84
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 01:03:29 | Remaining: 02:14:54
+Epoch [33/100]
+  Train Loss: 0.0712 | Train Dice: 97.84 | Val Loss: 0.0787 | Best Val Loss: 0.0665
+  Dice: 94.14  IoU: 89.63  Prec: 93.81  Rec: 95.25  HD95: 22.86
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 01:05:27 | Remaining: 02:12:53
+Epoch [34/100]
+  Train Loss: 0.0714 | Train Dice: 97.82 | Val Loss: 0.0816 | Best Val Loss: 0.0665
+  Dice: 94.23  IoU: 89.79  Prec: 93.78  Rec: 95.45  HD95: 21.76
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 01:07:26 | Remaining: 02:10:54
+Epoch [35/100]
+  Train Loss: 0.0687 | Train Dice: 97.89 | Val Loss: 0.1038 | Best Val Loss: 0.0665
+  Dice: 92.33  IoU: 86.73  Prec: 93.45  Rec: 92.13  HD95: 31.11
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:09:24 | Remaining: 02:08:54
+Epoch [36/100]
+  Train Loss: 0.1479 | Train Dice: 95.41 | Val Loss: 0.2067 | Best Val Loss: 0.0665
+  Dice: 81.85  IoU: 71.78  Prec: 92.92  Rec: 76.09  HD95: 57.74
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 01:11:24 | Remaining: 02:06:56
+Epoch [37/100]
+  Train Loss: 0.1802 | Train Dice: 94.54 | Val Loss: 0.0898 | Best Val Loss: 0.0665
+  Dice: 92.84  IoU: 87.54  Prec: 92.62  Rec: 93.95  HD95: 28.42
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 01:13:24 | Remaining: 02:04:59
+Epoch [38/100]
+  Train Loss: 0.1169 | Train Dice: 96.41 | Val Loss: 0.0709 | Best Val Loss: 0.0665
+  Dice: 94.30  IoU: 89.93  Prec: 94.61  Rec: 94.73  HD95: 21.47
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 01:15:23 | Remaining: 02:03:00
+Epoch [39/100]
+  Train Loss: 0.0866 | Train Dice: 97.35 | Val Loss: 0.0728 | Best Val Loss: 0.0665
+  Dice: 94.40  IoU: 90.08  Prec: 93.65  Rec: 95.87  HD95: 21.65
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 01:17:21 | Remaining: 02:01:00
+Epoch [40/100]
+  Train Loss: 0.0722 | Train Dice: 97.77 | Val Loss: 0.0696 | Best Val Loss: 0.0665
+  Dice: 94.75  IoU: 90.66  Prec: 94.67  Rec: 95.45  HD95: 19.75
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:19:19 | Remaining: 01:58:59
+Epoch [41/100]
+  Train Loss: 0.0614 | Train Dice: 98.13 | Val Loss: 0.0733 | Best Val Loss: 0.0665
+  Dice: 94.68  IoU: 90.57  Prec: 94.42  Rec: 95.50  HD95: 20.20
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:21:18 | Remaining: 01:57:00
+Epoch [42/100]
+  Train Loss: 0.0569 | Train Dice: 98.26 | Val Loss: 0.0762 | Best Val Loss: 0.0665
+  Dice: 94.65  IoU: 90.48  Prec: 94.32  Rec: 95.59  HD95: 20.59
+  Lr: 0.001000
+  Time: 00:02:00 | Avg: 00:01:59 | Elapsed: 01:23:18 | Remaining: 01:55:03
+Epoch [43/100]
+  Train Loss: 0.0539 | Train Dice: 98.36 | Val Loss: 0.0738 | Best Val Loss: 0.0665
+  Dice: 94.64  IoU: 90.48  Prec: 94.73  Rec: 95.17  HD95: 20.74
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:59 | Elapsed: 01:25:17 | Remaining: 01:53:03
+Epoch [44/100]
+  Train Loss: 0.0504 | Train Dice: 98.47 | Val Loss: 0.0760 | Best Val Loss: 0.0665
+  Dice: 94.72  IoU: 90.60  Prec: 95.03  Rec: 94.98  HD95: 20.72
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:59 | Elapsed: 01:27:16 | Remaining: 01:51:04
+Epoch [45/100]
+  Train Loss: 0.0486 | Train Dice: 98.50 | Val Loss: 0.0806 | Best Val Loss: 0.0665
+  Dice: 94.55  IoU: 90.33  Prec: 93.98  Rec: 95.76  HD95: 21.79
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:29:14 | Remaining: 01:49:04
+Epoch [46/100]
+  Train Loss: 0.0473 | Train Dice: 98.57 | Val Loss: 0.0826 | Best Val Loss: 0.0665
+  Dice: 94.66  IoU: 90.47  Prec: 94.42  Rec: 95.49  HD95: 20.51
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:31:13 | Remaining: 01:47:05
+Epoch [47/100]
+  Train Loss: 0.0451 | Train Dice: 98.61 | Val Loss: 0.0903 | Best Val Loss: 0.0665
+  Dice: 94.64  IoU: 90.48  Prec: 94.93  Rec: 95.00  HD95: 20.11
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:33:11 | Remaining: 01:45:05
+Epoch [48/100]
+  Train Loss: 0.0433 | Train Dice: 98.69 | Val Loss: 0.0868 | Best Val Loss: 0.0665
+  Dice: 94.54  IoU: 90.33  Prec: 95.02  Rec: 94.59  HD95: 21.62
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:35:10 | Remaining: 01:43:05
+Epoch [49/100]
+  Train Loss: 0.0424 | Train Dice: 98.69 | Val Loss: 0.0940 | Best Val Loss: 0.0665
+  Dice: 94.36  IoU: 90.06  Prec: 94.30  Rec: 95.04  HD95: 21.49
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:37:08 | Remaining: 01:41:06
+Epoch [50/100]
+  Train Loss: 0.0437 | Train Dice: 98.66 | Val Loss: 0.0850 | Best Val Loss: 0.0665
+  Dice: 94.62  IoU: 90.45  Prec: 95.04  Rec: 94.77  HD95: 20.64
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 01:39:07 | Remaining: 01:39:07
+Epoch [51/100]
+  Train Loss: 0.0407 | Train Dice: 98.76 | Val Loss: 0.0924 | Best Val Loss: 0.0665
+  Dice: 94.48  IoU: 90.21  Prec: 94.01  Rec: 95.63  HD95: 22.02
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:41:06 | Remaining: 01:37:08
+Epoch [52/100]
+  Train Loss: 0.0387 | Train Dice: 98.80 | Val Loss: 0.0902 | Best Val Loss: 0.0665
+  Dice: 94.62  IoU: 90.46  Prec: 94.68  Rec: 95.21  HD95: 22.00
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:43:04 | Remaining: 01:35:08
+Epoch [53/100]
+  Train Loss: 0.0375 | Train Dice: 98.85 | Val Loss: 0.1099 | Best Val Loss: 0.0665
+  Dice: 94.43  IoU: 90.16  Prec: 94.04  Rec: 95.55  HD95: 23.21
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:45:02 | Remaining: 01:33:09
+Epoch [54/100]
+  Train Loss: 0.0368 | Train Dice: 98.87 | Val Loss: 0.0934 | Best Val Loss: 0.0665
+  Dice: 94.70  IoU: 90.59  Prec: 94.41  Rec: 95.57  HD95: 20.98
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 01:47:02 | Remaining: 01:31:10
+Epoch [55/100]
+  Train Loss: 0.0366 | Train Dice: 98.88 | Val Loss: 0.0952 | Best Val Loss: 0.0665
+  Dice: 94.54  IoU: 90.32  Prec: 94.37  Rec: 95.43  HD95: 21.74
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 01:49:01 | Remaining: 01:29:12
+Epoch [56/100]
+  Train Loss: 0.0364 | Train Dice: 98.86 | Val Loss: 0.0927 | Best Val Loss: 0.0665
+  Dice: 94.59  IoU: 90.38  Prec: 94.76  Rec: 95.04  HD95: 21.21
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:51:00 | Remaining: 01:27:13
+Epoch [57/100]
+  Train Loss: 0.0336 | Train Dice: 98.96 | Val Loss: 0.0919 | Best Val Loss: 0.0665
+  Dice: 94.71  IoU: 90.61  Prec: 94.45  Rec: 95.56  HD95: 21.15
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 01:52:59 | Remaining: 01:25:14
+Epoch [58/100]
+  Train Loss: 0.0342 | Train Dice: 98.96 | Val Loss: 0.0970 | Best Val Loss: 0.0665
+  Dice: 94.57  IoU: 90.35  Prec: 94.43  Rec: 95.32  HD95: 21.92
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 01:54:59 | Remaining: 01:23:16
+Epoch [59/100]
+  Train Loss: 0.1889 | Train Dice: 94.51 | Val Loss: 0.1322 | Best Val Loss: 0.0665
+  Dice: 89.23  IoU: 81.86  Prec: 89.90  Rec: 90.44  HD95: 49.68
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 01:56:58 | Remaining: 01:21:17
+Epoch [60/100]
+  Train Loss: 0.1952 | Train Dice: 94.12 | Val Loss: 0.0933 | Best Val Loss: 0.0665
+  Dice: 92.27  IoU: 86.67  Prec: 93.59  Rec: 92.08  HD95: 31.37
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 01:58:56 | Remaining: 01:19:17
+Epoch [61/100]
+  Train Loss: 0.1281 | Train Dice: 96.12 | Val Loss: 0.0781 | Best Val Loss: 0.0665
+  Dice: 93.61  IoU: 88.71  Prec: 92.97  Rec: 95.04  HD95: 25.71
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:00:55 | Remaining: 01:17:18
+Epoch [62/100]
+  Train Loss: 0.0972 | Train Dice: 97.12 | Val Loss: 0.0763 | Best Val Loss: 0.0665
+  Dice: 94.07  IoU: 89.49  Prec: 92.84  Rec: 95.96  HD95: 22.42
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 02:02:54 | Remaining: 01:15:19
+Epoch [63/100]
+  Train Loss: 0.0677 | Train Dice: 97.92 | Val Loss: 0.0743 | Best Val Loss: 0.0665
+  Dice: 94.57  IoU: 90.36  Prec: 94.14  Rec: 95.65  HD95: 22.71
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:04:53 | Remaining: 01:13:20
+Epoch [64/100]
+  Train Loss: 0.0505 | Train Dice: 98.46 | Val Loss: 0.0773 | Best Val Loss: 0.0665
+  Dice: 94.66  IoU: 90.51  Prec: 95.01  Rec: 94.94  HD95: 20.65
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:06:51 | Remaining: 01:11:21
+Epoch [65/100]
+  Train Loss: 0.0400 | Train Dice: 98.79 | Val Loss: 0.0837 | Best Val Loss: 0.0665
+  Dice: 94.59  IoU: 90.40  Prec: 93.98  Rec: 95.82  HD95: 21.08
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:08:49 | Remaining: 01:09:22
+Epoch [66/100]
+  Train Loss: 0.0341 | Train Dice: 98.95 | Val Loss: 0.0879 | Best Val Loss: 0.0665
+  Dice: 94.52  IoU: 90.31  Prec: 93.96  Rec: 95.66  HD95: 22.09
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:10:48 | Remaining: 01:07:22
+Epoch [67/100]
+  Train Loss: 0.0318 | Train Dice: 99.03 | Val Loss: 0.0886 | Best Val Loss: 0.0665
+  Dice: 94.71  IoU: 90.58  Prec: 94.27  Rec: 95.78  HD95: 20.95
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 02:12:47 | Remaining: 01:05:24
+Epoch [68/100]
+  Train Loss: 0.0304 | Train Dice: 99.07 | Val Loss: 0.0940 | Best Val Loss: 0.0665
+  Dice: 94.54  IoU: 90.34  Prec: 93.86  Rec: 95.83  HD95: 22.68
+  Lr: 0.001000
+  Time: 00:01:57 | Avg: 00:01:58 | Elapsed: 02:14:45 | Remaining: 01:03:25
+Epoch [69/100]
+  Train Loss: 0.0289 | Train Dice: 99.10 | Val Loss: 0.0989 | Best Val Loss: 0.0665
+  Dice: 94.59  IoU: 90.43  Prec: 94.04  Rec: 95.79  HD95: 22.10
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 02:16:44 | Remaining: 01:01:26
+Epoch [70/100]
+  Train Loss: 0.0279 | Train Dice: 99.13 | Val Loss: 0.0996 | Best Val Loss: 0.0665
+  Dice: 94.65  IoU: 90.52  Prec: 94.39  Rec: 95.41  HD95: 22.41
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:18:43 | Remaining: 00:59:27
+Epoch [71/100]
+  Train Loss: 0.0268 | Train Dice: 99.18 | Val Loss: 0.1006 | Best Val Loss: 0.0665
+  Dice: 94.65  IoU: 90.51  Prec: 94.45  Rec: 95.46  HD95: 21.96
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:20:41 | Remaining: 00:57:27
+Epoch [72/100]
+  Train Loss: 0.0264 | Train Dice: 99.18 | Val Loss: 0.1074 | Best Val Loss: 0.0665
+  Dice: 94.63  IoU: 90.48  Prec: 94.53  Rec: 95.30  HD95: 22.91
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 02:22:40 | Remaining: 00:55:28
+Epoch [73/100]
+  Train Loss: 0.0263 | Train Dice: 99.18 | Val Loss: 0.1103 | Best Val Loss: 0.0665
+  Dice: 94.65  IoU: 90.52  Prec: 94.40  Rec: 95.49  HD95: 22.70
+  Lr: 0.001000
+  Time: 00:01:57 | Avg: 00:01:58 | Elapsed: 02:24:38 | Remaining: 00:53:29
+Epoch [74/100]
+  Train Loss: 0.0258 | Train Dice: 99.19 | Val Loss: 0.1129 | Best Val Loss: 0.0665
+  Dice: 94.68  IoU: 90.56  Prec: 94.78  Rec: 95.14  HD95: 21.38
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 02:26:37 | Remaining: 00:51:30
+Epoch [75/100]
+  Train Loss: 0.0252 | Train Dice: 99.20 | Val Loss: 0.1124 | Best Val Loss: 0.0665
+  Dice: 94.71  IoU: 90.61  Prec: 94.88  Rec: 95.08  HD95: 22.49
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:28:35 | Remaining: 00:49:31
+Epoch [76/100]
+  Train Loss: 0.0248 | Train Dice: 99.23 | Val Loss: 0.1077 | Best Val Loss: 0.0665
+  Dice: 94.66  IoU: 90.54  Prec: 94.55  Rec: 95.37  HD95: 22.73
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:30:34 | Remaining: 00:47:32
+Epoch [77/100]
+  Train Loss: 0.0241 | Train Dice: 99.24 | Val Loss: 0.1117 | Best Val Loss: 0.0665
+  Dice: 94.68  IoU: 90.56  Prec: 94.80  Rec: 95.13  HD95: 23.16
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:32:32 | Remaining: 00:45:33
+Epoch [78/100]
+  Train Loss: 0.0236 | Train Dice: 99.26 | Val Loss: 0.1140 | Best Val Loss: 0.0665
+  Dice: 94.66  IoU: 90.55  Prec: 94.48  Rec: 95.43  HD95: 22.76
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:34:31 | Remaining: 00:43:34
+Epoch [79/100]
+  Train Loss: 0.0236 | Train Dice: 99.25 | Val Loss: 0.1111 | Best Val Loss: 0.0665
+  Dice: 94.75  IoU: 90.68  Prec: 94.65  Rec: 95.42  HD95: 21.40
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:36:29 | Remaining: 00:41:35
+Epoch [80/100]
+  Train Loss: 0.0231 | Train Dice: 99.27 | Val Loss: 0.1299 | Best Val Loss: 0.0665
+  Dice: 94.53  IoU: 90.33  Prec: 94.35  Rec: 95.31  HD95: 23.65
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:38:27 | Remaining: 00:39:36
+Epoch [81/100]
+  Train Loss: 0.0235 | Train Dice: 99.27 | Val Loss: 0.1168 | Best Val Loss: 0.0665
+  Dice: 94.75  IoU: 90.67  Prec: 94.39  Rec: 95.73  HD95: 22.73
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:40:25 | Remaining: 00:37:37
+Epoch [82/100]
+  Train Loss: 0.0228 | Train Dice: 99.27 | Val Loss: 0.1177 | Best Val Loss: 0.0665
+  Dice: 94.73  IoU: 90.64  Prec: 94.76  Rec: 95.28  HD95: 21.96
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:42:24 | Remaining: 00:35:39
+Epoch [83/100]
+  Train Loss: 0.0224 | Train Dice: 99.29 | Val Loss: 0.1101 | Best Val Loss: 0.0665
+  Dice: 94.61  IoU: 90.45  Prec: 94.42  Rec: 95.40  HD95: 22.77
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 02:44:23 | Remaining: 00:33:40
+Epoch [84/100]
+  Train Loss: 0.0226 | Train Dice: 99.29 | Val Loss: 0.1266 | Best Val Loss: 0.0665
+  Dice: 94.61  IoU: 90.45  Prec: 94.79  Rec: 94.99  HD95: 23.16
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:46:22 | Remaining: 00:31:41
+Epoch [85/100]
+  Train Loss: 0.0223 | Train Dice: 99.30 | Val Loss: 0.1238 | Best Val Loss: 0.0665
+  Dice: 94.67  IoU: 90.57  Prec: 94.44  Rec: 95.48  HD95: 21.98
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:48:20 | Remaining: 00:29:42
+Epoch [86/100]
+  Train Loss: 0.0216 | Train Dice: 99.31 | Val Loss: 0.1176 | Best Val Loss: 0.0665
+  Dice: 94.62  IoU: 90.47  Prec: 94.73  Rec: 95.14  HD95: 22.66
+  Lr: 0.001000
+  Time: 00:01:57 | Avg: 00:01:58 | Elapsed: 02:50:18 | Remaining: 00:27:43
+Epoch [87/100]
+  Train Loss: 0.0219 | Train Dice: 99.31 | Val Loss: 0.1246 | Best Val Loss: 0.0665
+  Dice: 94.65  IoU: 90.51  Prec: 94.28  Rec: 95.64  HD95: 22.92
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:52:16 | Remaining: 00:25:44
+Epoch [88/100]
+  Train Loss: 0.0223 | Train Dice: 99.30 | Val Loss: 0.1195 | Best Val Loss: 0.0665
+  Dice: 94.61  IoU: 90.47  Prec: 95.01  Rec: 94.74  HD95: 23.63
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:54:15 | Remaining: 00:23:45
+Epoch [89/100]
+  Train Loss: 0.0218 | Train Dice: 99.31 | Val Loss: 0.1299 | Best Val Loss: 0.0665
+  Dice: 94.66  IoU: 90.53  Prec: 94.70  Rec: 95.19  HD95: 22.16
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 02:56:13 | Remaining: 00:21:46
+Epoch [90/100]
+  Train Loss: 0.0212 | Train Dice: 99.33 | Val Loss: 0.1286 | Best Val Loss: 0.0665
+  Dice: 94.74  IoU: 90.63  Prec: 94.87  Rec: 95.22  HD95: 22.55
+  Lr: 0.001000
+  Time: 00:01:57 | Avg: 00:01:58 | Elapsed: 02:58:11 | Remaining: 00:19:47
+Epoch [91/100]
+  Train Loss: 0.0216 | Train Dice: 99.32 | Val Loss: 0.1344 | Best Val Loss: 0.0665
+  Dice: 94.74  IoU: 90.64  Prec: 94.65  Rec: 95.39  HD95: 22.93
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 03:00:10 | Remaining: 00:17:49
+Epoch [92/100]
+  Train Loss: 0.0208 | Train Dice: 99.34 | Val Loss: 0.1270 | Best Val Loss: 0.0665
+  Dice: 94.60  IoU: 90.43  Prec: 94.79  Rec: 95.00  HD95: 23.16
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 03:02:08 | Remaining: 00:15:50
+Epoch [93/100]
+  Train Loss: 0.0204 | Train Dice: 99.35 | Val Loss: 0.1464 | Best Val Loss: 0.0665
+  Dice: 94.57  IoU: 90.38  Prec: 94.25  Rec: 95.52  HD95: 23.55
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 03:04:07 | Remaining: 00:13:51
+Epoch [94/100]
+  Train Loss: 0.0209 | Train Dice: 99.35 | Val Loss: 0.1160 | Best Val Loss: 0.0665
+  Dice: 94.66  IoU: 90.52  Prec: 94.64  Rec: 95.25  HD95: 23.73
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 03:06:05 | Remaining: 00:11:52
+Epoch [95/100]
+  Train Loss: 0.0205 | Train Dice: 99.35 | Val Loss: 0.1375 | Best Val Loss: 0.0665
+  Dice: 94.47  IoU: 90.22  Prec: 94.66  Rec: 94.88  HD95: 24.05
+  Lr: 0.001000
+  Time: 00:01:57 | Avg: 00:01:58 | Elapsed: 03:08:03 | Remaining: 00:09:53
+Epoch [96/100]
+  Train Loss: 0.0196 | Train Dice: 99.38 | Val Loss: 0.1220 | Best Val Loss: 0.0665
+  Dice: 94.68  IoU: 90.56  Prec: 94.73  Rec: 95.21  HD95: 22.16
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 03:10:02 | Remaining: 00:07:55
+Epoch [97/100]
+  Train Loss: 0.0193 | Train Dice: 99.38 | Val Loss: 0.1299 | Best Val Loss: 0.0665
+  Dice: 94.68  IoU: 90.58  Prec: 94.63  Rec: 95.26  HD95: 23.13
+  Lr: 0.001000
+  Time: 00:01:57 | Avg: 00:01:58 | Elapsed: 03:12:00 | Remaining: 00:05:56
+Epoch [98/100]
+  Train Loss: 0.0193 | Train Dice: 99.39 | Val Loss: 0.1282 | Best Val Loss: 0.0665
+  Dice: 94.55  IoU: 90.33  Prec: 94.26  Rec: 95.42  HD95: 23.73
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 03:13:59 | Remaining: 00:03:57
+Epoch [99/100]
+  Train Loss: 0.0191 | Train Dice: 99.39 | Val Loss: 0.1344 | Best Val Loss: 0.0665
+  Dice: 94.65  IoU: 90.53  Prec: 94.62  Rec: 95.25  HD95: 22.44
+  Lr: 0.001000
+  Time: 00:01:59 | Avg: 00:01:58 | Elapsed: 03:15:58 | Remaining: 00:01:58
+Epoch [100/100]
+  Train Loss: 0.0186 | Train Dice: 99.41 | Val Loss: 0.1389 | Best Val Loss: 0.0665
+  Dice: 94.57  IoU: 90.39  Prec: 94.30  Rec: 95.47  HD95: 22.76
+  Lr: 0.001000
+  Time: 00:01:58 | Avg: 00:01:58 | Elapsed: 03:17:56 | Remaining: 00:00:00
+
+SAMMed resnet training complete. Best Val Loss: 0.0665 -> weights/sammed/sammed_resnet_s_OVATUS_best.pth
+
+Best resnet weight is loaded: weights/sammed/sammed_resnet_s_OVATUS_best.pth
+
+======================================================================
+TRAINING (Stage 2: Mask-Filtering -> Refined Bounding Boxes)
+Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
+BBoxes saved: 899 -> weights/sammed/bboxes/src_domain_idx_OVATUS_75/OVATUS
+Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
+BBoxes saved: 113 -> weights/sammed/bboxes/src_domain_idx_OVATUS_75/OVATUS
+Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
+BBoxes saved: 469 -> weights/sammed/bboxes/src_domain_idx_OVATUS_75/OTU
+Dataset: USOVA | Training data: 2593 | Validation data: 398 | Testing data: 428
+BBoxes saved: 428 -> weights/sammed/bboxes/src_domain_idx_OVATUS_75/USOVA
+
+======================================================================
+TRAINING (Stage 3: SAM fine-tuning with refined bboxes)
+
+Model params: 93.735M (mask decoder fine-tuned per repo/paper; image + prompt encoders frozen via no_grad)
+Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
+Dataset: OVATUS | Source train: 899
+Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
+Dataset: OVATUS | Source val: 113
+Epoch [1/200]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/main.py", line 204, in <module>
+    run_single_source(source, targets, CONFIG, device, runner)
+  File "/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/main.py", line 121, in run_single_source
+    train_sam(
+  File "/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/train.py", line 282, in train_sam
+    validate_epoch_sam(model, val_loader, device)
+  File "/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/train.py", line 246, in validate_epoch_sam
+    predicted_masks, merged_masks = sam_one_step(
+                                    ^^^^^^^^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/train.py", line 178, in sam_one_step
+    image_embeddings = model.image_encoder(merged_images)    # (mbz,256,64,64)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py", line 250, in forward
+    x = blk(x)
+        ^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py", line 205, in forward
+    x = self.attn(x)
+        ^^^^^^^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/khoa-env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/nvme0/home/utbt/KhoaVM/y_DG/DG/SAMMed/model.py", line 159, in forward
+    qkv = self.qkv(x).reshape(B, H * W, 3, self.num_heads, -1).permute(2, 0, 3, 1, 4)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: cannot reshape tensor of 0 elements into shape [0, 196, 3, 12, -1] because the unspecified dimension size -1 can be any value and is ambiguous

@@ -1,0 +1,172 @@
+[
+    {
+        "name": "vit_h_desam_s_OTU_t_OVATUS",
+        "results": {
+            "dice": 80.22,
+            "iou": 72.61,
+            "precision": 91.16,
+            "recall": 79.46,
+            "hd95": 52.62
+        }
+    },
+    {
+        "name": "vit_h_desam_s_OTU_t_USOVA",
+        "results": {
+            "dice": 48.69,
+            "iou": 43.26,
+            "precision": 70.61,
+            "recall": 69.29,
+            "hd95": 160.86
+        }
+    },
+    {
+        "name": "vit_h_desam_s_OVATUS_t_OTU",
+        "results": {
+            "dice": 70.63,
+            "iou": 59.49,
+            "precision": 65.23,
+            "recall": 89.05,
+            "hd95": 39.38
+        }
+    },
+    {
+        "name": "vit_h_desam_s_OVATUS_t_USOVA",
+        "results": {
+            "dice": 30.88,
+            "iou": 22.18,
+            "precision": 26.54,
+            "recall": 81.34,
+            "hd95": 171.93
+        }
+    },
+    {
+        "name": "vit_h_desam_s_USOVA_t_OTU",
+        "results": {
+            "dice": 9.95,
+            "iou": 7.12,
+            "precision": 82.33,
+            "recall": 7.23,
+            "hd95": 232.88
+        }
+    },
+    {
+        "name": "vit_h_desam_s_USOVA_t_OVATUS",
+        "results": {
+            "dice": 16.5,
+            "iou": 11.81,
+            "precision": 58.45,
+            "recall": 12.17,
+            "hd95": 130.44
+        }
+    },
+    {
+        "name": "vit_h_masam_s_OTU_OVATUS_t_USOVA",
+        "results": {
+            "dice": 40.31,
+            "iou": 31.55,
+            "precision": 32.33,
+            "recall": 98.22,
+            "hd95": 151.67
+        }
+    },
+    {
+        "name": "vit_h_masam_s_OTU_USOVA_t_OVATUS",
+        "results": {
+            "dice": 79.29,
+            "iou": 68.83,
+            "precision": 96.15,
+            "recall": 71.0,
+            "hd95": 28.49
+        }
+    },
+    {
+        "name": "vit_h_masam_s_OVATUS_USOVA_t_OTU",
+        "results": {
+            "dice": 56.14,
+            "iou": 46.86,
+            "precision": 88.34,
+            "recall": 50.72,
+            "hd95": 71.94
+        }
+    },
+    {
+        "name": "vit_b_sr_sam_s_OTU_t_OVATUS",
+        "results": {
+            "dice": 94.85,
+            "iou": 90.34,
+            "precision": 96.69,
+            "recall": 93.24,
+            "hd95": 9.54
+        }
+    },
+    {
+        "name": "vit_b_sr_sam_s_OTU_t_USOVA",
+        "results": {
+            "dice": 34.87,
+            "iou": 26.2,
+            "precision": 26.4,
+            "recall": 99.27,
+            "hd95": 157.85
+        }
+    },
+    {
+        "name": "vit_b_sr_sam_s_OVATUS_t_OTU",
+        "results": {
+            "dice": 90.97,
+            "iou": 84.44,
+            "precision": 91.55,
+            "recall": 91.43,
+            "hd95": 11.06
+        }
+    },
+    {
+        "name": "vit_b_sr_sam_s_OVATUS_t_USOVA",
+        "results": {
+            "dice": 36.62,
+            "iou": 27.38,
+            "precision": 29.29,
+            "recall": 94.46,
+            "hd95": 156.33
+        }
+    },
+    {
+        "name": "vit_b_sr_sam_s_USOVA_t_OTU",
+        "results": {
+            "dice": 46.74,
+            "iou": 37.59,
+            "precision": 79.1,
+            "recall": 40.47,
+            "hd95": 59.83
+        }
+    },
+    {
+        "name": "vit_b_sr_sam_s_USOVA_t_OVATUS",
+        "results": {
+            "dice": 46.71,
+            "iou": 36.02,
+            "precision": 82.66,
+            "recall": 36.96,
+            "hd95": 52.08
+        }
+    },
+    {
+        "name": "vit_b_sammed_s_OTU_t_OVATUS",
+        "results": {
+            "dice": 85.21,
+            "iou": 77.16,
+            "precision": 89.43,
+            "recall": 83.73,
+            "hd95": 45.39
+        }
+    },
+    {
+        "name": "vit_b_sammed_s_OTU_t_USOVA",
+        "results": {
+            "dice": 39.89,
+            "iou": 32.16,
+            "precision": 38.44,
+            "recall": 80.83,
+            "hd95": 305.9
+        }
+    }
+]
