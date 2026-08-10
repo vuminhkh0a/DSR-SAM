@@ -1,1 +1,1 @@
-# Experiment Domain Generalization method
+# Experiment Domain Generalization methods
