@@ -1,5 +1,5 @@
 """
-SR-SAM training (paper Sec. 2.2-2.3 + repo sam_lora_image_encoder.py).
+DSR-SAM training (paper Sec. 2.2-2.3 + repo sam_lora_image_encoder.py).
 
   * Loss: L = L_seg + lambda * L_distill, with L_seg = CE + Dice (paper
     Sec. 2.3, "combination of cross entropy loss and dice loss") computed
@@ -22,7 +22,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from DG.SR_SAM.model import ema_update
+from DG.DSR_SAM.model import ema_update
 from utils.metrics import loss_ce, loss_dice, metric_dice_iou_prec_rec_hd95
 
 
@@ -68,6 +68,7 @@ def train_one_epoch(model, loader, device, optimizer, seg_loss, cfg, iter_num):
     running_ce = 0.0
     running_dice = 0.0
     running_kd = 0.0
+    running_tsd = 0.0
     lr_ = cfg['base_lr']
 
     for images, masks, bbox in loader:
@@ -88,30 +89,46 @@ def train_one_epoch(model, loader, device, optimizer, seg_loss, cfg, iter_num):
 
         loss = loss_seg
         loss_kd = torch.tensor(0.0, device=device)
-        if cfg['kd_weight'] > 0:
+        # Distillation needs the EMA teacher; skip it entirely when
+        # ema_mode=False (student-only training).
+        if cfg.get('ema_mode', True) and cfg['kd_weight'] > 0:
             teacher_logits = compute_teacher_logits(model, images, bbox, device)
             loss_kd = kd_loss(outputs['low_res_logits'], teacher_logits)
             loss = loss_seg + cfg['kd_weight'] * loss_kd
 
+        # Add L_tsd loss with coefficient beta1 (always student LoRA, both modes).
+        # L_tsd sums only the top-s change rates per qkv module, where
+        # s = cfg['truncation_size'] (same top-s TSD selection as truncation).
+        loss_tsd = torch.tensor(0.0, device=device)
+        if cfg.get('compute_l_tsd', True) and hasattr(model, 'compute_l_tsd'):
+            loss_tsd = model.compute_l_tsd(ema=False)
+            loss = loss + cfg['beta1'] * loss_tsd
+
         loss.backward()
         optimizer.step()
 
-        if cfg['ema_mode']:
+        if cfg.get('ema_mode', True):
             ema_update(model, cfg['ema_rate'])
 
         running_loss += loss.item()
         running_ce += loss_ce_.item()
         running_dice += loss_dice_.item()
         running_kd += loss_kd.item()
+        running_tsd += loss_tsd.item()
 
     n = max(len(loader), 1)
     return (running_loss / n, running_ce / n, running_dice / n,
-            running_kd / n, lr_, iter_num)
+            running_kd / n, running_tsd / n, lr_, iter_num)
 
 
 @torch.no_grad()
-def validate_epoch(model, loader, device):
+def validate_epoch(model, loader, device, cfg=None):
     model.eval()
+    # ema_mode=True -> validate with the EMA teacher; False -> student.
+    if cfg is None:
+        use_ema = bool(getattr(model, 'ema_mode', True))
+    else:
+        use_ema = bool(cfg.get('ema_mode', getattr(model, 'ema_mode', True)))
     running_loss = 0.0
     running_dice = 0.0
     running_iou = 0.0
@@ -125,7 +142,7 @@ def validate_epoch(model, loader, device):
         bbox = bbox.to(device, non_blocking=True)
 
         outputs = model(images, multimask_output=False, image_size=images.shape[-1],
-                        bbox_input=bbox, ema=True)
+                        bbox_input=bbox, ema=use_ema)
         probs = torch.sigmoid(outputs['masks'].float())
         # Validation loss is not defined in the paper/repo (train.py is not
         # released); use the benchmark convention (bce + dice) / 2.
@@ -145,22 +162,32 @@ def validate_epoch(model, loader, device):
 
 
 @torch.no_grad()
-def truncate_tsds(model):
-    """TSD identification + truncation on every LoRA qkv module."""
+def truncate_tsds(model, cfg=None):
+    """TSD identification + truncation on every LoRA qkv module.
+
+    ema_mode=True -> project the EMA LoRA delta (original behavior);
+    ema_mode=False -> project the student LoRA delta.
+    """
+    if cfg is None:
+        use_ema = bool(getattr(model, 'ema_mode', True))
+    else:
+        use_ema = bool(cfg.get('ema_mode', getattr(model, 'ema_mode', True)))
     truncated = 0
     for block in model.sam.image_encoder.blocks:
         qkv = block.attn.qkv
         if hasattr(qkv, 'update_base_weight'):
-            top_q, top_v = qkv.update_base_weight(ema=True)
+            top_q, top_v = qkv.update_base_weight(ema=use_ema)
             truncated += top_q.numel() + top_v.numel()
     return truncated
 
 
-def train_sr_sam(model, train_loader, val_loader, device, cfg):
+def train_dsr_sam(model, train_loader, val_loader, device, cfg):
     model_dir = cfg['model_dir']
     prefix = cfg['prefix']
     n_epochs = cfg['n_epochs']
     base_lr = cfg['base_lr']
+    freeze_A_after_N_epoch = cfg.get('freeze_A_after_N_epoch', 1)
+    patience = cfg.get('patience', 0)  # 0 = disabled
 
     os.makedirs(model_dir, exist_ok=True)
     best_path = os.path.join(model_dir, f'{prefix}_best.pth')
@@ -173,6 +200,7 @@ def train_sr_sam(model, train_loader, val_loader, device, cfg):
 
     iter_num = 0
     best_val_loss = float('inf')
+    epochs_no_improve = 0
     # Subspace regularization schedule: first truncation once `dash_warm`
     # iterations have elapsed (repo --Dash_warm 300), then every
     # `truncation_period` epochs (paper Sec. 3).
@@ -180,27 +208,52 @@ def train_sr_sam(model, train_loader, val_loader, device, cfg):
 
     start_time = time.time()
     epoch_times = []
+    A_frozen = False
 
     for epoch in range(1, n_epochs + 1):
         epoch_start = time.time()
         print(f'Epoch [{epoch}/{n_epochs}]')
         sys.stdout.flush()
 
-        (train_loss, train_ce, train_dice, train_kd,
+        if cfg.get('is_freeze_A_after_N_epoch', True) and not A_frozen and epoch > freeze_A_after_N_epoch:
+            model.freeze_A_matrices()
+            optimizer = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()),
+                                    lr=base_lr, betas=(0.9, 0.999), weight_decay=0.1)
+            A_frozen = True
+            frozen_who = 'student LoRA and EMA LoRA' if cfg.get('ema_mode', True) else 'student LoRA (no EMA copies)'
+            print(f'  >>> Froze matrix A of {frozen_who} after {freeze_A_after_N_epoch} epoch(s)')
+            sys.stdout.flush()
+
+        model.cache_all_svd()
+
+        (train_loss, train_ce, train_dice, train_kd, train_tsd,
          lr_now, iter_num) = train_one_epoch(
             model, train_loader, device, optimizer, seg_loss, cfg, iter_num)
         (val_epoch_loss, val_dice, val_iou, val_prec, val_rec,
-         val_hd95) = validate_epoch(model, val_loader, device)
+         val_hd95) = validate_epoch(model, val_loader, device, cfg)
 
         truncated = 0
         if (cfg['truncation'] and epoch >= first_truncation_epoch
                 and (epoch - first_truncation_epoch) % cfg['truncation_period'] == 0):
-            truncated = truncate_tsds(model)
+            truncated = truncate_tsds(model, cfg)
 
         is_best = val_epoch_loss < best_val_loss
         prev_str = f'{best_val_loss:.4f}' if best_val_loss != float('inf') else 'N/A'
         if is_best:
             best_val_loss = val_epoch_loss
+            epochs_no_improve = 0
+            torch.save(model.state_dict(), best_path)
+        else:
+            epochs_no_improve += 1
+
+        # Experiment process saving: epochs 1-20, then 60, 100, 140, ...
+        # (every 40 epochs after 20). Controlled by config flag.
+        if cfg.get('experiment_process_save_epochs', False):
+            save_exp = (epoch <= 20)
+            if save_exp:
+                exp_name = (f'dsr_sam_{cfg["model_type"]}_experiment_'
+                            f'{cfg["source"]}_epoch_{epoch}.pth')
+                torch.save(model.state_dict(), os.path.join(model_dir, exp_name))
 
         epoch_time = time.time() - epoch_start
         epoch_times.append(epoch_time)
@@ -209,21 +262,28 @@ def train_sr_sam(model, train_loader, val_loader, device, cfg):
         remaining = avg_time * (n_epochs - epoch)
 
         print(f'  Train Loss: {train_loss:.4f} | CE: {train_ce:.4f} | Dice: {train_dice:.4f} | '
-              f'KD: {train_kd:.6f} | Val Loss: {val_epoch_loss:.4f} | Best Val Loss: {best_val_loss:.4f}')
+              f'KD: {train_kd:.6f} | TSD: {train_tsd:.6f} | Val Loss: {val_epoch_loss:.4f} | Best Val Loss: {best_val_loss:.4f}')
         print(f'  Dice: {val_dice:.2f}  IoU: {val_iou:.2f}  Prec: {val_prec:.2f}  '
               f'Rec: {val_rec:.2f}  HD95: {val_hd95:.2f}')
-        print(f'  Lr: {lr_now:.6f} | Truncated TSDs: {truncated}')
+        print(f'  Lr: {lr_now:.6f} | Truncated TSDs: {truncated} | A_frozen: {A_frozen}')
         print(f'  Time: {format_duration(epoch_time)} | Avg: {format_duration(avg_time)} | '
               f'Elapsed: {format_duration(elapsed)} | Remaining: {format_duration(remaining)}')
         if is_best:
             print(f'  >>> New Best Validation Loss | Previous: {prev_str} | '
                   f'Current : {val_epoch_loss:.4f}')
+        if patience > 0:
+            print(f'  Early stopping patience: {epochs_no_improve}/{patience}')
         sys.stdout.flush()
 
-    # Save only the final (last epoch) weights.
-    torch.save(model.state_dict(), last_path)
+        if patience > 0 and epochs_no_improve >= patience:
+            print(f'  >>> Early stopping triggered after {epochs_no_improve} epochs without improvement')
+            break
 
-    print(f'\nSR-SAM training complete. Best Val Loss: {best_val_loss:.4f}')
-    print(f'Last epoch weights saved (filename: {os.path.basename(last_path)}) -> {last_path}')
+    # Save only the final (last epoch) weights.
+    if cfg.get('save_last_epoch', True):
+        torch.save(model.state_dict(), last_path)
+        print(f'Last epoch weights saved (filename: {os.path.basename(last_path)}) -> {last_path}')
+    else:
+        print('Skipping last epoch weight save (save_last_epoch=False)')
     sys.stdout.flush()
-    return last_path
+    return best_val_loss

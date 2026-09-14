@@ -15,20 +15,20 @@ import torch
 
 from utils.seed import set_seed
 from utils.sequential_training import SequentialDomainRunner, cleanup_resources
-from DG.SR_SAM.data import get_sr_sam_loaders
-from DG.SR_SAM.model import build_sr_sam
-from DG.SR_SAM.train import train_sr_sam
-from DG.SR_SAM.test import test_sr_sam_on_target
+from DG.DSR_SAM.data import get_dsr_sam_loaders
+from DG.DSR_SAM.model import build_dsr_sam
+from DG.DSR_SAM.train import train_dsr_sam
+from DG.DSR_SAM.test import test_dsr_sam_on_target
 
 set_seed()
 
-DATASETS = ['OTU', 'OVATUS', 'USOVA']
 
 
 def run_single_source(source, targets, cfg, runner):
     cfg = dict(cfg)
-    cfg['model_dir'] = 'weights/sr_sam/'
-    cfg['prefix'] = f'{cfg["model_type"]}_sr_sam_s_{source}'
+    cfg['model_dir'] = 'weights/dsr_sam/'
+    cfg['prefix'] = f'{cfg["model_type"]}_dsr_sam_s_{source}'
+    cfg['source'] = source
 
     print(f'\n{"="*70}')
     print('TRAINING')
@@ -41,12 +41,12 @@ def run_single_source(source, targets, cfg, runner):
     with runner.domain_context():
         device = cfg['device']
 
-        model = build_sr_sam(
+        model = build_dsr_sam(
             checkpoint=cfg['checkpoint'], model_type=cfg['model_type'],
             image_size=cfg['image_size'], num_classes=cfg['num_classes'],
             rank=cfg['rank'], ema_mode=cfg['ema_mode'],
             truncation_size=cfg['truncation_size'],
-            truncation=cfg['truncation'],
+            lora_A_init=cfg.get('lora_A_init', 'kaiming'),
         ).to(device)
 
         params = sum(p.numel() for p in model.parameters())
@@ -55,7 +55,7 @@ def run_single_source(source, targets, cfg, runner):
         sys.stdout.flush()
 
         if cfg['phase'] == 'train':
-            train_loader, val_loader = get_sr_sam_loaders(
+            train_loader, val_loader = get_dsr_sam_loaders(
                 source, image_size=cfg['image_size'],
                 batch_size=cfg['batch_size'], num_workers=cfg['num_workers'],
                 pin_memory=cfg['pin_memory'],
@@ -63,7 +63,7 @@ def run_single_source(source, targets, cfg, runner):
             runner.register_loaders(train_loader)
             runner.register_loaders(val_loader)
 
-            train_sr_sam(model, train_loader, val_loader, device, cfg)
+            train_dsr_sam(model, train_loader, val_loader, device, cfg)
             runner.destroy_loaders()
 
         # Load best and last checkpoints and evaluate both on the targets.
@@ -83,7 +83,7 @@ def run_single_source(source, targets, cfg, runner):
                 print(f'Source: {source}')
                 print(f'Target: {target}')
                 print(f'Weight: {weight_tag}')
-                test_sr_sam_on_target(
+                test_dsr_sam_on_target(
                     model, target, device,
                     image_size=cfg['image_size'], batch_size=cfg['batch_size'],
                     num_workers=cfg['num_workers'], pin_memory=cfg['pin_memory'],
@@ -109,13 +109,21 @@ CONFIG = {
 
     'num_classes': 1,
     'rank': 64,                 # paper Sec. 3 (LoRA rank)
-    'ema_mode': True,
+    'lora_A_init': 'orthogonal',   # 'kaiming' (default, current) or 'orthogonal'
+    'ema_mode': False,
     'ema_rate': 0.999,          # paper Sec. 2.3 (EMA rate alpha)
     'kd_weight': 1e-7,          # paper Sec. 3 (lambda, polyp) / repo --kd_weight
-    'truncation': True,
+    'beta1': 0.1,                # L_tsd coefficient
+    'truncation': False,
     'truncation_size': 96,      # paper Sec. 3 (s, Table 4)
     'truncation_period': 4,     # paper Sec. 3 (every 4 epochs)
     'dash_warm': 300,           # repo run_CVC-ClinicDB.sh --Dash_warm 300
+    'freeze_A_after_N_epoch': 0,  # freeze matrix A of student LoRA and EMA LoRA after N epochs
+    'is_freeze_A_after_N_epoch': True,  # whether to apply freeze_A_after_N_epoch
+    'compute_l_tsd': False,      # whether to compute L_tsd loss
+
+    'experiment_process_save_epochs': False,  # save weights at epochs 1-20 and 60,100,140,...
+    'save_last_epoch': False,  # whether to save weights at the last epoch
 
     'phase': 'train',
 
@@ -125,20 +133,22 @@ CONFIG = {
 
 SINGLE_SOURCE_RUNS = [
     ('OTU', ['OTU', 'OVATUS']),
-    ('OVATUS', ['OTU', 'OVATUS']),
+    # ('OVATUS', ['OTU', 'OVATUS']),
 ]
 
 
 if __name__ == '__main__':
     runs = SINGLE_SOURCE_RUNS
-    if os.environ.get('SR_SAM_RUNS'):
+    if os.environ.get('DSR_SAM_RUNS'):
         runs = [r for r in SINGLE_SOURCE_RUNS
-                if r[0] in os.environ['SR_SAM_RUNS'].split(',')]
+                if r[0] in os.environ['DSR_SAM_RUNS'].split(',')]
 
     n_epochs = CONFIG['n_epochs']
-    if os.environ.get('SR_SAM_EPOCHS'):
-        n_epochs = int(os.environ['SR_SAM_EPOCHS'])
+    if os.environ.get('DSR_SAM_EPOCHS'):
+        n_epochs = int(os.environ['DSR_SAM_EPOCHS'])
     CONFIG['n_epochs'] = n_epochs
+    if os.environ.get('DSR_SAM_LORA_A_INIT') in ('kaiming', 'orthogonal'):
+        CONFIG['lora_A_init'] = os.environ['DSR_SAM_LORA_A_INIT']
 
     device = torch.device(CONFIG['device'])
     runner = SequentialDomainRunner(device=device)

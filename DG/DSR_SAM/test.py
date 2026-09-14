@@ -1,20 +1,26 @@
 """
-SR-SAM testing: evaluate on a held-out target domain with bounding-box
+DSR-SAM testing: evaluate on a held-out target domain with bounding-box
 prompts (standard box_coords.json). Metrics follow the other DG methods.
 """
 import numpy as np
 import torch
 
-from DG.SR_SAM.data import get_sr_sam_target_loader
+from DG.DSR_SAM.data import get_dsr_sam_target_loader
 from utils.metrics import metric_dice_iou_prec_rec_hd95, save_results
 
 
 @torch.no_grad()
-def test_sr_sam_on_target(model, target_name, device, image_size, batch_size,
-                          num_workers, pin_memory, source_name, model_type='vit_h',
-                          write_results=True, weight_tag='best'):
+def test_dsr_sam_on_target(model, target_name, device, image_size, batch_size,
+                           num_workers, pin_memory, source_name, model_type='vit_h',
+                           write_results=True, weight_tag='best', ema=None):
     model.eval()
-    loader = get_sr_sam_target_loader(target_name, image_size, batch_size,
+    # ema_mode=True -> test with the EMA teacher; False -> student.
+    # Explicit `ema` overrides the model's mode when given.
+    if ema is None:
+        use_ema = bool(getattr(model, 'ema_mode', True))
+    else:
+        use_ema = bool(ema) and bool(getattr(model, 'ema_mode', True))
+    loader = get_dsr_sam_target_loader(target_name, image_size, batch_size,
                                       num_workers, pin_memory, split='test')
 
     running_dice = 0.0
@@ -29,7 +35,7 @@ def test_sr_sam_on_target(model, target_name, device, image_size, batch_size,
         bbox = bbox.to(device, non_blocking=True)
 
         outputs = model(images, multimask_output=False, image_size=images.shape[-1],
-                        bbox_input=bbox, ema=True)
+                        bbox_input=bbox, ema=use_ema)
         probs = torch.sigmoid(outputs['masks'].float())
 
         results = metric_dice_iou_prec_rec_hd95(y_pred=probs, y_true=masks,
@@ -47,7 +53,7 @@ def test_sr_sam_on_target(model, target_name, device, image_size, batch_size,
     avg_recall = running_recall / n * 100
     avg_hd95 = running_hd95 / n
 
-    name = f'{model_type}_sr_sam_s_{source_name}_t_{target_name}_{weight_tag}'
+    name = f'{model_type}_dsr_sam_sam_s_{source_name}_t_{target_name}_{weight_tag}'
 
     print(f'[weight: {weight_tag}] Target {target_name} | Dice: {avg_dice:.2f} | IoU: {avg_iou:.2f} | '
           f'Prec: {avg_precision:.2f} | Rec: {avg_recall:.2f} | HD95: {avg_hd95:.2f}')

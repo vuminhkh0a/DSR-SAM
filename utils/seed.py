@@ -7,10 +7,17 @@ os.environ['VECLIB_MAXIMUM_THREADS'] = '1'
 os.environ['NUMEXPR_NUM_THREADS'] = '1'
 
 import random
+import warnings
 import numpy as np
 import torch
 import cv2
 import torch.backends.cudnn as cudnn
+
+# Silence torch / CUDA determinism warnings while keeping deterministic
+# behavior fully enabled (no mechanism is changed).
+warnings.filterwarnings('ignore', category=UserWarning, module='torch')
+warnings.filterwarnings('ignore', message='.*[Dd]eterministic.*')
+warnings.filterwarnings('ignore', message='.*[Cc][Uu][Dd][Aa].*')
 
 
 def set_seed(seed=42):

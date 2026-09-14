@@ -1,32 +1,3 @@
-"""
-SR-SAM: Subspace Regularization for Domain Generalization of Segment
-Anything Model (MICCAI 2025, arXiv:2410.05835, repo xjiangmed/SR-SAM).
-
-Pure-PyTorch port of the official repo (sam_lora_image_encoder.py +
-segment_anything/):
-
-  * SAM ViT image encoder (default ViT-H) with LoRA (rank r) injected into
-    the q and v
-    projections of EVERY transformer block (_LoRAtruncation_qkv).
-  * A second set of EMA LoRA weights (alpha = 0.999) aggregates the
-    historical LoRA updates; the EMA module acts as a teacher via a KL
-    distillation loss (paper Eq. 4).
-  * Subspace regularization: every `truncation_period` epochs (first after
-    `dash_warm` iterations), the EMA LoRA weight delta_W is projected onto
-    the SVD subspace of the pre-trained qkv weight W, the top-`s` "task-
-    specific directions" (TSDs) with the largest change rate
-    delta_i = u_i^T delta_W v_i / (sigma_i + eps) are identified, and the
-    corresponding subspace is truncated out of W (paper Eq. 2-3).
-  * Image encoder (except LoRA) and prompt encoder are frozen; the mask
-    decoder is fully trainable (SAMed setup, num_mask_tokens = 1,
-    2-stage upsampling). Bounding-box prompts come from the standard
-    y_DG/box_coords.json (benchmark-wide convention; the repo itself is
-    prompt-free at train/test time).
-
-The model is built at image_size=256 (input resolution) and the SAM
-pos_embed / global relative-position biases are interpolated at load time
-(exactly like the repo's load_from in segment_anything/build_sam.py).
-"""
 import copy
 import math
 from functools import partial
@@ -540,7 +511,7 @@ class MaskDecoder(nn.Module):
 
 
 # ============================================================
-# SR-SAM modules (repo sam_lora_image_encoder.py)
+# DSR-SAM modules (repo sam_lora_image_encoder.py)
 # ============================================================
 
 class _LoRAtruncation_qkv(nn.Module):
@@ -568,48 +539,153 @@ class _LoRAtruncation_qkv(nn.Module):
             self.ema_linear_a_v = ema_linear_a_v
             self.ema_linear_b_v = ema_linear_b_v
         self.index = index
+        self._cached_svd_q = None
+        self._cached_svd_v = None
+        self._svd_cache_valid = False
+
+    def _use_ema(self, ema: bool) -> bool:
+        """Whether to use the EMA LoRA branch.
+
+        True only if the caller requests `ema` AND this module actually
+        owns EMA copies (i.e. the parent was built with ema_mode=True).
+        With ema_mode=False the EMA attributes are never created, so any
+        `ema=True` request safely falls back to the student LoRA.
+        """
+        return (bool(ema) and getattr(self, 'ema_linear_a_q', None) is not None
+                and getattr(self, 'ema_linear_b_q', None) is not None
+                and getattr(self, 'ema_linear_a_v', None) is not None
+                and getattr(self, 'ema_linear_b_v', None) is not None)
 
     def calculate_change_rate(self, a, bb, r):
         # Paper Eq. 2: delta_i = u_i^T delta_W v_i / (sigma_i + eps).
         change_rate = torch.abs(bb) / (torch.abs(a) + self.eps)
+        # Check that change_rate is 1D
+        if change_rate.dim() != 1:
+            raise ValueError(f"Expected change_rate to be 1D, got shape {change_rate.shape}")
         _, top_r_indices = torch.topk(change_rate, r)
-        return top_r_indices
+        return change_rate, top_r_indices
+
+    def cache_base_weight_svd(self):
+        """Cache SVD of base weights (q and v projections) for L_tsd computation."""
+        device = self.qkv.weight.device
+        base_W_q = self.qkv.weight[:self.dim, :]
+        weight_u_q, weight_sigma_q, weight_vt_q = torch.linalg.svd(base_W_q, full_matrices=False)
+        self._cached_svd_q = (weight_u_q, weight_sigma_q, weight_vt_q)
+        base_W_v = self.qkv.weight[-self.dim:, :]
+        weight_u_v, weight_sigma_v, weight_vt_v = torch.linalg.svd(base_W_v, full_matrices=False)
+        self._cached_svd_v = (weight_u_v, weight_sigma_v, weight_vt_v)
+        self._svd_cache_valid = True
+
+    def compute_l_tsd(self, ema=False):
+        """Compute L_tsd over the top-`index` change rates only.
+
+        Same TSD selection as the truncation step (`update_base_weight`):
+        `self.index` is the config `truncation_size` s (e.g. 96), and only
+        the top-s change rates delta_i contribute:
+            L_tsd = mean(change_rate[top_s] / n), n = max(change_rate).detach()
+
+        ema=True projects the EMA LoRA delta onto the frozen base weight;
+        with ema_mode=False (no EMA copies) this falls back to the student
+        LoRA delta.
+        """
+        device = self.qkv.weight.device
+        total_l_tsd = torch.tensor(0.0, device=device)
+        count = 0
+        use_ema = self._use_ema(ema)
+        
+        # Compute for q
+        if use_ema:
+            delta_W_q = self.ema_linear_b_q.weight @ self.ema_linear_a_q.weight
+        else:
+            delta_W_q = self.linear_b_q.weight @ self.linear_a_q.weight
+        
+        if not self._svd_cache_valid:
+            self.cache_base_weight_svd()
+        weight_u_q, weight_sigma_q, weight_vt_q = self._cached_svd_q
+        delta_sigma_q = torch.diag(torch.matmul(torch.matmul(weight_u_q.T, delta_W_q), weight_vt_q.T))
+        change_rate_q, top_q = self.calculate_change_rate(weight_sigma_q, delta_sigma_q, self.index)
+        n_q = torch.max(change_rate_q).detach()
+        # Avoid division by zero
+        n_q = torch.clamp(n_q, min=1e-8)
+        # Only the top-s (truncation_size) change rates contribute, like the
+        # truncation step which truncates exactly these top-s TSDs.
+        l_tsd_q = (change_rate_q[top_q] / n_q).mean()
+        # Check for NaN/inf
+        if not torch.isfinite(l_tsd_q):
+            l_tsd_q = torch.tensor(0.0, device=device)
+        total_l_tsd = total_l_tsd + l_tsd_q
+        count += 1
+        
+        # Compute for v
+        if use_ema:
+            delta_W_v = self.ema_linear_b_v.weight @ self.ema_linear_a_v.weight
+        else:
+            delta_W_v = self.linear_b_v.weight @ self.linear_a_v.weight
+        
+        if not self._svd_cache_valid:
+            self.cache_base_weight_svd()
+        weight_u_v, weight_sigma_v, weight_vt_v = self._cached_svd_v
+        delta_sigma_v = torch.diag(torch.matmul(torch.matmul(weight_u_v.T, delta_W_v), weight_vt_v.T))
+        change_rate_v, top_v = self.calculate_change_rate(weight_sigma_v, delta_sigma_v, self.index)
+        n_v = torch.max(change_rate_v).detach()
+        # Avoid division by zero
+        n_v = torch.clamp(n_v, min=1e-8)
+        # Only the top-s (truncation_size) change rates contribute, like the
+        # truncation step which truncates exactly these top-s TSDs.
+        l_tsd_v = (change_rate_v[top_v] / n_v).mean()
+        # Check for NaN/inf
+        if not torch.isfinite(l_tsd_v):
+            l_tsd_v = torch.tensor(0.0, device=device)
+        total_l_tsd = total_l_tsd + l_tsd_v
+        count += 1
+        
+        result = total_l_tsd / count if count > 0 else torch.tensor(0.0, device=device)
+        # Final check for NaN/inf
+        if not torch.isfinite(result):
+            result = torch.tensor(0.0, device=device)
+        return result
 
     def update_base_weight(self, ema=False):
-        """Identify the top-`index` TSDs and truncate them from W (paper Eq. 3)."""
+        """Identify the top-`index` TSDs and truncate them from W (paper Eq. 3).
+
+        ema=True uses the EMA LoRA delta; with ema_mode=False (no EMA
+        copies) this falls back to the student LoRA delta.
+        """
         device = self.qkv.weight.device
-        if ema:
+        use_ema = self._use_ema(ema)
+        if use_ema:
             delta_W_q = self.ema_linear_b_q.weight @ self.ema_linear_a_q.weight
         else:
             delta_W_q = self.linear_b_q.weight @ self.linear_a_q.weight
         base_W_q = self.qkv.weight[:self.dim, :].clone()
         weight_u_q, weight_sigma_q, weight_vt_q = torch.linalg.svd(base_W_q, full_matrices=False)
         delta_sigma_q = torch.diag(torch.matmul(torch.matmul(weight_u_q.T, delta_W_q), weight_vt_q.T))
-        top_index_q = self.calculate_change_rate(weight_sigma_q, delta_sigma_q, self.index)
+        _, top_index_q = self.calculate_change_rate(weight_sigma_q, delta_sigma_q, self.index)
         remain_index_q = torch.tensor([idx for idx in range(weight_u_q.shape[1])
                                        if idx not in top_index_q], device=device)
         new_base_W_q = (weight_u_q[:, remain_index_q] @ torch.diag(weight_sigma_q[remain_index_q])
                         @ weight_vt_q[remain_index_q, :])
         self.qkv.weight[:self.dim, :] = new_base_W_q.clone()
 
-        if ema:
+        if use_ema:
             delta_W_v = self.ema_linear_b_v.weight @ self.ema_linear_a_v.weight
         else:
             delta_W_v = self.linear_b_v.weight @ self.linear_a_v.weight
         base_W_v = self.qkv.weight[-self.dim:, :].clone()
         weight_u_v, weight_sigma_v, weight_vt_v = torch.linalg.svd(base_W_v, full_matrices=False)
         delta_sigma_v = torch.diag(torch.matmul(torch.matmul(weight_u_v.T, delta_W_v), weight_vt_v.T))
-        top_index_v = self.calculate_change_rate(weight_sigma_v, delta_sigma_v, self.index)
+        _, top_index_v = self.calculate_change_rate(weight_sigma_v, delta_sigma_v, self.index)
         remain_index_v = torch.tensor([idx for idx in range(weight_u_v.shape[1])
                                        if idx not in top_index_v], device=device)
         new_base_W_v = (weight_u_v[:, remain_index_v] @ torch.diag(weight_sigma_v[remain_index_v])
                         @ weight_vt_v[remain_index_v, :])
         self.qkv.weight[-self.dim:, :] = new_base_W_v.clone()
+        self._svd_cache_valid = False
         return top_index_q, top_index_v
 
     def forward(self, x: torch.Tensor, ema: bool = False) -> torch.Tensor:
         qkv = self.qkv(x)
-        if ema:
+        if self._use_ema(ema):
             new_q = self.ema_linear_b_q(self.ema_linear_a_q(x))
             new_v = self.ema_linear_b_v(self.ema_linear_a_v(x))
         else:
@@ -621,10 +697,18 @@ class _LoRAtruncation_qkv(nn.Module):
 
 
 def ema_update(model, rate):
-    """EMA update of the LoRA weights (repo ema_update, alpha = 0.999)."""
+    """EMA update of the LoRA weights (repo ema_update, alpha = 0.999).
+
+    No-op for blocks without EMA copies (ema_mode=False) or plain
+    nn.Linear qkv modules.
+    """
     encoder = model.sam.image_encoder
     for block in encoder.blocks.children():
         qkv = block.attn.qkv
+        if getattr(qkv, 'ema_linear_a_q', None) is None:
+            continue
+        if getattr(qkv, 'linear_a_q', None) is None:
+            continue
         avg_model_params = (list(qkv.ema_linear_a_q.parameters())
                             + list(qkv.ema_linear_b_q.parameters())
                             + list(qkv.ema_linear_a_v.parameters())
@@ -643,10 +727,12 @@ class LoRA_Sam(nn.Module):
     the SAM image encoder (repo LoRA_Sam)."""
 
     def __init__(self, sam_model, r: int, lora_layer=None, ema_mode=True,
-                 Dash_index=8, truncation=True) -> None:
+                 Dash_index=8, lora_A_init='kaiming') -> None:
         super(LoRA_Sam, self).__init__()
         self.ema_mode = ema_mode
-        self.truncation = truncation
+        assert lora_A_init in ('kaiming', 'orthogonal'), \
+            f"lora_A_init must be 'kaiming' or 'orthogonal', got {lora_A_init!r}"
+        self.lora_A_init = lora_A_init
 
         assert r > 0
         if lora_layer:
@@ -684,25 +770,87 @@ class LoRA_Sam(nn.Module):
                 for p in (list(ema_w_a_linear_q.parameters()) + list(ema_w_b_linear_q.parameters())
                           + list(ema_w_a_linear_v.parameters()) + list(ema_w_b_linear_v.parameters())):
                     p.requires_grad = False
+            else:
+                ema_w_a_linear_q = ema_w_b_linear_q = ema_w_a_linear_v = ema_w_b_linear_v = None
 
-            if self.ema_mode and self.truncation:
-                self.index = Dash_index
-                blk.attn.qkv = _LoRAtruncation_qkv(
-                    w_qkv_linear,
-                    w_a_linear_q, w_b_linear_q, w_a_linear_v, w_b_linear_v,
-                    ema_w_a_linear_q, ema_w_b_linear_q, ema_w_a_linear_v, ema_w_b_linear_v,
-                    index=self.index,
-                )
+            self.index = Dash_index
+            blk.attn.qkv = _LoRAtruncation_qkv(
+                w_qkv_linear,
+                w_a_linear_q, w_b_linear_q, w_a_linear_v, w_b_linear_v,
+                ema_w_a_linear_q, ema_w_b_linear_q, ema_w_a_linear_v, ema_w_b_linear_v,
+                index=self.index,
+            )
         self.sam = sam_model
 
     def reset_A_parameters(self, w_A) -> None:
-        nn.init.kaiming_uniform_(w_A.weight, a=math.sqrt(5))
+        if getattr(self, 'lora_A_init', 'kaiming') == 'orthogonal':
+            nn.init.orthogonal_(w_A.weight)
+        else:
+            nn.init.kaiming_uniform_(w_A.weight, a=math.sqrt(5))
 
     def reset_B_parameters(self, w_B) -> None:
         nn.init.zeros_(w_B.weight)
 
+    def resolve_ema(self, ema: bool) -> bool:
+        """Resolve a requested `ema` branch against this model's mode.
+
+        Returns True only if the caller asks for EMA AND the model was
+        built with ema_mode=True. With ema_mode=False every caller
+        (train/val/test/truncation) is forced onto the student LoRA.
+        """
+        return bool(ema) and bool(getattr(self, 'ema_mode', False))
+
+    def compute_l_tsd(self, ema=False):
+        """Compute total L_tsd across all LoRA qkv modules.
+
+        Each module contributes only its top-s change rates, where
+        s = `truncation_size` from config (stored as `index`/`Dash_index`
+        at build time) — the same top-s TSD selection used by the
+        truncation step (`update_base_weight`).
+
+        Convention: L_tsd always uses the student LoRA (ema=False), in
+        both modes. An `ema=True` request is honored only when the model
+        owns EMA copies.
+        """
+        ema = self.resolve_ema(ema)
+        total_l_tsd = torch.tensor(0.0, device=self.sam.device)
+        count = 0
+        for blk in self.sam.image_encoder.blocks:
+            qkv = blk.attn.qkv
+            if hasattr(qkv, 'compute_l_tsd'):
+                l_tsd = qkv.compute_l_tsd(ema=ema)
+                total_l_tsd = total_l_tsd + l_tsd
+                count += 1
+        return total_l_tsd / count if count > 0 else torch.tensor(0.0, device=self.sam.device)
+
+    def cache_all_svd(self):
+        """Cache SVD of base weights for all LoRA qkv modules (call once per epoch)."""
+        for blk in self.sam.image_encoder.blocks:
+            qkv = blk.attn.qkv
+            if hasattr(qkv, 'cache_base_weight_svd'):
+                qkv.cache_base_weight_svd()
+
+    def freeze_A_matrices(self):
+        """Freeze matrix A (linear_a_q, linear_a_v) of both student LoRA and EMA LoRA for all layers."""
+        for blk in self.sam.image_encoder.blocks:
+            qkv = blk.attn.qkv
+            if hasattr(qkv, 'linear_a_q'):
+                for param in qkv.linear_a_q.parameters():
+                    param.requires_grad = False
+            if hasattr(qkv, 'linear_a_v'):
+                for param in qkv.linear_a_v.parameters():
+                    param.requires_grad = False
+            if hasattr(qkv, 'ema_linear_a_q'):
+                for param in qkv.ema_linear_a_q.parameters():
+                    param.requires_grad = False
+            if hasattr(qkv, 'ema_linear_a_v'):
+                for param in qkv.ema_linear_a_v.parameters():
+                    param.requires_grad = False
+
     def forward(self, batched_input, multimask_output, image_size,
                 bbox_input=None, ema=False):
+        # ema_mode=False -> always student LoRA, even if caller passes ema=True.
+        ema = self.resolve_ema(ema)
         return self.sam(batched_input, multimask_output, image_size,
                         bbox_input=bbox_input, ema=ema)
 
@@ -864,13 +1012,13 @@ def _build_sam(image_size, num_classes, checkpoint=None, model_type='vit_h'):
     return sam, image_embedding_size
 
 
-def build_sr_sam(checkpoint=None, model_type='vit_h', image_size=256,
+def build_dsr_sam(checkpoint=None, model_type='vit_h', image_size=256,
                  num_classes=1, rank=64, ema_mode=True, truncation_size=96,
-                 truncation=True):
-    """Build the SR-SAM model (LoRA_Sam wrapper around SAM)."""
+                 lora_A_init='kaiming'):
+    """Build the DSR-SAM model (LoRA_Sam wrapper around SAM)."""
     assert model_type in VIT_CONFIGS
     sam, _ = _build_sam(image_size=image_size, num_classes=num_classes,
                         checkpoint=checkpoint, model_type=model_type)
     net = LoRA_Sam(sam, r=rank, ema_mode=ema_mode,
-                   Dash_index=truncation_size, truncation=truncation)
+                   Dash_index=truncation_size, lora_A_init=lora_A_init)
     return net
