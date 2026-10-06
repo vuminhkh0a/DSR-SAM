@@ -45,7 +45,6 @@ def evaluate(model, model_name, device, loader, with_loss, with_hd95, print_resu
 
     if write_results:
         save_results(model_name, {
-            'loss': np.round(avg_loss, 2),
             'dice': np.round(avg_dice, 2),
             'iou': np.round(avg_iou, 2),
             'precision': np.round(avg_precision, 2),

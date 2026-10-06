@@ -91,7 +91,25 @@ def loss_mse(y_pred, y_true):
     return F.mse_loss(y_pred, y_true, reduction='none').mean(dim=(2, 3)).mean(dim=1).mean(dim=0)
 
 
+def _to_plain_float(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return v
+
+
 def save_results(name, results_dict, file_path='results.json'):
+    """Append one test case to results.json: exactly 2 lines per case.
+
+    Line 1: {"name": "<name>",
+    Line 2:  "results": {"dice":.., "iou":.., "precision":.., "recall":.., "hd95":..}}
+    Only the 5 metrics are stored (extra keys like 'loss' are dropped).
+    """
+    FIVE_KEYS = ('dice', 'iou', 'precision', 'recall', 'hd95')
+    if all(k in results_dict for k in FIVE_KEYS):
+        ordered = {k: _to_plain_float(results_dict[k]) for k in FIVE_KEYS}
+    else:
+        ordered = {k: _to_plain_float(v) for k, v in results_dict.items()}
     existing_data = []
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -100,7 +118,14 @@ def save_results(name, results_dict, file_path='results.json'):
                 existing_data = [existing_data]
     except (FileNotFoundError, json.JSONDecodeError):
         pass
-    output_data = {'name': name, 'results': results_dict}
-    existing_data.append(output_data)
+    existing_data.append({'name': name, 'results': ordered})
     with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(existing_data, f, indent=4)
+        if not existing_data:
+            f.write('[]\n')
+            return
+        f.write('[\n')
+        for i, entry in enumerate(existing_data):
+            comma = ',' if i < len(existing_data) - 1 else ''
+            f.write('  {"name": ' + json.dumps(entry['name']) + ',\n')
+            f.write('   "results": ' + json.dumps(entry['results']) + '}' + comma + '\n')
+        f.write(']\n')

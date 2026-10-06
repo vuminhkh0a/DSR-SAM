@@ -3,6 +3,7 @@ import time
 import torch
 import torch.optim as optim
 from utils.seed import set_seed
+from utils.env import get_device
 from utils.data import get_dataloaders
 from utils.metrics import loss_ce, loss_dice, save_results
 from utils.eval import evaluate
@@ -15,7 +16,7 @@ DATASETS = ['OTU', 'OVATUS', 'USOVA']
 IMAGE_SIZE = 256
 NUM_WORKERS = 4
 PIN_MEMORY = True
-DEVICE = 'cuda:0'
+DEVICE = get_device()  # CUDA_DEVICE from y_DG/.env
 PHASE = 'train'
 MODEL = 'Unet'
 EPOCHS = 2

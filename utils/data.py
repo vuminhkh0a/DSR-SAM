@@ -60,7 +60,26 @@ class Custom_Dataset(Dataset):
     
 
 
-def get_datasets(name, image_size, transform):
+def _is_blank_mask(mask_path):
+    """True if GT mask is completely blank (all zeros), like z_SSL."""
+    m = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+    if m is None:
+        return True  # unreadable -> treat as blank / skip
+    return (m > 0).sum() == 0
+
+
+def _filter_blank_pairs(imgs, masks):
+    kept_imgs, kept_masks, n_skipped = [], [], 0
+    for img_p, mask_p in zip(imgs, masks):
+        if _is_blank_mask(mask_p):
+            n_skipped += 1
+            continue
+        kept_imgs.append(img_p)
+        kept_masks.append(mask_p)
+    return kept_imgs, kept_masks, n_skipped
+
+
+def get_datasets(name, image_size, transform, filter_blank_gt=True):
 
     train_x, train_y, valid_x, valid_y, test_x, test_y = [], [], [], [], [], []
 
@@ -82,7 +101,7 @@ def get_datasets(name, image_size, transform):
 
 
     elif name == 'USOVA':
-        ANNOTATOR = "follicle_r1"
+        ANNOTATOR = "ovary_r2"
         VARIANT   = "binary"
         DATASET_ROOT = "/mnt/nvme0/home/utbt/KhoaVM/USOVA3D_Dataset"
         s = '/mnt/nvme0/home/utbt/KhoaVM/USOVA3D_Dataset/split.json'
@@ -99,6 +118,15 @@ def get_datasets(name, image_size, transform):
         train_x, train_y = get_split("train")
         valid_x, valid_y = get_split("val")
         test_x,  test_y  = get_split("test")
+
+        # Skip USOVA samples with completely-blank GT at read time
+        # (train/val/test), same as z_SSL. They are neither read nor counted.
+        if filter_blank_gt:
+            train_x, train_y, n_tr = _filter_blank_pairs(train_x, train_y)
+            valid_x, valid_y, n_va = _filter_blank_pairs(valid_x, valid_y)
+            test_x, test_y, n_te = _filter_blank_pairs(test_x, test_y)
+            print(f"Dataset: {name} | skipped blank-GT samples "
+                  f"(train={n_tr}, val={n_va}, test={n_te})")
 
 
     elif name == 'OVATUS':

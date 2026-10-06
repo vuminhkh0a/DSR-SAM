@@ -5,7 +5,9 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+from utils.env import get_device
+
+DEVICE = get_device()  # CUDA_DEVICE from y_DG/.env
 MODEL_TYPE = "vit_h"
 SOURCE = "OTU"
 EPS = 1e-8
