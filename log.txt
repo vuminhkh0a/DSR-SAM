@@ -1,3 +1,4 @@
+[y_DG] CUDA_DEVICE=cuda:2 -> physical GPU 2 is exposed as logical cuda:0 (CUDA_VISIBLE_DEVICES=2,0).
 
 ======================================================================
 TRAINING
@@ -14,74 +15,73 @@ Epoch [1/50]
   Train Loss: 0.3647 | Val Loss: 0.7296 | Best Val Loss: 0.7296
   Dice: 44.26  IoU: 31.09  Prec: 32.53  Rec: 92.30  HD95: 77.85
   Lr: 0.000010
-  Time: 00:00:18 | Avg: 00:00:18 | Elapsed: 00:00:18 | Remaining: 00:15:03
+  Time: 00:00:35 | Avg: 00:00:35 | Elapsed: 00:00:35 | Remaining: 00:28:58
   >>> New Best Validation Loss | Previous: N/A | Current : 0.7296
   Early stopping patience: 0/5
 Epoch [2/50]
   Train Loss: 0.2301 | Val Loss: 0.4139 | Best Val Loss: 0.4139
   Dice: 53.19  IoU: 39.99  Prec: 42.35  Rec: 92.85  HD95: 71.60
   Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:17 | Elapsed: 00:00:35 | Remaining: 00:14:09
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:01:09 | Remaining: 00:27:38
   >>> New Best Validation Loss | Previous: 0.7296 | Current : 0.4139
   Early stopping patience: 0/5
 Epoch [3/50]
   Train Loss: 0.2086 | Val Loss: 0.3709 | Best Val Loss: 0.3709
   Dice: 58.69  IoU: 45.54  Prec: 50.42  Rec: 87.78  HD95: 56.01
   Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:17 | Elapsed: 00:00:52 | Remaining: 00:13:38
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:01:42 | Remaining: 00:26:48
   >>> New Best Validation Loss | Previous: 0.4139 | Current : 0.3709
   Early stopping patience: 0/5
 Epoch [4/50]
   Train Loss: 0.2006 | Val Loss: 0.3407 | Best Val Loss: 0.3407
   Dice: 62.11  IoU: 49.37  Prec: 57.57  Rec: 79.60  HD95: 50.12
   Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:17 | Elapsed: 00:01:08 | Remaining: 00:13:13
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:02:16 | Remaining: 00:26:04
   >>> New Best Validation Loss | Previous: 0.3709 | Current : 0.3407
   Early stopping patience: 0/5
 Epoch [5/50]
   Train Loss: 0.1968 | Val Loss: 0.3204 | Best Val Loss: 0.3204
   Dice: 63.55  IoU: 51.21  Prec: 63.80  Rec: 74.30  HD95: 45.10
   Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:17 | Elapsed: 00:01:25 | Remaining: 00:12:49
+  Time: 00:00:33 | Avg: 00:00:33 | Elapsed: 00:02:49 | Remaining: 00:25:26
   >>> New Best Validation Loss | Previous: 0.3407 | Current : 0.3204
   Early stopping patience: 0/5
 Epoch [6/50]
   Train Loss: 0.1957 | Val Loss: 0.3326 | Best Val Loss: 0.3204
   Dice: 60.57  IoU: 49.27  Prec: 73.10  Rec: 60.24  HD95: 45.54
   Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:16 | Elapsed: 00:01:41 | Remaining: 00:12:24
+  Time: 00:00:32 | Avg: 00:00:33 | Elapsed: 00:03:22 | Remaining: 00:24:44
   Early stopping patience: 1/5
 Epoch [7/50]
   Train Loss: 0.1896 | Val Loss: 0.3143 | Best Val Loss: 0.3143
   Dice: 62.97  IoU: 51.57  Prec: 68.92  Rec: 65.20  HD95: 41.79
   Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:16 | Elapsed: 00:01:58 | Remaining: 00:12:05
+  Time: 00:00:33 | Avg: 00:00:33 | Elapsed: 00:03:55 | Remaining: 00:24:07
   >>> New Best Validation Loss | Previous: 0.3204 | Current : 0.3143
   Early stopping patience: 0/5
 Epoch [8/50]
   Train Loss: 0.1794 | Val Loss: 0.3103 | Best Val Loss: 0.3103
   Dice: 64.91  IoU: 52.80  Prec: 63.76  Rec: 75.52  HD95: 44.87
   Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:16 | Elapsed: 00:02:14 | Remaining: 00:11:46
+  Time: 00:00:33 | Avg: 00:00:33 | Elapsed: 00:04:29 | Remaining: 00:23:33
   >>> New Best Validation Loss | Previous: 0.3143 | Current : 0.3103
   Early stopping patience: 0/5
 Epoch [9/50]
-  Train Loss: 0.1790 | Val Loss: 0.3261 | Best Val Loss: 0.3103
-  Dice: 62.00  IoU: 51.11  Prec: 70.76  Rec: 63.35  HD95: 43.22
-  Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:16 | Elapsed: 00:02:31 | Remaining: 00:11:28
-  Early stopping patience: 1/5
-Epoch [10/50]
-  Train Loss: 0.1748 | Val Loss: 0.3132 | Best Val Loss: 0.3103
-  Dice: 58.37  IoU: 48.01  Prec: 76.39  Rec: 55.56  HD95: 42.99
-  Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:16 | Elapsed: 00:02:47 | Remaining: 00:11:10
-  Early stopping patience: 2/5
-Epoch [11/50]
-  Train Loss: 0.1706 | Val Loss: 0.2988 | Best Val Loss: 0.2988
-  Dice: 65.80  IoU: 53.94  Prec: 67.19  Rec: 74.22  HD95: 40.22
-  Lr: 0.000010
-  Time: 00:00:16 | Avg: 00:00:16 | Elapsed: 00:03:04 | Remaining: 00:10:53
-  >>> New Best Validation Loss | Previous: 0.3103 | Current : 0.2988
-  Early stopping patience: 0/5
-Epoch [12/50]
+
+[FATAL] Received SIGINT (2); the process is being terminated by the OS or an external kill.
+
+[FATAL] Received SIGINT (2); the process is being terminated by the OS or an external kill.
+
+[FATAL] Received SIGINT (2); the process is being terminated by the OS or an external kill.
+
+[FATAL] Received SIGINT (2); the process is being terminated by the OS or an external kill.
+
+[FATAL] Received SIGINT (2); the process is being terminated by the OS or an external kill.
+
+[FATAL] Received SIGINT (2); the process is being terminated by the OS or an external kill.
+
+[FATAL] Received SIGINT (2); the process is being terminated by the OS or an external kill.
+
+[FATAL] Received SIGINT (2); the process is being terminated by the OS or an external kill.
+
+[FATAL] Received SIGINT (2); the process is being terminated by the OS or an external kill.

@@ -1,2 +1,5 @@
 weights/
 log.txt
+plot.py
+demo.ipynb
+run.sh

@@ -53,7 +53,7 @@ def predict_merged(model, images, boxes, device):
 
 
 def test_sammed(model, source_name, target_name, device, image_size=512,
-                batch_size=4, num_workers=4, pin_memory=True, box_dir=None,
+                batch_size=8, num_workers=4, pin_memory=True, box_dir=None,
                 thresh=0.5, write_results=True, print_results=True,
                 model_type='vit_b', weight_tag='best'):
     model.eval()

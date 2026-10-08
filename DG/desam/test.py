@@ -134,7 +134,7 @@ def generate_mask_from_gridpoints(model, image, device, grid=9, iou_thresh=0.5,
     return torch.as_tensor(final_mask, device=device)
 
 
-def test_desam(model, source_name, target_name, device, image_size=256, batch_size=1,
+def test_desam(model, source_name, target_name, device, image_size=256, batch_size=8,
                num_workers=4, pin_memory=True, grid=9, iou_thresh=0.5, write_results=True,
                print_results=True, model_type='vit_b', weight_tag='best'):
     model.eval()
