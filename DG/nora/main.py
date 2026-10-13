@@ -106,13 +106,13 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-    'n_epochs': 50,
+    'n_epochs': 100,
     'base_lr': 0.0005,          # repo train script --base_lr
     'warmup': True,             # repo trainer warmup
     'warmup_period': 50,        # repo train.py --warmup_period
     'lr_exp': 0.9,              # repo trainer poly decay exponent
     'dice_weight': 0.8,         # repo --dice_param
-    'patience': 5,             # early stopping on val loss (0 = disabled)
+    'patience': 20,             # early stopping on val loss (0 = disabled)
 
     'num_classes': 1,
     'mem_tokens': 50,           # repo NoiseRobustPrompt num tokens

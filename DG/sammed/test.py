@@ -60,7 +60,8 @@ def test_sammed(model, source_name, target_name, device, image_size=512,
     imgs, masks = _collect_split(target_name, image_size, 'test')
     dataset = SAMMedDataset(imgs, masks, box_dir, perturb=False, image_size=image_size)
     test_loader = _make_loader(dataset, batch_size=batch_size, shuffle=False,
-                               num_workers=num_workers, pin_memory=pin_memory)
+                               num_workers=num_workers, pin_memory=pin_memory,
+                               drop_last=True)
 
     running_dice = 0.0
     running_iou = 0.0

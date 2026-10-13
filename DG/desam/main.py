@@ -75,7 +75,7 @@ def run_single_source(source, targets, cfg, device, runner):
                 model=model, train_loader=train_loader, val_loader=val_loader,
                 device=device, optimizer=optimizer, n_epochs=cfg['n_epochs'],
                 lr=cfg['lr'], model_dir=cfg['model_dir'], prefix=cfg['prefix'],
-                patience=cfg.get('patience', 5),
+                patience=cfg.get('patience', 20),
                 save_last=cfg.get('save_last_epoch', False),
             )
             runner.destroy_loaders()
@@ -113,8 +113,8 @@ CONFIG = {
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
     'model_type': 'vit_b',
     'checkpoint': CHECKPOINT,
-    'n_epochs': 50,
-    'patience': 5,              # early stopping on val loss (0 = disabled)
+    'n_epochs': 100,
+    'patience': 20,              # early stopping on val loss (0 = disabled)
     'batch_size': 8,
     'lr': 0.0001,
     'neg_points': 1,

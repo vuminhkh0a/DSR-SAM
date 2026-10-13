@@ -99,8 +99,23 @@ def train_one_epoch(model, loader, device, optimizer, seg_loss, cfg, iter_num):
         # Add L_tsd loss with coefficient beta1 (always student LoRA, both modes).
         # L_tsd sums only the top-s change rates per qkv module, where
         # s = cfg['truncation_size'] (same top-s TSD selection as truncation).
+        # `compute_l_tsd2` is an alternate option for `compute_l_tsd`: the two
+        # are mutually exclusive, with compute_l_tsd2 taking precedence.
+        # `compute_l_tsd3` is a further alternate option (log-squashed rate);
+        # when set it takes precedence over both.
         loss_tsd = torch.tensor(0.0, device=device)
-        if cfg.get('compute_l_tsd', True) and hasattr(model, 'compute_l_tsd'):
+        compute_l_tsd3 = cfg.get('compute_l_tsd3', False)
+        compute_l_tsd2 = cfg.get('compute_l_tsd2', False)
+        if compute_l_tsd3 and hasattr(model, 'compute_l_tsd3'):
+            loss_tsd = model.compute_l_tsd3(ema=False)
+            loss = loss + cfg['beta1'] * loss_tsd
+        elif (not compute_l_tsd3 and compute_l_tsd2
+              and hasattr(model, 'compute_l_tsd2')):
+            loss_tsd = model.compute_l_tsd2(ema=False)
+            loss = loss + cfg['beta1'] * loss_tsd
+        elif (not compute_l_tsd3 and not compute_l_tsd2
+              and cfg.get('compute_l_tsd', True)
+              and hasattr(model, 'compute_l_tsd')):
             loss_tsd = model.compute_l_tsd(ema=False)
             loss = loss + cfg['beta1'] * loss_tsd
 
@@ -186,7 +201,7 @@ def train_dsr_sam(model, train_loader, val_loader, device, cfg):
     prefix = cfg['prefix']
     n_epochs = cfg['n_epochs']
     base_lr = cfg['base_lr']
-    patience = cfg.get('patience', 0)  # 0 = disabled
+    patience = cfg.get('patience', 20)  # 0 = disabled
 
     os.makedirs(model_dir, exist_ok=True)
     best_path = os.path.join(model_dir, f'{prefix}_best.pth')
@@ -254,7 +269,7 @@ def train_dsr_sam(model, train_loader, val_loader, device, cfg):
               f'KD: {train_kd:.6f} | TSD: {train_tsd:.6f} | Val Loss: {val_epoch_loss:.4f} | Best Val Loss: {best_val_loss:.4f}')
         print(f'  Dice: {val_dice:.2f}  IoU: {val_iou:.2f}  Prec: {val_prec:.2f}  '
               f'Rec: {val_rec:.2f}  HD95: {val_hd95:.2f}')
-        print(f'  Lr: {lr_now:.6f} | Truncated TSDs: {truncated} | A_frozen: {A_frozen}')
+        print(f'  Lr: {lr_now:.6f} | Truncated TSDs: {truncated}')
         print(f'  Time: {format_duration(epoch_time)} | Avg: {format_duration(avg_time)} | '
               f'Elapsed: {format_duration(elapsed)} | Remaining: {format_duration(remaining)}')
         if is_best:
@@ -264,7 +279,7 @@ def train_dsr_sam(model, train_loader, val_loader, device, cfg):
             print(f'  Early stopping patience: {epochs_no_improve}/{patience}')
         sys.stdout.flush()
 
-        if patience > 0 and epochs_no_improve > patience:
+        if patience > 0 and epochs_no_improve >= patience:
             print(f'  >>> Early stopping triggered after {epochs_no_improve} epochs without improvement')
             break
 

@@ -4,6 +4,11 @@ source khoa-env/bin/activate
 cd y_DG
 LOG_FILE="log.txt"
 
+# Silence EVERY Python warning (torch/CUDA/determinism, FutureWarning, ...).
+# Must be set before the interpreter starts; utils/seed.py's
+# Y_DG_SUPPRESS_WARNINGS only covers the determinism/CUDA subset at runtime.
+export PYTHONWARNINGS=ignore
+
 
 # ========== DG UNet (plain milesial baseline) ==========
 # nohup python3 -m DG.unet.main > "$LOG_FILE" 2>&1 &
@@ -27,10 +32,13 @@ LOG_FILE="log.txt"
 # nohup python3 -m DG.sr_sam.main > "$LOG_FILE" 2>&1 &
 
 # ========== DG DSR-SAM (dual subspace regularization SAM) ==========
-# nohup python3 -m DG.dsr_sam.main > "$LOG_FILE" 2>&1 &
+nohup python3 -m DG.dsr_sam.main > "$LOG_FILE" 2>&1 &
 
-# ========== DG DSR-SAM Ablation Study ==========
-nohup python3 -m DG.dsr_sam.main2 > "$LOG_FILE" 2>&1 &
+# ========== DG DSR-SAM Hyperparameter Analysis (main_h) ==========
+# nohup python3 -u -m DG.dsr_sam.main_h > "$LOG_FILE" 2>&1 &
+
+# ========== DG DSR-SAM Ablation Study (main_a) ==========
+# nohup python3 -u -m DG.dsr_sam.main_a > "$LOG_FILE" 2>&1 &
 
 # ========== DG SAMMed (leveraging SAM for single-source DG) ==========
 # nohup python3 -m DG.sammed.main > "$LOG_FILE" 2>&1 &
@@ -65,6 +73,8 @@ nohup python3 -m DG.dsr_sam.main2 > "$LOG_FILE" 2>&1 &
 # ========== DG UltraSAM (official checkpoint, test-only) ==========
 # nohup python3 -m DG.ultrasam.main > "$LOG_FILE" 2>&1 &
 
+# ========== DG SOTA (all methods consecutively, fresh log each run) ==========
+# nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
 
 echo "Tailing $LOG_FILE"
 tail -f "$LOG_FILE"

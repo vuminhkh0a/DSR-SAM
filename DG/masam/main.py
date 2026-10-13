@@ -108,8 +108,8 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-    'n_epochs': 50,
-    'patience': 5,              # early stopping on val loss (0 = disabled)
+    'n_epochs': 100,
+    'patience': 20,              # early stopping on val loss (0 = disabled)
     'base_lr': 0.0008,          # repo train.py --base_lr
     'warmup': True,
     'warmup_period': 250,       # repo trainer_bbox.py warmup iterations

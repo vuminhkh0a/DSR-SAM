@@ -114,10 +114,10 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-    'n_epochs': 50,
+    'n_epochs': 100,
     'base_lr': 0.0001,          # paper Sec. 5.2 (prostate)
     'lr_exp': 0.9,              # paper Sec. 5.2 (polynomial decay power)
-    'patience': 5,             # early stopping on val loss (0 = disabled)
+    'patience': 20,             # early stopping on val loss (0 = disabled)
 
     'num_classes': 1,
     'num_points': 64,           # paper Sec. 5.2 (K, prostate)

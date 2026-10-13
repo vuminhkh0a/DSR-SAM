@@ -72,7 +72,7 @@ def format_duration(seconds):
     return f'{h:02d}:{m:02d}:{s:02d}'
 
 
-def train_dn(model, loaders, val_loader, device, optimizer, scheduler, n_epochs, model_dir, prefix='dn', patience=5):
+def train_dn(model, loaders, val_loader, device, optimizer, scheduler, n_epochs, model_dir, prefix='dn', patience=20):
     os.makedirs(model_dir, exist_ok=True)
     best_loss = float('inf')
     epochs_no_improve = 0
@@ -118,7 +118,7 @@ def train_dn(model, loaders, val_loader, device, optimizer, scheduler, n_epochs,
 
         sys.stdout.flush()
 
-        if patience > 0 and epochs_no_improve > patience:
+        if patience > 0 and epochs_no_improve >= patience:
             print(f'  >>> Early stopping triggered after {epochs_no_improve} epochs without improvement')
             break
 

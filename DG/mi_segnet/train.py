@@ -201,7 +201,7 @@ def validate_epoch(seg_encoder, seg_decoder, val_loader, device, domain_label=No
 def train_mi_segnet(seg_encoder, seg_decoder, rec_encoder, rec_decoder, mine,
                     train_loader, val_loader, device,
                     opt_seg_en, opt_seg_de, opt_rec_en, opt_rec_de, opt_mine,
-                    n_epochs, model_dir, prefix, patience=5):
+                    n_epochs, model_dir, prefix, patience=20):
     os.makedirs(model_dir, exist_ok=True)
     best_loss = float('inf')
     epochs_no_improve = 0
@@ -257,7 +257,7 @@ def train_mi_segnet(seg_encoder, seg_decoder, rec_encoder, rec_decoder, mine,
             print(f'  Early stopping patience: {epochs_no_improve}/{patience}')
         sys.stdout.flush()
 
-        if patience > 0 and epochs_no_improve > patience:
+        if patience > 0 and epochs_no_improve >= patience:
             print(f'  >>> Early stopping triggered after {epochs_no_improve} epochs without improvement')
             break
 

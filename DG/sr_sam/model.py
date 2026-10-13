@@ -568,6 +568,29 @@ class _LoRAtruncation_qkv(nn.Module):
             self.ema_linear_a_v = ema_linear_a_v
             self.ema_linear_b_v = ema_linear_b_v
         self.index = index
+        # SVD cache of the frozen base weight (see cache_base_weight_svd).
+        # Valid until update_base_weight truncates the base weight.
+        self._cached_svd_q = None
+        self._cached_svd_v = None
+        self._svd_cache_valid = False
+
+    def cache_base_weight_svd(self, force=False):
+        """Cache SVD of the frozen base weights (q and v projections).
+
+        The SVD depends only on the base weight, which is modified solely by
+        ``update_base_weight`` (which invalidates this cache). A valid cache
+        therefore matches the current weight, so recomputing would return
+        identical tensors and is skipped. ``force=True`` recomputes anyway.
+        """
+        if self._svd_cache_valid and not force:
+            return
+        base_W_q = self.qkv.weight[:self.dim, :]
+        weight_u_q, weight_sigma_q, weight_vt_q = torch.linalg.svd(base_W_q, full_matrices=False)
+        self._cached_svd_q = (weight_u_q, weight_sigma_q, weight_vt_q)
+        base_W_v = self.qkv.weight[-self.dim:, :]
+        weight_u_v, weight_sigma_v, weight_vt_v = torch.linalg.svd(base_W_v, full_matrices=False)
+        self._cached_svd_v = (weight_u_v, weight_sigma_v, weight_vt_v)
+        self._svd_cache_valid = True
 
     def calculate_change_rate(self, a, bb, r):
         # Paper Eq. 2: delta_i = u_i^T delta_W v_i / (sigma_i + eps).
@@ -578,12 +601,16 @@ class _LoRAtruncation_qkv(nn.Module):
     def update_base_weight(self, ema=False):
         """Identify the top-`index` TSDs and truncate them from W (paper Eq. 3)."""
         device = self.qkv.weight.device
+        # Reuse the cached SVD of the base weight when still valid. The base
+        # weight is modified only here (which invalidates the cache below), so
+        # a valid cache is bit-identical to recomputing torch.linalg.svd.
+        if not self._svd_cache_valid:
+            self.cache_base_weight_svd()
+        weight_u_q, weight_sigma_q, weight_vt_q = self._cached_svd_q
         if ema:
             delta_W_q = self.ema_linear_b_q.weight @ self.ema_linear_a_q.weight
         else:
             delta_W_q = self.linear_b_q.weight @ self.linear_a_q.weight
-        base_W_q = self.qkv.weight[:self.dim, :].clone()
-        weight_u_q, weight_sigma_q, weight_vt_q = torch.linalg.svd(base_W_q, full_matrices=False)
         delta_sigma_q = torch.diag(torch.matmul(torch.matmul(weight_u_q.T, delta_W_q), weight_vt_q.T))
         top_index_q = self.calculate_change_rate(weight_sigma_q, delta_sigma_q, self.index)
         remain_index_q = torch.tensor([idx for idx in range(weight_u_q.shape[1])
@@ -592,12 +619,11 @@ class _LoRAtruncation_qkv(nn.Module):
                         @ weight_vt_q[remain_index_q, :])
         self.qkv.weight[:self.dim, :] = new_base_W_q.clone()
 
+        weight_u_v, weight_sigma_v, weight_vt_v = self._cached_svd_v
         if ema:
             delta_W_v = self.ema_linear_b_v.weight @ self.ema_linear_a_v.weight
         else:
             delta_W_v = self.linear_b_v.weight @ self.linear_a_v.weight
-        base_W_v = self.qkv.weight[-self.dim:, :].clone()
-        weight_u_v, weight_sigma_v, weight_vt_v = torch.linalg.svd(base_W_v, full_matrices=False)
         delta_sigma_v = torch.diag(torch.matmul(torch.matmul(weight_u_v.T, delta_W_v), weight_vt_v.T))
         top_index_v = self.calculate_change_rate(weight_sigma_v, delta_sigma_v, self.index)
         remain_index_v = torch.tensor([idx for idx in range(weight_u_v.shape[1])
@@ -605,6 +631,7 @@ class _LoRAtruncation_qkv(nn.Module):
         new_base_W_v = (weight_u_v[:, remain_index_v] @ torch.diag(weight_sigma_v[remain_index_v])
                         @ weight_vt_v[remain_index_v, :])
         self.qkv.weight[-self.dim:, :] = new_base_W_v.clone()
+        self._svd_cache_valid = False
         return top_index_q, top_index_v
 
     def forward(self, x: torch.Tensor, ema: bool = False) -> torch.Tensor:
@@ -700,6 +727,16 @@ class LoRA_Sam(nn.Module):
 
     def reset_B_parameters(self, w_B) -> None:
         nn.init.zeros_(w_B.weight)
+
+    def cache_all_svd(self):
+        """Cache the base-weight SVD for all LoRA qkv modules (once per epoch).
+
+        Calls on plain nn.Linear qkv (ema_mode/truncation disabled) are no-ops.
+        """
+        for blk in self.sam.image_encoder.blocks:
+            qkv = blk.attn.qkv
+            if hasattr(qkv, 'cache_base_weight_svd'):
+                qkv.cache_base_weight_svd()
 
     def forward(self, batched_input, multimask_output, image_size,
                 bbox_input=None, ema=False):

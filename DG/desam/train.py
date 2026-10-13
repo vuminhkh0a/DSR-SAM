@@ -135,7 +135,7 @@ def validate_epoch(model, loader, device):
 
 
 def train_desam(model, train_loader, val_loader, device, optimizer, n_epochs, lr,
-                model_dir, prefix, patience=5, save_last=False):
+                model_dir, prefix, patience=20, save_last=False):
     os.makedirs(model_dir, exist_ok=True)
     best_path = os.path.join(model_dir, f'{prefix}_best.pth')
     last_path = os.path.join(model_dir, f'{prefix}_last.pth')
@@ -193,7 +193,7 @@ def train_desam(model, train_loader, val_loader, device, optimizer, n_epochs, lr
             print(f'  Early stopping patience: {epochs_no_improve}/{patience}')
         sys.stdout.flush()
 
-        if patience > 0 and epochs_no_improve > patience:
+        if patience > 0 and epochs_no_improve >= patience:
             print(f'  >>> Early stopping triggered after {epochs_no_improve} epochs without improvement')
             break
 

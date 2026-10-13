@@ -173,7 +173,7 @@ def train_sr_sam(model, train_loader, val_loader, device, cfg):
 
     iter_num = 0
     best_val_loss = float('inf')
-    patience = cfg.get('patience', 0)  # 0 = disabled
+    patience = cfg.get('patience', 20)  # 0 = disabled
     epochs_no_improve = 0
     # Subspace regularization schedule: first truncation once `dash_warm`
     # iterations have elapsed (repo --Dash_warm 300), then every
@@ -187,6 +187,11 @@ def train_sr_sam(model, train_loader, val_loader, device, cfg):
         epoch_start = time.time()
         print(f'Epoch [{epoch}/{n_epochs}]')
         sys.stdout.flush()
+
+        # Refresh the base-weight SVD cache once per epoch. It is only
+        # recomputed when truncation changed the base weight last epoch
+        # (update_base_weight invalidates it), so this is exact and cheap.
+        model.cache_all_svd()
 
         (train_loss, train_ce, train_dice, train_kd,
          lr_now, iter_num) = train_one_epoch(
@@ -228,7 +233,7 @@ def train_sr_sam(model, train_loader, val_loader, device, cfg):
             print(f'  Early stopping patience: {epochs_no_improve}/{patience}')
         sys.stdout.flush()
 
-        if patience > 0 and epochs_no_improve > patience:
+        if patience > 0 and epochs_no_improve >= patience:
             print(f'  >>> Early stopping triggered after {epochs_no_improve} epochs without improvement')
             break
 

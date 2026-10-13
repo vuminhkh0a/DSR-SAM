@@ -168,7 +168,8 @@ def get_sammed_loaders(source_name, box_dir, image_size, batch_size,
                                 num_workers=num_workers, pin_memory=pin_memory,
                                 drop_last=True)
     val_loader = _make_loader(val_dataset, batch_size, shuffle=False,
-                              num_workers=num_workers, pin_memory=pin_memory)
+                              num_workers=num_workers, pin_memory=pin_memory,
+                              drop_last=True)
     return train_loader, val_loader
 
 

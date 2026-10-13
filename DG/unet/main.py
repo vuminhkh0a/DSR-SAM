@@ -99,12 +99,12 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-    'n_epochs': 50,
+    'n_epochs': 100,
     'base_lr': 1e-5,            # repo train.py --learning-rate
     'weight_decay': 1e-8,       # repo train.py default
     'momentum': 0.999,          # repo train.py default
     'plateau_patience': 5,      # repo ReduceLROnPlateau patience (max Dice)
-    'patience': 5,             # early stopping on val loss (0 = disabled)
+    'patience': 20,             # early stopping on val loss (0 = disabled)
     'bilinear': False,          # repo default (transposed-conv upsampling)
 
     'save_last_epoch': False,    # keep the last-epoch snapshot besides best

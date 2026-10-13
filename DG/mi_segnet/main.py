@@ -114,7 +114,7 @@ def run_single_source(src, targets, cfg, runner):
                 n_epochs=domain_cfg['n_epochs'],
                 model_dir=domain_cfg['model_dir'],
                 prefix=domain_cfg['prefix'],
-                patience=domain_cfg.get('patience', 5),
+                patience=domain_cfg.get('patience', 20),
             )
 
             runner.destroy_loaders()
@@ -188,8 +188,8 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-    'n_epochs': 50,
-    'patience': 5,
+    'n_epochs': 100,
+    'patience': 20,
     'lr': 1e-4,
 
     'in_channels': 3,

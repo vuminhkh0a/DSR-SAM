@@ -163,7 +163,7 @@ def train_masam(model, train_loader, val_loader, device, cfg):
     base_lr = cfg['base_lr']
     warmup_period = cfg['warmup_period']
     lr_exp = cfg['lr_exp']
-    patience = cfg.get('patience', 5)  # 0 = disabled
+    patience = cfg.get('patience', 20)  # 0 = disabled
 
     os.makedirs(model_dir, exist_ok=True)
     best_path = os.path.join(model_dir, f'{prefix}_best.pth')
@@ -225,7 +225,7 @@ def train_masam(model, train_loader, val_loader, device, cfg):
             print(f'  Early stopping patience: {epochs_no_improve}/{patience}')
         sys.stdout.flush()
 
-        if patience > 0 and epochs_no_improve > patience:
+        if patience > 0 and epochs_no_improve >= patience:
             print(f'  >>> Early stopping triggered after {epochs_no_improve} epochs without improvement')
             break
 

@@ -83,7 +83,7 @@ def run_single_source(source, targets, cfg, device, runner):
                 model=resnet, train_loader=train_loader, val_loader=val_loader,
                 device=device, n_epochs=cfg['resnet_epochs'], lr=cfg['resnet_lr'],
                 model_dir=cfg['model_dir'], prefix=cfg['resnet_prefix'],
-                patience=cfg.get('patience', 5),
+                patience=cfg.get('patience', 20),
                 save_last=cfg.get('save_last_epoch', False),
             )
             runner.destroy_loaders()
@@ -134,7 +134,7 @@ def run_single_source(source, targets, cfg, device, runner):
                 model=model, train_loader=train_loader, val_loader=val_loader,
                 device=device, n_epochs=cfg['n_epochs'], lr=cfg['lr'],
                 model_dir=cfg['model_dir'], prefix=cfg['prefix'],
-                patience=cfg.get('patience', 5),
+                patience=cfg.get('patience', 20),
                 save_last=cfg.get('save_last_epoch', False),
             )
             runner.destroy_loaders()
@@ -177,7 +177,7 @@ CONFIG = {
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
     # Stage 1: DeepLabV3-ResNet50 backbone (repo resnet_prostate.py)
-    'resnet_epochs': 50,
+    'resnet_epochs': 30,
     'resnet_batch_size': 8,
     'resnet_lr': 0.001,         # repo --lr
 
@@ -185,7 +185,7 @@ CONFIG = {
     'thresh_1': 0.75,           # theta_1: coarse-mask confidence threshold
 
     # Stage 3: SAM fine-tuning (repo sam_4_preprocessed_bbox.py)
-    'n_epochs': 50,             # repo --epoch
+    'n_epochs': 30,             # repo --epoch
     'batch_size': 8,            # repo --batch_size
     'patience': 5,              # early stopping on val loss (0 = disabled)
     'lr': 0.0001,               # repo --lr

@@ -102,9 +102,9 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-    'n_epochs': 50,
+    'n_epochs': 100,
     'base_lr': 0.0001,          # repo config learning lr
-    'patience': 5,             # early stopping on val loss (0 = disabled)
+    'patience': 20,             # early stopping on val loss (0 = disabled)
 
     'style_n_iter': 5,          # repo max_style n_iter
     'style_lr': 0.1,            # repo max_style lr

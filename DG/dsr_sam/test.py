@@ -12,7 +12,8 @@ from utils.metrics import metric_dice_iou_prec_rec_hd95, save_results
 @torch.no_grad()
 def test_dsr_sam_on_target(model, target_name, device, image_size, batch_size,
                            num_workers, pin_memory, source_name, model_type='vit_h',
-                           write_results=True, weight_tag='best', ema=None):
+                           write_results=True, weight_tag='best', ema=None,
+                           result_tag=None):
     model.eval()
     # ema_mode=True -> test with the EMA teacher; False -> student.
     # Explicit `ema` overrides the model's mode when given.
@@ -53,7 +54,11 @@ def test_dsr_sam_on_target(model, target_name, device, image_size, batch_size,
     avg_recall = running_recall / n * 100
     avg_hd95 = running_hd95 / n
 
-    name = f'{model_type}_dsr_sam_sam_s_{source_name}_t_{target_name}_{weight_tag}'
+    # Ablation variants pass a distinct `result_tag` (e.g. the
+    # no-L_tsd/no-delta_d case) so their results.json entries do not collide
+    # with the full DSR-SAM run.
+    variant = result_tag if result_tag else 'dsr_sam'
+    name = f'{model_type}_{variant}_sam_s_{source_name}_t_{target_name}_{weight_tag}'
 
     print(f'[weight: {weight_tag}] Target {target_name} | Dice: {avg_dice:.2f} | IoU: {avg_iou:.2f} | '
           f'Prec: {avg_precision:.2f} | Rec: {avg_recall:.2f} | HD95: {avg_hd95:.2f}')

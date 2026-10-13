@@ -525,7 +525,9 @@ class _LoRAtruncation_qkv(nn.Module):
                  ema_linear_a_v: Optional[nn.Module] = None,
                  ema_linear_b_v: Optional[nn.Module] = None,
                  index: int = 8,
-                 top_s_change_rates: Optional[int] = None) -> None:
+                 top_s_change_rates: Optional[int] = None,
+                 d_delta: bool = False,
+                 alpha: float = 0.1) -> None:
         super().__init__()
         self.qkv = qkv
         self.linear_a_q = linear_a_q
@@ -544,6 +546,19 @@ class _LoRAtruncation_qkv(nn.Module):
         # `top_s_change_rates` config; defaults to `index` (truncation_size)
         # when not provided.
         self.top_s_change_rates = index if top_s_change_rates is None else top_s_change_rates
+        # `d_delta` (config): when True, L_tsd's numerator keeps only the
+        # change rates that increased since the previous iteration
+        # (change_rate_t - change_rate_{t-1} > 0). The previous iteration's
+        # LoRA (A, B) weights are cached in `_prev_lora_{q,v}`, re-projected
+        # onto the current base-weight SVD on the next step, then released.
+        # When False, L_tsd stays the unconditional mean over the top-s rates.
+        self.d_delta = d_delta
+        # `alpha` (config): coefficient of the logarithmic L_tsd3 loss
+        # `log(1 + alpha * change_rate)` used by `compute_l_tsd3` in place of
+        # the divide-by-max normalization of `compute_l_tsd`/`compute_l_tsd2`.
+        self.alpha = alpha
+        self._prev_lora_q = None
+        self._prev_lora_v = None
         self._cached_svd_q = None
         self._cached_svd_v = None
         self._svd_cache_valid = False
@@ -570,8 +585,57 @@ class _LoRAtruncation_qkv(nn.Module):
         _, top_r_indices = torch.topk(change_rate, r)
         return change_rate, top_r_indices
 
-    def cache_base_weight_svd(self):
-        """Cache SVD of base weights (q and v projections) for L_tsd computation."""
+    def calculate_change_rate2(self, a, bb, deltaW, r):
+        # Alternate L_tsd rate (compute_l_tsd2): no absolute value anywhere.
+        # Denominator uses the Frobenius norm of the full LoRA delta
+        # (which always carries grad) times sigma:
+        #     change_rate = ( bb / (||deltaW||_F * a + eps) ) ** 2
+        deltaW_fro = torch.norm(deltaW, p='fro')
+        change_rate = (bb / (deltaW_fro * a + self.eps)) ** 2
+        # Check that change_rate is 1D
+        if change_rate.dim() != 1:
+            raise ValueError(f"Expected change_rate to be 1D, got shape {change_rate.shape}")
+        _, top_r_indices = torch.topk(change_rate, r)
+        return change_rate, top_r_indices
+
+    def _project_change_rate(self, a_weight, b_weight, weight_sigma, weight_u, weight_vt):
+        """Project a LoRA delta (delta_W = B @ A) onto a cached base SVD.
+
+        Returns the 1D per-singular-direction change rates, matching the
+        current-iteration rates in ``compute_l_tsd`` (same base-weight basis).
+        """
+        delta_W = b_weight @ a_weight
+        delta_sigma = torch.diag(torch.matmul(torch.matmul(weight_u.T, delta_W), weight_vt.T))
+        return torch.abs(delta_sigma) / (torch.abs(weight_sigma) + self.eps)
+
+    def _select_change_rates(self, change_rate, top_idx, prev_lora,
+                             weight_sigma, weight_u, weight_vt):
+        """Indices (into ``change_rate``) that contribute to L_tsd.
+
+        Without ``d_delta`` -- or before the first cached iteration -- this is
+        the full top-s index set (plain unconditional L_tsd numerator). With
+        ``d_delta`` and a cached previous LoRA, only the top-s directions whose
+        change rate increased (change_rate_t - change_rate_{t-1} > 0) are kept.
+        """
+        if not self.d_delta or prev_lora is None:
+            return top_idx
+        with torch.no_grad():
+            prev_rate = self._project_change_rate(
+                prev_lora[0], prev_lora[1], weight_sigma, weight_u, weight_vt)
+            keep = (change_rate.detach() - prev_rate) > 0
+        return top_idx[keep[top_idx]]
+
+    def cache_base_weight_svd(self, force=False):
+        """Cache SVD of base weights (q and v projections) for L_tsd computation.
+
+        The SVD depends only on the frozen base weight, which is modified sole-
+        ly by ``update_base_weight`` (which invalidates this cache). A valid
+        cache therefore always matches the current base weight, so recomputing
+        would return identical tensors and can be skipped. ``force=True``
+        recomputes unconditionally.
+        """
+        if self._svd_cache_valid and not force:
+            return
         device = self.qkv.weight.device
         base_W_q = self.qkv.weight[:self.dim, :]
         weight_u_q, weight_sigma_q, weight_vt_q = torch.linalg.svd(base_W_q, full_matrices=False)
@@ -585,9 +649,22 @@ class _LoRAtruncation_qkv(nn.Module):
         """Compute L_tsd over the top-`top_s_change_rates` change rates.
 
         `self.top_s_change_rates` is the config variable (independent of the
-        truncation `index`/`truncation_size`), and only the top-s change rates
-        delta_i contribute:
-            L_tsd = mean(change_rate[top_s] / n), n = max(change_rate).detach()
+        truncation `index`/`truncation_size`). Per branch (q, v) the pipeline
+        is exactly:
+
+            project delta_W onto the base-weight SVD
+            -> change rate
+            -> take top-s
+            -> (d_delta) keep only growing directions
+            -> normalize by the kept max
+            -> average
+
+        With `d_delta=True`, a top-s direction contributes to L_tsd only if
+        change_rate_t - change_rate_{t-1} > 0; the kept rates are then
+        normalized by their own max and averaged:
+            L_tsd = mean(change_rate[kept] / max(change_rate[kept]))
+        With `d_delta=False`, kept == top-s, which contains the global max, so
+        this equals the original mean(change_rate[top_s] / max(change_rate)).
 
         ema=True projects the EMA LoRA delta onto the frozen base weight;
         with ema_mode=False (no EMA copies) this falls back to the student
@@ -600,20 +677,37 @@ class _LoRAtruncation_qkv(nn.Module):
         
         # Compute for q
         if use_ema:
-            delta_W_q = self.ema_linear_b_q.weight @ self.ema_linear_a_q.weight
+            a_q = self.ema_linear_a_q.weight
+            b_q = self.ema_linear_b_q.weight
         else:
-            delta_W_q = self.linear_b_q.weight @ self.linear_a_q.weight
+            a_q = self.linear_a_q.weight
+            b_q = self.linear_b_q.weight
+        delta_W_q = b_q @ a_q
         
         if not self._svd_cache_valid:
             self.cache_base_weight_svd()
         weight_u_q, weight_sigma_q, weight_vt_q = self._cached_svd_q
         delta_sigma_q = torch.diag(torch.matmul(torch.matmul(weight_u_q.T, delta_W_q), weight_vt_q.T))
         change_rate_q, top_q = self.calculate_change_rate(weight_sigma_q, delta_sigma_q, self.top_s_change_rates)
-        n_q = torch.max(change_rate_q).detach()
-        # Avoid division by zero
-        n_q = torch.clamp(n_q, min=1e-8)
         # Only the top-`top_s_change_rates` change rates contribute to L_tsd.
-        l_tsd_q = (change_rate_q[top_q] / n_q).mean()
+        # With `d_delta`, further keep only those that grew since the previous
+        # iteration (change_rate_t - change_rate_{t-1} > 0).
+        selected_q = self._select_change_rates(
+            change_rate_q, top_q, self._prev_lora_q,
+            weight_sigma_q, weight_u_q, weight_vt_q)
+        # normalize + average AFTER the d_delta condition: divide the kept
+        # change rates by their own max, so the largest kept rate is 1.
+        # With d_delta=False, selected_q == top_q contains the global max,
+        # so this is identical to the original global-max normalizer.
+        if selected_q.numel() > 0:
+            n_q = torch.clamp(torch.max(change_rate_q[selected_q]).detach(), min=1e-8)
+            l_tsd_q = (change_rate_q[selected_q] / n_q).mean()
+        else:
+            l_tsd_q = torch.tensor(0.0, device=device)
+        # Cache this iteration's LoRA (A, B) so the next step can derive
+        # change_rate_{t-1}; the previous cache is released on overwrite.
+        if self.d_delta:
+            self._prev_lora_q = (a_q.detach().clone(), b_q.detach().clone())
         # Check for NaN/inf
         if not torch.isfinite(l_tsd_q):
             l_tsd_q = torch.tensor(0.0, device=device)
@@ -622,20 +716,37 @@ class _LoRAtruncation_qkv(nn.Module):
         
         # Compute for v
         if use_ema:
-            delta_W_v = self.ema_linear_b_v.weight @ self.ema_linear_a_v.weight
+            a_v = self.ema_linear_a_v.weight
+            b_v = self.ema_linear_b_v.weight
         else:
-            delta_W_v = self.linear_b_v.weight @ self.linear_a_v.weight
+            a_v = self.linear_a_v.weight
+            b_v = self.linear_b_v.weight
+        delta_W_v = b_v @ a_v
         
         if not self._svd_cache_valid:
             self.cache_base_weight_svd()
         weight_u_v, weight_sigma_v, weight_vt_v = self._cached_svd_v
         delta_sigma_v = torch.diag(torch.matmul(torch.matmul(weight_u_v.T, delta_W_v), weight_vt_v.T))
         change_rate_v, top_v = self.calculate_change_rate(weight_sigma_v, delta_sigma_v, self.top_s_change_rates)
-        n_v = torch.max(change_rate_v).detach()
-        # Avoid division by zero
-        n_v = torch.clamp(n_v, min=1e-8)
         # Only the top-`top_s_change_rates` change rates contribute to L_tsd.
-        l_tsd_v = (change_rate_v[top_v] / n_v).mean()
+        # With `d_delta`, further keep only those that grew since the previous
+        # iteration (change_rate_t - change_rate_{t-1} > 0).
+        selected_v = self._select_change_rates(
+            change_rate_v, top_v, self._prev_lora_v,
+            weight_sigma_v, weight_u_v, weight_vt_v)
+        # normalize + average AFTER the d_delta condition: divide the kept
+        # change rates by their own max, so the largest kept rate is 1.
+        # With d_delta=False, selected_v == top_v contains the global max,
+        # so this is identical to the original global-max normalizer.
+        if selected_v.numel() > 0:
+            n_v = torch.clamp(torch.max(change_rate_v[selected_v]).detach(), min=1e-8)
+            l_tsd_v = (change_rate_v[selected_v] / n_v).mean()
+        else:
+            l_tsd_v = torch.tensor(0.0, device=device)
+        # Cache this iteration's LoRA (A, B) so the next step can derive
+        # change_rate_{t-1}; the previous cache is released on overwrite.
+        if self.d_delta:
+            self._prev_lora_v = (a_v.detach().clone(), b_v.detach().clone())
         # Check for NaN/inf
         if not torch.isfinite(l_tsd_v):
             l_tsd_v = torch.tensor(0.0, device=device)
@@ -648,6 +759,205 @@ class _LoRAtruncation_qkv(nn.Module):
             result = torch.tensor(0.0, device=device)
         return result
 
+    def compute_l_tsd2(self, ema=False):
+        """Compute L_tsd with the alternate change rate (`calculate_change_rate2`).
+
+        This mirrors `compute_l_tsd` but, for each qkv module/branch:
+
+            * the top-s directions are still selected with the ORIGINAL change
+              rate, ``|bb| / (|a| + eps)`` (this is what decides which
+              directions are considered for the loss, including the d_delta
+              growth filter);
+            * the value that actually enters L_tsd is the alternate rate
+              ``(bb / (||deltaW||_F * a + eps)) ** 2`` (no absolute values),
+              where ``deltaW`` is the full LoRA delta ``B @ A`` (always
+              differentiable; the base SVD terms stay frozen).
+
+        With `d_delta=True`, only top-s directions that grew since the previous
+        iteration are kept, and the kept alternate rates are normalized by
+        their own max and averaged. With `d_delta=False` the full top-s set is
+        used.
+        """
+        device = self.qkv.weight.device
+        total_l_tsd = torch.tensor(0.0, device=device)
+        count = 0
+        use_ema = self._use_ema(ema)
+
+        # Compute for q
+        if use_ema:
+            a_q = self.ema_linear_a_q.weight
+            b_q = self.ema_linear_b_q.weight
+        else:
+            a_q = self.linear_a_q.weight
+            b_q = self.linear_b_q.weight
+        delta_W_q = b_q @ a_q
+
+        if not self._svd_cache_valid:
+            self.cache_base_weight_svd()
+        weight_u_q, weight_sigma_q, weight_vt_q = self._cached_svd_q
+        delta_sigma_q = torch.diag(torch.matmul(torch.matmul(weight_u_q.T, delta_W_q), weight_vt_q.T))
+        # Top-s selection still uses the ORIGINAL change rate.
+        change_rate_q, top_q = self.calculate_change_rate(
+            weight_sigma_q, delta_sigma_q, self.top_s_change_rates)
+        # Alternate rate (with deltaW) supplies the value that enters the loss.
+        change_rate2_q, _ = self.calculate_change_rate2(
+            weight_sigma_q, delta_sigma_q, delta_W_q, self.top_s_change_rates)
+        selected_q = self._select_change_rates(
+            change_rate_q, top_q, self._prev_lora_q,
+            weight_sigma_q, weight_u_q, weight_vt_q)
+        if selected_q.numel() > 0:
+            n_q = torch.clamp(torch.max(change_rate2_q[selected_q]).detach(), min=1e-8)
+            l_tsd_q = (change_rate2_q[selected_q] / n_q).mean()
+        else:
+            l_tsd_q = torch.tensor(0.0, device=device)
+        if self.d_delta:
+            self._prev_lora_q = (a_q.detach().clone(), b_q.detach().clone())
+        if not torch.isfinite(l_tsd_q):
+            l_tsd_q = torch.tensor(0.0, device=device)
+        total_l_tsd = total_l_tsd + l_tsd_q
+        count += 1
+
+        # Compute for v
+        if use_ema:
+            a_v = self.ema_linear_a_v.weight
+            b_v = self.ema_linear_b_v.weight
+        else:
+            a_v = self.linear_a_v.weight
+            b_v = self.linear_b_v.weight
+        delta_W_v = b_v @ a_v
+
+        if not self._svd_cache_valid:
+            self.cache_base_weight_svd()
+        weight_u_v, weight_sigma_v, weight_vt_v = self._cached_svd_v
+        delta_sigma_v = torch.diag(torch.matmul(torch.matmul(weight_u_v.T, delta_W_v), weight_vt_v.T))
+        # Top-s selection still uses the ORIGINAL change rate.
+        change_rate_v, top_v = self.calculate_change_rate(
+            weight_sigma_v, delta_sigma_v, self.top_s_change_rates)
+        # Alternate rate (with deltaW) supplies the value that enters the loss.
+        change_rate2_v, _ = self.calculate_change_rate2(
+            weight_sigma_v, delta_sigma_v, delta_W_v, self.top_s_change_rates)
+        selected_v = self._select_change_rates(
+            change_rate_v, top_v, self._prev_lora_v,
+            weight_sigma_v, weight_u_v, weight_vt_v)
+        if selected_v.numel() > 0:
+            n_v = torch.clamp(torch.max(change_rate2_v[selected_v]).detach(), min=1e-8)
+            l_tsd_v = (change_rate2_v[selected_v] / n_v).mean()
+        else:
+            l_tsd_v = torch.tensor(0.0, device=device)
+        if self.d_delta:
+            self._prev_lora_v = (a_v.detach().clone(), b_v.detach().clone())
+        if not torch.isfinite(l_tsd_v):
+            l_tsd_v = torch.tensor(0.0, device=device)
+        total_l_tsd = total_l_tsd + l_tsd_v
+        count += 1
+
+        result = total_l_tsd / count if count > 0 else torch.tensor(0.0, device=device)
+        if not torch.isfinite(result):
+            result = torch.tensor(0.0, device=device)
+        return result
+
+    def compute_l_tsd3(self, ema=False):
+        """Compute L_tsd3: the alternate rate squash with `log(1 + alpha * rate)`.
+
+        This mirrors `compute_l_tsd2` but removes the divide-by-max
+        normalization of the loss value. Everything else is unchanged:
+
+            * the top-s directions are still selected with the ORIGINAL change
+              rate, ``|bb| / (|a| + eps)`` (including the d_delta growth filter);
+            * the value that enters the loss is the alternate rate
+              ``(bb / (||deltaW||_F * a + eps)) ** 2`` (no absolute values),
+              where ``deltaW`` is the full LoRA delta ``B @ A`` and stays
+              differentiable (grad kept on for deltaW; the base SVD terms are
+              frozen).
+
+        Instead of ``change_rate / max(change_rate)`` (compute_l_tsd2) the
+        kept alternate rates are squashed with the logarithm:
+            L_tsd3 = mean(log(1 + alpha * change_rate))
+        where ``alpha`` is the config coefficient (`self.alpha`, default 0.1).
+
+        With `d_delta=True`, only top-s directions that grew since the previous
+        iteration are kept. With `d_delta=False` the full top-s set is used.
+        """
+        device = self.qkv.weight.device
+        total_l_tsd = torch.tensor(0.0, device=device)
+        count = 0
+        use_ema = self._use_ema(ema)
+
+        # Compute for q
+        if use_ema:
+            a_q = self.ema_linear_a_q.weight
+            b_q = self.ema_linear_b_q.weight
+        else:
+            a_q = self.linear_a_q.weight
+            b_q = self.linear_b_q.weight
+        delta_W_q = b_q @ a_q
+
+        if not self._svd_cache_valid:
+            self.cache_base_weight_svd()
+        weight_u_q, weight_sigma_q, weight_vt_q = self._cached_svd_q
+        delta_sigma_q = torch.diag(torch.matmul(torch.matmul(weight_u_q.T, delta_W_q), weight_vt_q.T))
+        # Top-s selection still uses the ORIGINAL change rate.
+        change_rate_q, top_q = self.calculate_change_rate(
+            weight_sigma_q, delta_sigma_q, self.top_s_change_rates)
+        # Alternate rate (with deltaW) supplies the value that enters the loss.
+        change_rate2_q, _ = self.calculate_change_rate2(
+            weight_sigma_q, delta_sigma_q, delta_W_q, self.top_s_change_rates)
+        selected_q = self._select_change_rates(
+            change_rate_q, top_q, self._prev_lora_q,
+            weight_sigma_q, weight_u_q, weight_vt_q)
+        if selected_q.numel() > 0:
+            # No divide-by-max: squash the kept alternate rates with
+            # log(1 + alpha * rate), keeping the deltaW gradient.
+            l_tsd_q = torch.log1p(self.alpha * change_rate2_q[selected_q]).mean()
+        else:
+            l_tsd_q = torch.tensor(0.0, device=device)
+        if self.d_delta:
+            self._prev_lora_q = (a_q.detach().clone(), b_q.detach().clone())
+        if not torch.isfinite(l_tsd_q):
+            l_tsd_q = torch.tensor(0.0, device=device)
+        total_l_tsd = total_l_tsd + l_tsd_q
+        count += 1
+
+        # Compute for v
+        if use_ema:
+            a_v = self.ema_linear_a_v.weight
+            b_v = self.ema_linear_b_v.weight
+        else:
+            a_v = self.linear_a_v.weight
+            b_v = self.linear_b_v.weight
+        delta_W_v = b_v @ a_v
+
+        if not self._svd_cache_valid:
+            self.cache_base_weight_svd()
+        weight_u_v, weight_sigma_v, weight_vt_v = self._cached_svd_v
+        delta_sigma_v = torch.diag(torch.matmul(torch.matmul(weight_u_v.T, delta_W_v), weight_vt_v.T))
+        # Top-s selection still uses the ORIGINAL change rate.
+        change_rate_v, top_v = self.calculate_change_rate(
+            weight_sigma_v, delta_sigma_v, self.top_s_change_rates)
+        # Alternate rate (with deltaW) supplies the value that enters the loss.
+        change_rate2_v, _ = self.calculate_change_rate2(
+            weight_sigma_v, delta_sigma_v, delta_W_v, self.top_s_change_rates)
+        selected_v = self._select_change_rates(
+            change_rate_v, top_v, self._prev_lora_v,
+            weight_sigma_v, weight_u_v, weight_vt_v)
+        if selected_v.numel() > 0:
+            # No divide-by-max: squash the kept alternate rates with
+            # log(1 + alpha * rate), keeping the deltaW gradient.
+            l_tsd_v = torch.log1p(self.alpha * change_rate2_v[selected_v]).mean()
+        else:
+            l_tsd_v = torch.tensor(0.0, device=device)
+        if self.d_delta:
+            self._prev_lora_v = (a_v.detach().clone(), b_v.detach().clone())
+        if not torch.isfinite(l_tsd_v):
+            l_tsd_v = torch.tensor(0.0, device=device)
+        total_l_tsd = total_l_tsd + l_tsd_v
+        count += 1
+
+        result = total_l_tsd / count if count > 0 else torch.tensor(0.0, device=device)
+        if not torch.isfinite(result):
+            result = torch.tensor(0.0, device=device)
+        return result
+
     def update_base_weight(self, ema=False):
         """Identify the top-`index` TSDs and truncate them from W (paper Eq. 3).
 
@@ -656,12 +966,16 @@ class _LoRAtruncation_qkv(nn.Module):
         """
         device = self.qkv.weight.device
         use_ema = self._use_ema(ema)
+        # Reuse the cached SVD of the base weight when still valid. The base
+        # weight is modified only here (which invalidates the cache below), so
+        # a valid cache is bit-identical to recomputing torch.linalg.svd.
+        if not self._svd_cache_valid:
+            self.cache_base_weight_svd()
         if use_ema:
             delta_W_q = self.ema_linear_b_q.weight @ self.ema_linear_a_q.weight
         else:
             delta_W_q = self.linear_b_q.weight @ self.linear_a_q.weight
-        base_W_q = self.qkv.weight[:self.dim, :].clone()
-        weight_u_q, weight_sigma_q, weight_vt_q = torch.linalg.svd(base_W_q, full_matrices=False)
+        weight_u_q, weight_sigma_q, weight_vt_q = self._cached_svd_q
         delta_sigma_q = torch.diag(torch.matmul(torch.matmul(weight_u_q.T, delta_W_q), weight_vt_q.T))
         _, top_index_q = self.calculate_change_rate(weight_sigma_q, delta_sigma_q, self.index)
         remain_index_q = torch.tensor([idx for idx in range(weight_u_q.shape[1])
@@ -674,8 +988,7 @@ class _LoRAtruncation_qkv(nn.Module):
             delta_W_v = self.ema_linear_b_v.weight @ self.ema_linear_a_v.weight
         else:
             delta_W_v = self.linear_b_v.weight @ self.linear_a_v.weight
-        base_W_v = self.qkv.weight[-self.dim:, :].clone()
-        weight_u_v, weight_sigma_v, weight_vt_v = torch.linalg.svd(base_W_v, full_matrices=False)
+        weight_u_v, weight_sigma_v, weight_vt_v = self._cached_svd_v
         delta_sigma_v = torch.diag(torch.matmul(torch.matmul(weight_u_v.T, delta_W_v), weight_vt_v.T))
         _, top_index_v = self.calculate_change_rate(weight_sigma_v, delta_sigma_v, self.index)
         remain_index_v = torch.tensor([idx for idx in range(weight_u_v.shape[1])
@@ -730,10 +1043,15 @@ class LoRA_Sam(nn.Module):
     the SAM image encoder (repo LoRA_Sam)."""
 
     def __init__(self, sam_model, r: int, lora_layer=None, ema_mode=True,
-                 Dash_index=8, top_s_change_rates=None) -> None:
+                 Dash_index=8, top_s_change_rates=None, d_delta=False,
+                 alpha: float = 0.1) -> None:
         super(LoRA_Sam, self).__init__()
         self.ema_mode = ema_mode
         self.top_s_change_rates = top_s_change_rates
+        self.d_delta = d_delta
+        # `alpha` (config): coefficient of the logarithmic L_tsd3 loss
+        # `log(1 + alpha * change_rate)` (see `_LoRAtruncation_qkv.compute_l_tsd3`).
+        self.alpha = alpha
 
         assert r > 0
         if lora_layer:
@@ -781,6 +1099,8 @@ class LoRA_Sam(nn.Module):
                 ema_w_a_linear_q, ema_w_b_linear_q, ema_w_a_linear_v, ema_w_b_linear_v,
                 index=self.index,
                 top_s_change_rates=self.top_s_change_rates,
+                d_delta=self.d_delta,
+                alpha=self.alpha,
             )
         self.sam = sam_model
 
@@ -817,6 +1137,50 @@ class LoRA_Sam(nn.Module):
             qkv = blk.attn.qkv
             if hasattr(qkv, 'compute_l_tsd'):
                 l_tsd = qkv.compute_l_tsd(ema=ema)
+                total_l_tsd = total_l_tsd + l_tsd
+                count += 1
+        return total_l_tsd / count if count > 0 else torch.tensor(0.0, device=self.sam.device)
+
+    def compute_l_tsd2(self, ema=False):
+        """Compute total L_tsd (alternate change rate) across all LoRA qkv modules.
+
+        Aggregates `_LoRAtruncation_qkv.compute_l_tsd2`, which selects the
+        top-s directions with the original change rate but uses the alternate
+        ``(bb / (||deltaW||_F * a + eps)) ** 2`` rate as the loss value.
+
+        Convention: uses the student LoRA (ema=False); an `ema=True` request is
+        honored only when the model owns EMA copies.
+        """
+        ema = self.resolve_ema(ema)
+        total_l_tsd = torch.tensor(0.0, device=self.sam.device)
+        count = 0
+        for blk in self.sam.image_encoder.blocks:
+            qkv = blk.attn.qkv
+            if hasattr(qkv, 'compute_l_tsd2'):
+                l_tsd = qkv.compute_l_tsd2(ema=ema)
+                total_l_tsd = total_l_tsd + l_tsd
+                count += 1
+        return total_l_tsd / count if count > 0 else torch.tensor(0.0, device=self.sam.device)
+
+    def compute_l_tsd3(self, ema=False):
+        """Compute total L_tsd3 (log-squashed alternate rate) across all LoRA qkv modules.
+
+        Aggregates `_LoRAtruncation_qkv.compute_l_tsd3`, which selects the
+        top-s directions with the original change rate but uses
+        ``mean(log(1 + alpha * change_rate))`` as the loss value, where the
+        alternate rate is ``(bb / (||deltaW||_F * a + eps)) ** 2`` (deltaW keeps
+        its gradient) and ``alpha`` comes from config (`self.alpha`, default 0.1).
+
+        Convention: uses the student LoRA (ema=False); an `ema=True` request is
+        honored only when the model owns EMA copies.
+        """
+        ema = self.resolve_ema(ema)
+        total_l_tsd = torch.tensor(0.0, device=self.sam.device)
+        count = 0
+        for blk in self.sam.image_encoder.blocks:
+            qkv = blk.attn.qkv
+            if hasattr(qkv, 'compute_l_tsd3'):
+                l_tsd = qkv.compute_l_tsd3(ema=ema)
                 total_l_tsd = total_l_tsd + l_tsd
                 count += 1
         return total_l_tsd / count if count > 0 else torch.tensor(0.0, device=self.sam.device)
@@ -995,12 +1359,14 @@ def _build_sam(image_size, num_classes, checkpoint=None, model_type='vit_h'):
 
 def build_dsr_sam(checkpoint=None, model_type='vit_h', image_size=256,
                  num_classes=1, rank=64, ema_mode=True, truncation_size=96,
-                 top_s_change_rates=None):
+                 top_s_change_rates=None, d_delta=False, alpha=0.1):
     """Build the DSR-SAM model (LoRA_Sam wrapper around SAM)."""
     assert model_type in VIT_CONFIGS
     sam, _ = _build_sam(image_size=image_size, num_classes=num_classes,
                         checkpoint=checkpoint, model_type=model_type)
     net = LoRA_Sam(sam, r=rank, ema_mode=ema_mode,
                    Dash_index=truncation_size,
-                   top_s_change_rates=top_s_change_rates)
+                   top_s_change_rates=top_s_change_rates,
+                   d_delta=d_delta,
+                   alpha=alpha)
     return net

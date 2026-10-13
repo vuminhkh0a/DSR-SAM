@@ -49,6 +49,8 @@ def run_single_source(source, targets, cfg, runner):
             rank=cfg['rank'], ema_mode=cfg['ema_mode'],
             truncation_size=cfg['truncation_size'],
             top_s_change_rates=cfg['top_s_change_rates'],
+            d_delta=cfg['d_delta'],
+            alpha=cfg.get('alpha', 0.1),
         ).to(device)
 
         params = sum(p.numel() for p in model.parameters())
@@ -91,6 +93,7 @@ def run_single_source(source, targets, cfg, runner):
                     num_workers=cfg['num_workers'], pin_memory=cfg['pin_memory'],
                     source_name=source, model_type=cfg['model_type'],
                     write_results=True, weight_tag=weight_tag,
+                    result_tag=cfg.get('result_tag'),
                 )
             print(f'{"="*70}')
 
@@ -106,10 +109,10 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-    'n_epochs': 50,
+    'n_epochs': 100,
     'base_lr': 0.0005,          # paper Sec. 3 (initial learning rate)
     'warmup_period': 250,       # paper Sec. 3 (warm-up iterations)
-    'patience': 5,              # early stopping on val loss (0 = disabled)
+    'patience': 20,              # early stopping on val loss (0 = disabled)
 
     'num_classes': 1,
     'rank': 64,                 # paper Sec. 3 (LoRA rank)
@@ -122,7 +125,16 @@ CONFIG = {
     'top_s_change_rates': 96,   # number of top change rates contributing to L_tsd
     'truncation_period': 4,     # paper Sec. 3 (every 4 epochs)
     'dash_warm': 300,           # repo run_CVC-ClinicDB.sh --Dash_warm 300
-    'compute_l_tsd': True,      # whether to compute L_tsd loss
+    'compute_l_tsd': False,      # whether to compute L_tsd loss
+    'compute_l_tsd2': False,    # alternate L_tsd (mutually exclusive with
+                                # compute_l_tsd; when True, compute_l_tsd is off)
+    'compute_l_tsd3': True,   # alternate L_tsd using log(1 + alpha * change_rate)
+                               # instead of dividing by max(change_rate)
+                               # (mutually exclusive with compute_l_tsd/2;
+                               # when True it takes precedence over both)
+    'alpha': 0.1,              # coefficient of the L_tsd3 log-squash term
+    'd_delta': False,           # L_tsd numerator: keep only change rates that
+                                # grew since the previous iteration (dDelta)
 
     'experiment_process_save_epochs': False,  # save weights at epochs 1-20 and 60,100,140,...
     'save_last_epoch': False,  # whether to save weights at the last epoch

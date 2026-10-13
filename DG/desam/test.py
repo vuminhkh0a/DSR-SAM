@@ -81,7 +81,7 @@ def generate_mask_from_gridpoints(model, image, device, grid=9, iou_thresh=0.5,
     crop_n_layers=0 (edge filter is a no-op for the full-image crop).
     """
     image_embeddings = model.encode_image(image)            # each (1, C, 64, 64)
-    dense_embeddings = model.prompt_encoder.get_dense_pe()  # (1, 256, 64, 64)
+    dense_pe = model.prompt_encoder.get_dense_pe()          # (1, 256, 64, 64)
 
     grid_points = build_point_grid(grid)                    # (N, 2) in [0,1]
     coords = torch.as_tensor(grid_points * 256 * 4, device=device)   # 256-res -> 1024-res
@@ -93,7 +93,7 @@ def generate_mask_from_gridpoints(model, image, device, grid=9, iou_thresh=0.5,
         batch_labels = labels[i:i + points_per_batch, None]
         n = batch_coords.shape[0]
 
-        sparse_embeddings, _ = model.prompt_encoder(
+        sparse_embeddings, dense_embeddings = model.prompt_encoder(
             points=(batch_coords, batch_labels), boxes=None, masks=None,
         )
         # expand all features to the number of prompts (repo predictor.py)
@@ -101,7 +101,7 @@ def generate_mask_from_gridpoints(model, image, device, grid=9, iou_thresh=0.5,
 
         masks_logits, iou_preds = model.mask_decoder(
             image_embeddings=batch_embeddings,
-            image_pe=dense_embeddings,
+            image_pe=dense_pe,
             sparse_prompt_embeddings=sparse_embeddings,
             dense_prompt_embeddings=dense_embeddings,
             multimask_output=False,

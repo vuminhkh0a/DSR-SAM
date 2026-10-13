@@ -108,9 +108,9 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-    'n_epochs': 50,
+    'n_epochs': 100,
     'base_lr': 0.0005,          # repo train.py --base_lr
-    'patience': 5,             # early stopping on val loss (0 = disabled)
+    'patience': 20,             # early stopping on val loss (0 = disabled)
 
     'save_last_epoch': False,    # keep the last-epoch snapshot besides best
     'write_results': True,       # False during smoke runs
