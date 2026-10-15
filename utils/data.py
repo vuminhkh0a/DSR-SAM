@@ -8,6 +8,10 @@ import albumentations as A
 from utils.seed import *
 
 set_seed()
+# Kept for backward compatibility (e.g. ``DG.dualnormalization.main`` imports
+# it). ``_make_loader`` no longer uses this shared global: it now creates a
+# fresh generator per loader so DataLoader shuffling is scoped to the current
+# run seed instead of the whole process history.
 generator = get_generator()
 
 
@@ -16,7 +20,7 @@ def _make_loader(dataset, batch_size, shuffle, num_workers, pin_memory, drop_las
         batch_size=batch_size, shuffle=shuffle,
         num_workers=num_workers, pin_memory=pin_memory,
         drop_last=drop_last,
-        generator=generator, worker_init_fn=worker_init_fn,
+        generator=get_generator(), worker_init_fn=worker_init_fn,
     )
     if num_workers > 0:
         kwargs['persistent_workers'] = True

@@ -93,6 +93,8 @@ def get_base_config():
         'pin_memory': True,
         'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
+        'seed': 42,              # RNG seed (reset per case for reproducibility)
+
         'n_epochs': 100,
         'base_lr': 0.0005,
         'warmup_period': 250,
@@ -171,6 +173,9 @@ def run_one_case(case_idx, n_cases, case, source, targets, base_config, runner):
     """Train ONE hyperparameter case (source) into the shared weight, then test."""
     cfg = dict(base_config)
     cfg.update(case)
+    # Phase 2 (reproducibility): reseed per case so each case is independent
+    # of the RNG consumed by previously run cases.
+    set_seed(cfg.get('seed', 42))
     # L_tsd off -> no L_tsd term regardless of the beta1 grid value.
     if not cfg.get('compute_l_tsd', False):
         cfg['beta1'] = 0.0

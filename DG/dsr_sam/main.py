@@ -27,6 +27,9 @@ set_seed()
 
 def run_single_source(source, targets, cfg, runner):
     cfg = dict(cfg)
+    # Phase 2 (reproducibility): reseed per source so a source's run no longer
+    # depends on RNG consumed by previously run sources/cases.
+    set_seed(cfg.get('seed', 42))
     cfg['model_dir'] = 'weights/dsr_sam/'
     # `run_name` lets variants (e.g. dsr_sam_noLtsd) save to distinct weights.
     cfg['prefix'] = f'{cfg["model_type"]}_{cfg.get("run_name", "dsr_sam")}_s_{source}'
@@ -109,6 +112,8 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
+    'seed': 42,                 # RNG seed (reset per source for reproducibility)
+
     'n_epochs': 100,
     'base_lr': 0.0005,          # paper Sec. 3 (initial learning rate)
     'warmup_period': 250,       # paper Sec. 3 (warm-up iterations)
@@ -125,14 +130,8 @@ CONFIG = {
     'top_s_change_rates': 96,   # number of top change rates contributing to L_tsd
     'truncation_period': 4,     # paper Sec. 3 (every 4 epochs)
     'dash_warm': 300,           # repo run_CVC-ClinicDB.sh --Dash_warm 300
-    'compute_l_tsd': False,      # whether to compute L_tsd loss
-    'compute_l_tsd2': False,    # alternate L_tsd (mutually exclusive with
-                                # compute_l_tsd; when True, compute_l_tsd is off)
-    'compute_l_tsd3': True,   # alternate L_tsd using log(1 + alpha * change_rate)
-                               # instead of dividing by max(change_rate)
-                               # (mutually exclusive with compute_l_tsd/2;
-                               # when True it takes precedence over both)
-    'alpha': 0.1,              # coefficient of the L_tsd3 log-squash term
+    'compute_l_tsd': True,      # whether to compute L_tsd loss
+    'alpha': 0.1,              # coefficient of the L_tsd log-squash term
     'd_delta': False,           # L_tsd numerator: keep only change rates that
                                 # grew since the previous iteration (dDelta)
 

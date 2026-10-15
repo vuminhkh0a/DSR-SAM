@@ -18,6 +18,10 @@ Usage (from ``y_DG/`` with khoa-env active):
     python3 -m DG.sota.run_sota
     python3 -m DG.sota.run_sota --methods unet,maxstyle
     python3 -m DG.sota.run_sota --datasets OTU,OVATUS
+    # DSR-SAM (with its single L_tsd loss):
+    python3 -m DG.sota.run_sota --methods dsr_sam_ltsd
+    # plain LoRA-only baseline (all DSR-SAM mechanisms off):
+    python3 -m DG.sota.run_sota --methods dsr_sam_lora
 
 ``run.sh`` launches it detached, with every line streamed to ``log.txt``:
     nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
@@ -67,24 +71,37 @@ def reset_log(tag='sota'):
 # Order matches run.sh: baseline first, then the SAM-based methods.
 # The DSR-SAM ablation/hyperparameter studies are NOT part of this SOTA run;
 # they live in DG.dsr_sam.main_a (ablation) and DG.dsr_sam.main_h (HP grid).
+#
+# The `dsr_sam_ltsd` entry is DSR-SAM with its single L_tsd loss: the
+# log-squashed rate = (bb / (a + eps))**2 squashed with
+# log(1 + alpha * rate) (no deltaW Frobenius norm in the denominator), enabled
+# via compute_l_tsd.
+#
+# `dsr_sam_lora` is the plain LoRA-only baseline: DSR-SAM with every extra
+# mechanism turned off (no L_tsd of any kind, no d_delta, no truncation, no
+# EMA LoRA, no distillation), i.e. SAM + LoRA adaptation only.
 # ---------------------------------------------------------------------------
 METHOD_SPECS = [
     # ('unet',             'DG.unet.main',             {}),
     # ('dualnormalization', 'DG.dualnormalization.main', {}),
     # ('mi_segnet',        'DG.mi_segnet.main',        {}),
     # ('maxstyle',         'DG.maxstyle.main',         {}),
-    ('desam',            'DG.desam.main',            {}),
-    ('masam',            'DG.masam.main',            {}),
-    ('sr_sam',           'DG.sr_sam.main',           {}),
-    ('dsr_sam',          'DG.dsr_sam.main',          {'compute_l_tsd': True, 'd_delta': True}),
-    ('sammed',           'DG.sammed.main',           {}),
-    ('samus',            'DG.samus.main',            {}),
-    ('dapsam',           'DG.dapsam.main',           {}),
-    ('cosam',            'DG.cosam.main',            {}),
-    ('medsa',            'DG.medsa.main',            {}),
-    ('bussam',           'DG.bussam.main',           {}),
-    ('transsam',         'DG.transsam.main',         {}),
-    ('nora',             'DG.nora.main',             {}),
+    # ('desam',            'DG.desam.main',            {}),
+    # ('masam',            'DG.masam.main',            {}),
+    # ('sr_sam',           'DG.sr_sam.main',           {}),
+    # ('dsr_sam',          'DG.dsr_sam.main',          {}),
+    # ('sammed',           'DG.sammed.main',           {}),
+    # ('samus',            'DG.samus.main',            {}),
+    # ('dapsam',           'DG.dapsam.main',           {}),
+    # ('cosam',            'DG.cosam.main',            {}),
+    # ('medsa',            'DG.medsa.main',            {}),
+    # ('bussam',           'DG.bussam.main',           {}),
+    # ('transsam',         'DG.transsam.main',         {}),
+    # ('nora',             'DG.nora.main',             {}),
+    
+    ('dsr_sam_ltsd',     'DG.dsr_sam.main',
+     {'compute_l_tsd': True,
+      'run_name': 'ltsd',   'result_tag': 'dsr_sam_ltsd'})
 ]
 
 LOOKUP = {name: (module, overrides)

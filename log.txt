@@ -1,5 +1,16 @@
-nohup: ignoring input
-[y_DG] CUDA_DEVICE=cuda:2 -> physical GPU 2 is exposed as logical cuda:0 (CUDA_VISIBLE_DEVICES=2,1).
+=== NEW RUN: sota | st=== NEW RUN: sota | started 2026-10-15 20:49:25 ===
+
+######################################################################
+# SOTA run: 1 method(s) consecutively
+# methods : ['dsr_sam_ltsd5']
+# datasets: ['OTU', 'OVATUS', 'USOVA']
+# log     : /mnt/nvme0/home/utbt/KhoaVM/y_DG/log.txt
+# ####################################################################
+
+######################################################################
+# METHOD 1/1: dsr_sam_ltsd5 [DG.dsr_sam.main]
+######################################################################
+[y_DG] CUDA_DEVICE=cuda:2 -> physical GPU 2 is exposed as logical cuda:0 (CUDA_VISIBLE_DEVICES=2,3).
 
 ======================================================================
 TRAINING
@@ -14,182 +25,164 @@ Dataset: OTU | Source train: 850
 Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
 Dataset: OTU | Source val: 150
 Epoch [1/100]
-  Train Loss: 0.4766 | CE: 0.1833 | Dice: 0.2919 | KD: 0.000000 | TSD: 0.013967 | Val Loss: 0.0859 | Best Val Loss: 0.0859
-  Dice: 90.68  IoU: 83.74  Prec: 90.38  Rec: 92.05  HD95: 10.63
+  Train Loss: 0.4570 | CE: 0.1746 | Dice: 0.2814 | KD: 0.000000 | TSD: 0.009723 | Val Loss: 0.0751 | Best Val Loss: 0.0751
+  Dice: 91.99  IoU: 85.89  Prec: 92.20  Rec: 92.79  HD95: 9.52
   Lr: 0.000212 | Truncated TSDs: 0
-  Time: 00:00:33 | Avg: 00:00:33 | Elapsed: 00:00:33 | Remaining: 00:54:38
-  >>> New Best Validation Loss | Previous: N/A | Current : 0.0859
+  Time: 00:00:36 | Avg: 00:00:36 | Elapsed: 00:00:36 | Remaining: 00:59:47
+  >>> New Best Validation Loss | Previous: N/A | Current : 0.0751
   Early stopping patience: 0/20
 Epoch [2/100]
-  Train Loss: 0.1459 | CE: 0.0523 | Dice: 0.0922 | KD: 0.000000 | TSD: 0.014023 | Val Loss: 0.0726 | Best Val Loss: 0.0726
-  Dice: 92.39  IoU: 86.55  Prec: 93.40  Rec: 92.41  HD95: 9.27
+  Train Loss: 0.1337 | CE: 0.0477 | Dice: 0.0852 | KD: 0.000000 | TSD: 0.008026 | Val Loss: 0.0741 | Best Val Loss: 0.0741
+  Dice: 92.13  IoU: 86.19  Prec: 93.76  Rec: 91.57  HD95: 9.40
   Lr: 0.000424 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:31 | Elapsed: 00:01:03 | Remaining: 00:51:57
-  >>> New Best Validation Loss | Previous: 0.0859 | Current : 0.0726
+  Time: 00:00:34 | Avg: 00:00:35 | Elapsed: 00:01:10 | Remaining: 00:57:33
+  >>> New Best Validation Loss | Previous: 0.0751 | Current : 0.0741
   Early stopping patience: 0/20
 Epoch [3/100]
-  Train Loss: 0.1367 | CE: 0.0488 | Dice: 0.0862 | KD: 0.000000 | TSD: 0.016618 | Val Loss: 0.0850 | Best Val Loss: 0.0726
-  Dice: 91.37  IoU: 85.10  Prec: 95.80  Rec: 88.59  HD95: 9.94
+  Train Loss: 0.1281 | CE: 0.0462 | Dice: 0.0809 | KD: 0.000000 | TSD: 0.010535 | Val Loss: 0.0702 | Best Val Loss: 0.0702
+  Dice: 92.93  IoU: 87.44  Prec: 91.69  Rec: 95.04  HD95: 8.74
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:31 | Elapsed: 00:01:33 | Remaining: 00:50:11
-  Early stopping patience: 1/20
+  Time: 00:00:34 | Avg: 00:00:35 | Elapsed: 00:01:45 | Remaining: 00:56:37
+  >>> New Best Validation Loss | Previous: 0.0741 | Current : 0.0702
+  Early stopping patience: 0/20
 Epoch [4/100]
-  Train Loss: 0.1185 | CE: 0.0423 | Dice: 0.0744 | KD: 0.000000 | TSD: 0.017538 | Val Loss: 0.0743 | Best Val Loss: 0.0726
-  Dice: 92.21  IoU: 86.29  Prec: 96.17  Rec: 89.46  HD95: 8.93
+  Train Loss: 0.1061 | CE: 0.0379 | Dice: 0.0671 | KD: 0.000000 | TSD: 0.009713 | Val Loss: 0.0698 | Best Val Loss: 0.0698
+  Dice: 92.90  IoU: 87.43  Prec: 93.07  Rec: 93.65  HD95: 8.59
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:02:02 | Remaining: 00:49:11
-  Early stopping patience: 2/20
+  Time: 00:00:34 | Avg: 00:00:34 | Elapsed: 00:02:19 | Remaining: 00:55:53
+  >>> New Best Validation Loss | Previous: 0.0702 | Current : 0.0698
+  Early stopping patience: 0/20
 Epoch [5/100]
-  Train Loss: 0.1127 | CE: 0.0399 | Dice: 0.0711 | KD: 0.000000 | TSD: 0.018129 | Val Loss: 0.0728 | Best Val Loss: 0.0726
-  Dice: 92.46  IoU: 86.67  Prec: 92.27  Rec: 93.49  HD95: 10.49
+  Train Loss: 0.0940 | CE: 0.0331 | Dice: 0.0594 | KD: 0.000000 | TSD: 0.015240 | Val Loss: 0.0647 | Best Val Loss: 0.0647
+  Dice: 93.53  IoU: 88.50  Prec: 94.32  Rec: 93.62  HD95: 7.81
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:02:32 | Remaining: 00:48:15
-  Early stopping patience: 3/20
+  Time: 00:00:34 | Avg: 00:00:34 | Elapsed: 00:02:54 | Remaining: 00:55:15
+  >>> New Best Validation Loss | Previous: 0.0698 | Current : 0.0647
+  Early stopping patience: 0/20
 Epoch [6/100]
-  Train Loss: 0.1005 | CE: 0.0357 | Dice: 0.0631 | KD: 0.000000 | TSD: 0.016799 | Val Loss: 0.0715 | Best Val Loss: 0.0715
-  Dice: 92.82  IoU: 87.31  Prec: 95.29  Rec: 91.29  HD95: 8.41
+  Train Loss: 0.0869 | CE: 0.0308 | Dice: 0.0544 | KD: 0.000000 | TSD: 0.017350 | Val Loss: 0.0679 | Best Val Loss: 0.0647
+  Dice: 93.04  IoU: 87.69  Prec: 95.60  Rec: 91.48  HD95: 8.60
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:03:02 | Remaining: 00:47:46
-  >>> New Best Validation Loss | Previous: 0.0726 | Current : 0.0715
-  Early stopping patience: 0/20
-Epoch [7/100]
-  Train Loss: 0.0935 | CE: 0.0328 | Dice: 0.0589 | KD: 0.000000 | TSD: 0.017422 | Val Loss: 0.0671 | Best Val Loss: 0.0671
-  Dice: 93.38  IoU: 88.23  Prec: 93.92  Rec: 93.63  HD95: 8.01
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:03:33 | Remaining: 00:47:10
-  >>> New Best Validation Loss | Previous: 0.0715 | Current : 0.0671
-  Early stopping patience: 0/20
-Epoch [8/100]
-  Train Loss: 0.0925 | CE: 0.0328 | Dice: 0.0580 | KD: 0.000000 | TSD: 0.016285 | Val Loss: 0.0654 | Best Val Loss: 0.0654
-  Dice: 93.44  IoU: 88.32  Prec: 94.34  Rec: 93.35  HD95: 7.92
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:04:03 | Remaining: 00:46:45
-  >>> New Best Validation Loss | Previous: 0.0671 | Current : 0.0654
-  Early stopping patience: 0/20
-Epoch [9/100]
-  Train Loss: 0.0907 | CE: 0.0318 | Dice: 0.0573 | KD: 0.000000 | TSD: 0.015857 | Val Loss: 0.0695 | Best Val Loss: 0.0654
-  Dice: 93.16  IoU: 87.86  Prec: 93.27  Rec: 93.98  HD95: 8.55
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:28 | Avg: 00:00:30 | Elapsed: 00:04:32 | Remaining: 00:45:58
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:03:28 | Remaining: 00:54:22
   Early stopping patience: 1/20
-Epoch [10/100]
-  Train Loss: 0.0845 | CE: 0.0299 | Dice: 0.0532 | KD: 0.000000 | TSD: 0.013660 | Val Loss: 0.0702 | Best Val Loss: 0.0654
-  Dice: 93.38  IoU: 88.24  Prec: 93.68  Rec: 93.93  HD95: 8.10
+Epoch [7/100]
+  Train Loss: 0.0807 | CE: 0.0280 | Dice: 0.0509 | KD: 0.000000 | TSD: 0.019297 | Val Loss: 0.0730 | Best Val Loss: 0.0647
+  Dice: 92.77  IoU: 87.22  Prec: 96.10  Rec: 90.46  HD95: 8.27
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:05:02 | Remaining: 00:45:26
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:04:01 | Remaining: 00:53:32
   Early stopping patience: 2/20
-Epoch [11/100]
-  Train Loss: 0.0810 | CE: 0.0284 | Dice: 0.0510 | KD: 0.000000 | TSD: 0.016681 | Val Loss: 0.0706 | Best Val Loss: 0.0654
-  Dice: 93.30  IoU: 88.13  Prec: 93.70  Rec: 93.82  HD95: 8.10
+Epoch [8/100]
+  Train Loss: 0.0729 | CE: 0.0251 | Dice: 0.0460 | KD: 0.000000 | TSD: 0.017998 | Val Loss: 0.0653 | Best Val Loss: 0.0647
+  Dice: 93.49  IoU: 88.43  Prec: 93.22  Rec: 94.62  HD95: 7.70
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:05:32 | Remaining: 00:44:51
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:04:35 | Remaining: 00:52:47
   Early stopping patience: 3/20
-Epoch [12/100]
-  Train Loss: 0.0795 | CE: 0.0278 | Dice: 0.0502 | KD: 0.000000 | TSD: 0.015387 | Val Loss: 0.0716 | Best Val Loss: 0.0654
-  Dice: 93.05  IoU: 87.67  Prec: 91.88  Rec: 95.14  HD95: 9.01
+Epoch [9/100]
+  Train Loss: 0.0668 | CE: 0.0228 | Dice: 0.0420 | KD: 0.000000 | TSD: 0.021101 | Val Loss: 0.0677 | Best Val Loss: 0.0647
+  Dice: 93.51  IoU: 88.51  Prec: 95.09  Rec: 92.82  HD95: 7.80
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:06:02 | Remaining: 00:44:17
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:05:09 | Remaining: 00:52:07
   Early stopping patience: 4/20
-Epoch [13/100]
-  Train Loss: 0.0737 | CE: 0.0259 | Dice: 0.0464 | KD: 0.000000 | TSD: 0.014697 | Val Loss: 0.0724 | Best Val Loss: 0.0654
-  Dice: 93.42  IoU: 88.32  Prec: 94.28  Rec: 93.37  HD95: 7.91
+Epoch [10/100]
+  Train Loss: 0.0635 | CE: 0.0220 | Dice: 0.0396 | KD: 0.000000 | TSD: 0.019322 | Val Loss: 0.0691 | Best Val Loss: 0.0647
+  Dice: 93.44  IoU: 88.37  Prec: 93.07  Rec: 94.65  HD95: 7.83
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:06:32 | Remaining: 00:43:46
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:05:43 | Remaining: 00:51:27
   Early stopping patience: 5/20
-Epoch [14/100]
-  Train Loss: 0.0693 | CE: 0.0244 | Dice: 0.0436 | KD: 0.000000 | TSD: 0.012719 | Val Loss: 0.0745 | Best Val Loss: 0.0654
-  Dice: 93.42  IoU: 88.29  Prec: 93.03  Rec: 94.61  HD95: 7.78
+Epoch [11/100]
+  Train Loss: 0.0575 | CE: 0.0198 | Dice: 0.0359 | KD: 0.000000 | TSD: 0.018632 | Val Loss: 0.0710 | Best Val Loss: 0.0647
+  Dice: 93.69  IoU: 88.78  Prec: 94.74  Rec: 93.47  HD95: 7.69
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:07:02 | Remaining: 00:43:15
+  Time: 00:00:32 | Avg: 00:00:34 | Elapsed: 00:06:15 | Remaining: 00:50:38
   Early stopping patience: 6/20
-Epoch [15/100]
-  Train Loss: 0.0666 | CE: 0.0233 | Dice: 0.0421 | KD: 0.000000 | TSD: 0.012619 | Val Loss: 0.0785 | Best Val Loss: 0.0654
-  Dice: 93.17  IoU: 87.86  Prec: 91.65  Rec: 95.60  HD95: 9.64
+Epoch [12/100]
+  Train Loss: 0.0535 | CE: 0.0181 | Dice: 0.0336 | KD: 0.000000 | TSD: 0.018229 | Val Loss: 0.0707 | Best Val Loss: 0.0647
+  Dice: 93.59  IoU: 88.60  Prec: 93.34  Rec: 94.67  HD95: 8.25
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:07:31 | Remaining: 00:42:40
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:06:48 | Remaining: 00:49:55
   Early stopping patience: 7/20
-Epoch [16/100]
-  Train Loss: 0.0679 | CE: 0.0239 | Dice: 0.0428 | KD: 0.000000 | TSD: 0.012975 | Val Loss: 0.0790 | Best Val Loss: 0.0654
-  Dice: 92.84  IoU: 87.35  Prec: 95.85  Rec: 90.85  HD95: 8.42
+Epoch [13/100]
+  Train Loss: 0.0535 | CE: 0.0183 | Dice: 0.0332 | KD: 0.000000 | TSD: 0.019777 | Val Loss: 0.0717 | Best Val Loss: 0.0647
+  Dice: 93.49  IoU: 88.44  Prec: 93.11  Rec: 94.72  HD95: 9.17
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:08:01 | Remaining: 00:42:10
+  Time: 00:00:34 | Avg: 00:00:34 | Elapsed: 00:07:23 | Remaining: 00:49:25
   Early stopping patience: 8/20
-Epoch [17/100]
-  Train Loss: 0.0652 | CE: 0.0228 | Dice: 0.0410 | KD: 0.000000 | TSD: 0.013713 | Val Loss: 0.0762 | Best Val Loss: 0.0654
-  Dice: 93.47  IoU: 88.40  Prec: 93.38  Rec: 94.40  HD95: 8.27
+Epoch [14/100]
+  Train Loss: 0.0518 | CE: 0.0176 | Dice: 0.0322 | KD: 0.000000 | TSD: 0.018902 | Val Loss: 0.0726 | Best Val Loss: 0.0647
+  Dice: 93.39  IoU: 88.26  Prec: 95.08  Rec: 92.58  HD95: 7.96
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:08:31 | Remaining: 00:41:39
+  Time: 00:00:35 | Avg: 00:00:34 | Elapsed: 00:07:59 | Remaining: 00:49:02
   Early stopping patience: 9/20
-Epoch [18/100]
-  Train Loss: 0.0612 | CE: 0.0213 | Dice: 0.0383 | KD: 0.000000 | TSD: 0.016060 | Val Loss: 0.0774 | Best Val Loss: 0.0654
-  Dice: 93.29  IoU: 88.12  Prec: 94.87  Rec: 92.58  HD95: 8.36
+Epoch [15/100]
+  Train Loss: 0.0501 | CE: 0.0171 | Dice: 0.0311 | KD: 0.000000 | TSD: 0.018552 | Val Loss: 0.0766 | Best Val Loss: 0.0647
+  Dice: 93.52  IoU: 88.52  Prec: 94.78  Rec: 93.14  HD95: 7.73
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:09:02 | Remaining: 00:41:09
+  Time: 00:00:35 | Avg: 00:00:34 | Elapsed: 00:08:34 | Remaining: 00:48:37
   Early stopping patience: 10/20
-Epoch [19/100]
-  Train Loss: 0.0623 | CE: 0.0219 | Dice: 0.0390 | KD: 0.000000 | TSD: 0.014578 | Val Loss: 0.0707 | Best Val Loss: 0.0654
-  Dice: 93.69  IoU: 88.77  Prec: 93.85  Rec: 94.32  HD95: 7.62
+Epoch [16/100]
+  Train Loss: 0.0472 | CE: 0.0160 | Dice: 0.0293 | KD: 0.000000 | TSD: 0.018876 | Val Loss: 0.0786 | Best Val Loss: 0.0647
+  Dice: 93.58  IoU: 88.62  Prec: 94.61  Rec: 93.38  HD95: 7.71
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:09:32 | Remaining: 00:40:38
+  Time: 00:00:35 | Avg: 00:00:34 | Elapsed: 00:09:10 | Remaining: 00:48:09
   Early stopping patience: 11/20
-Epoch [20/100]
-  Train Loss: 0.0575 | CE: 0.0200 | Dice: 0.0361 | KD: 0.000000 | TSD: 0.013759 | Val Loss: 0.0765 | Best Val Loss: 0.0654
-  Dice: 93.36  IoU: 88.23  Prec: 92.91  Rec: 94.68  HD95: 8.24
+Epoch [17/100]
+  Train Loss: 0.0443 | CE: 0.0151 | Dice: 0.0274 | KD: 0.000000 | TSD: 0.018723 | Val Loss: 0.0793 | Best Val Loss: 0.0647
+  Dice: 93.71  IoU: 88.82  Prec: 94.43  Rec: 93.81  HD95: 7.80
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:10:02 | Remaining: 00:40:08
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:09:44 | Remaining: 00:47:33
   Early stopping patience: 12/20
-Epoch [21/100]
-  Train Loss: 0.0548 | CE: 0.0191 | Dice: 0.0344 | KD: 0.000000 | TSD: 0.012616 | Val Loss: 0.0801 | Best Val Loss: 0.0654
-  Dice: 93.70  IoU: 88.81  Prec: 93.94  Rec: 94.24  HD95: 7.58
+Epoch [18/100]
+  Train Loss: 0.0428 | CE: 0.0144 | Dice: 0.0266 | KD: 0.000000 | TSD: 0.018011 | Val Loss: 0.0761 | Best Val Loss: 0.0647
+  Dice: 93.75  IoU: 88.93  Prec: 94.32  Rec: 94.00  HD95: 7.48
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:10:31 | Remaining: 00:39:35
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:10:18 | Remaining: 00:46:55
   Early stopping patience: 13/20
-Epoch [22/100]
-  Train Loss: 0.0527 | CE: 0.0185 | Dice: 0.0329 | KD: 0.000000 | TSD: 0.013564 | Val Loss: 0.0818 | Best Val Loss: 0.0654
-  Dice: 93.21  IoU: 87.98  Prec: 94.33  Rec: 92.95  HD95: 9.28
+Epoch [19/100]
+  Train Loss: 0.0452 | CE: 0.0152 | Dice: 0.0282 | KD: 0.000000 | TSD: 0.018539 | Val Loss: 0.0804 | Best Val Loss: 0.0647
+  Dice: 93.39  IoU: 88.28  Prec: 94.27  Rec: 93.37  HD95: 7.93
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:11:00 | Remaining: 00:39:02
+  Time: 00:00:27 | Avg: 00:00:33 | Elapsed: 00:10:45 | Remaining: 00:45:52
   Early stopping patience: 14/20
-Epoch [23/100]
-  Train Loss: 0.0517 | CE: 0.0182 | Dice: 0.0322 | KD: 0.000000 | TSD: 0.013074 | Val Loss: 0.0822 | Best Val Loss: 0.0654
-  Dice: 93.51  IoU: 88.50  Prec: 94.61  Rec: 93.23  HD95: 7.70
+Epoch [20/100]
+  Train Loss: 0.0447 | CE: 0.0150 | Dice: 0.0280 | KD: 0.000000 | TSD: 0.017843 | Val Loss: 0.0841 | Best Val Loss: 0.0647
+  Dice: 93.30  IoU: 88.16  Prec: 94.55  Rec: 92.97  HD95: 7.77
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:30 | Elapsed: 00:11:30 | Remaining: 00:38:30
+  Time: 00:00:29 | Avg: 00:00:33 | Elapsed: 00:11:14 | Remaining: 00:44:59
   Early stopping patience: 15/20
-Epoch [24/100]
-  Train Loss: 0.0498 | CE: 0.0175 | Dice: 0.0309 | KD: 0.000000 | TSD: 0.013430 | Val Loss: 0.0809 | Best Val Loss: 0.0654
-  Dice: 93.33  IoU: 88.19  Prec: 94.71  Rec: 92.87  HD95: 7.87
+Epoch [21/100]
+  Train Loss: 0.0399 | CE: 0.0134 | Dice: 0.0247 | KD: 0.000000 | TSD: 0.018712 | Val Loss: 0.0825 | Best Val Loss: 0.0647
+  Dice: 93.35  IoU: 88.25  Prec: 94.96  Rec: 92.65  HD95: 7.96
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:29 | Elapsed: 00:11:59 | Remaining: 00:37:59
+  Time: 00:00:28 | Avg: 00:00:33 | Elapsed: 00:11:43 | Remaining: 00:44:08
   Early stopping patience: 16/20
-Epoch [25/100]
-  Train Loss: 0.0497 | CE: 0.0174 | Dice: 0.0309 | KD: 0.000000 | TSD: 0.014560 | Val Loss: 0.0852 | Best Val Loss: 0.0654
-  Dice: 93.33  IoU: 88.16  Prec: 92.60  Rec: 94.88  HD95: 8.07
+Epoch [22/100]
+  Train Loss: 0.0382 | CE: 0.0126 | Dice: 0.0233 | KD: 0.000000 | TSD: 0.023365 | Val Loss: 0.0896 | Best Val Loss: 0.0647
+  Dice: 93.41  IoU: 88.31  Prec: 93.91  Rec: 93.82  HD95: 7.86
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:29 | Elapsed: 00:12:29 | Remaining: 00:37:29
+  Time: 00:00:33 | Avg: 00:00:33 | Elapsed: 00:12:17 | Remaining: 00:43:34
   Early stopping patience: 17/20
-Epoch [26/100]
-  Train Loss: 0.0504 | CE: 0.0175 | Dice: 0.0317 | KD: 0.000000 | TSD: 0.012302 | Val Loss: 0.0790 | Best Val Loss: 0.0654
-  Dice: 93.68  IoU: 88.76  Prec: 94.64  Rec: 93.50  HD95: 7.63
+Epoch [23/100]
+  Train Loss: 0.0378 | CE: 0.0123 | Dice: 0.0229 | KD: 0.000000 | TSD: 0.026054 | Val Loss: 0.0856 | Best Val Loss: 0.0647
+  Dice: 93.35  IoU: 88.22  Prec: 93.92  Rec: 93.65  HD95: 7.99
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:30 | Elapsed: 00:13:00 | Remaining: 00:37:00
+  Time: 00:00:32 | Avg: 00:00:33 | Elapsed: 00:12:50 | Remaining: 00:42:58
   Early stopping patience: 18/20
-Epoch [27/100]
-  Train Loss: 0.0498 | CE: 0.0172 | Dice: 0.0310 | KD: 0.000000 | TSD: 0.016930 | Val Loss: 0.0813 | Best Val Loss: 0.0654
-  Dice: 93.22  IoU: 87.99  Prec: 93.76  Rec: 93.48  HD95: 8.85
+Epoch [24/100]
+  Train Loss: 0.0362 | CE: 0.0118 | Dice: 0.0219 | KD: 0.000000 | TSD: 0.025668 | Val Loss: 0.0923 | Best Val Loss: 0.0647
+  Dice: 93.56  IoU: 88.60  Prec: 94.99  Rec: 93.04  HD95: 7.60
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:29 | Elapsed: 00:13:29 | Remaining: 00:36:29
+  Time: 00:00:33 | Avg: 00:00:33 | Elapsed: 00:13:24 | Remaining: 00:42:26
   Early stopping patience: 19/20
-Epoch [28/100]
-  Train Loss: 0.0478 | CE: 0.0166 | Dice: 0.0297 | KD: 0.000000 | TSD: 0.014625 | Val Loss: 0.0845 | Best Val Loss: 0.0654
-  Dice: 93.31  IoU: 88.15  Prec: 95.21  Rec: 92.32  HD95: 7.96
+Epoch [25/100]
+  Train Loss: 0.0359 | CE: 0.0117 | Dice: 0.0216 | KD: 0.000000 | TSD: 0.025690 | Val Loss: 0.0912 | Best Val Loss: 0.0647
+  Dice: 93.62  IoU: 88.69  Prec: 94.50  Rec: 93.60  HD95: 8.34
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:29 | Elapsed: 00:13:59 | Remaining: 00:35:58
+  Time: 00:00:33 | Avg: 00:00:33 | Elapsed: 00:13:57 | Remaining: 00:41:53
   Early stopping patience: 20/20
   >>> Early stopping triggered after 20 epochs without improvement
 Skipping last epoch weight save (save_last_epoch=False)
 
-Best weight is loaded: weights/dsr_sam/vit_b_dsr_sam_s_OTU_best.pth
+Best weight is loaded: weights/dsr_sam/vit_b_ltsd5_s_OTU_best.pth
 
 ======================================================================
 TESTING
@@ -197,7 +190,7 @@ Source: OTU
 Target: OVATUS
 Weight: best
 Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
-[weight: best] Target OVATUS | Dice: 94.76 | IoU: 90.16 | Prec: 97.33 | Rec: 92.51 | HD95: 9.35
+[weight: best] Target OVATUS | Dice: 94.87 | IoU: 90.35 | Prec: 97.42 | Rec: 92.62 | HD95: 9.14
 
 ======================================================================
 TESTING
@@ -206,7 +199,7 @@ Target: USOVA
 Weight: best
 Dataset: USOVA | skipped blank-GT samples (train=425, val=42, test=96)
 Dataset: USOVA | Training data: 2168 | Validation data: 356 | Testing data: 332
-[weight: best] Target USOVA | Dice: 85.93 | IoU: 76.39 | Prec: 88.27 | Rec: 85.50 | HD95: 26.22
+[weight: best] Target USOVA | Dice: 83.88 | IoU: 73.25 | Prec: 86.98 | Rec: 82.89 | HD95: 31.63
 ======================================================================
 
 ======================================================================
@@ -222,203 +215,164 @@ Dataset: OVATUS | Source train: 899
 Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
 Dataset: OVATUS | Source val: 113
 Epoch [1/100]
-  Train Loss: 0.4617 | CE: 0.2227 | Dice: 0.2376 | KD: 0.000000 | TSD: 0.014148 | Val Loss: 0.0779 | Best Val Loss: 0.0779
-  Dice: 93.45  IoU: 87.95  Prec: 91.12  Rec: 96.21  HD95: 11.54
+  Train Loss: 0.4017 | CE: 0.1892 | Dice: 0.2117 | KD: 0.000000 | TSD: 0.009002 | Val Loss: 0.0730 | Best Val Loss: 0.0730
+  Dice: 93.83  IoU: 88.60  Prec: 91.45  Rec: 96.55  HD95: 10.64
   Lr: 0.000224 | Truncated TSDs: 0
-  Time: 00:00:32 | Avg: 00:00:32 | Elapsed: 00:00:32 | Remaining: 00:53:32
-  >>> New Best Validation Loss | Previous: N/A | Current : 0.0779
+  Time: 00:00:36 | Avg: 00:00:36 | Elapsed: 00:00:36 | Remaining: 01:00:43
+  >>> New Best Validation Loss | Previous: N/A | Current : 0.0730
   Early stopping patience: 0/20
 Epoch [2/100]
-  Train Loss: 0.1363 | CE: 0.0650 | Dice: 0.0699 | KD: 0.000000 | TSD: 0.014181 | Val Loss: 0.0605 | Best Val Loss: 0.0605
-  Dice: 94.83  IoU: 90.39  Prec: 95.69  Rec: 94.25  HD95: 8.45
+  Train Loss: 0.1239 | CE: 0.0593 | Dice: 0.0638 | KD: 0.000000 | TSD: 0.007506 | Val Loss: 0.0577 | Best Val Loss: 0.0577
+  Dice: 95.06  IoU: 90.92  Prec: 95.10  Rec: 95.32  HD95: 8.59
   Lr: 0.000448 | Truncated TSDs: 0
-  Time: 00:00:32 | Avg: 00:00:32 | Elapsed: 00:01:04 | Remaining: 00:52:44
-  >>> New Best Validation Loss | Previous: 0.0779 | Current : 0.0605
+  Time: 00:00:35 | Avg: 00:00:36 | Elapsed: 00:01:12 | Remaining: 00:58:54
+  >>> New Best Validation Loss | Previous: 0.0730 | Current : 0.0577
   Early stopping patience: 0/20
 Epoch [3/100]
-  Train Loss: 0.1224 | CE: 0.0583 | Dice: 0.0625 | KD: 0.000000 | TSD: 0.015857 | Val Loss: 0.0636 | Best Val Loss: 0.0605
-  Dice: 94.56  IoU: 89.86  Prec: 96.80  Rec: 92.62  HD95: 8.94
+  Train Loss: 0.1043 | CE: 0.0493 | Dice: 0.0542 | KD: 0.000000 | TSD: 0.008382 | Val Loss: 0.0559 | Best Val Loss: 0.0559
+  Dice: 95.25  IoU: 91.21  Prec: 94.43  Rec: 96.36  HD95: 8.65
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:01:35 | Remaining: 00:51:33
-  Early stopping patience: 1/20
+  Time: 00:00:34 | Avg: 00:00:35 | Elapsed: 00:01:46 | Remaining: 00:57:32
+  >>> New Best Validation Loss | Previous: 0.0577 | Current : 0.0559
+  Early stopping patience: 0/20
 Epoch [4/100]
-  Train Loss: 0.1056 | CE: 0.0489 | Dice: 0.0547 | KD: 0.000000 | TSD: 0.019248 | Val Loss: 0.0597 | Best Val Loss: 0.0597
-  Dice: 94.93  IoU: 90.55  Prec: 92.66  Rec: 97.59  HD95: 8.78
+  Train Loss: 0.0917 | CE: 0.0432 | Dice: 0.0476 | KD: 0.000000 | TSD: 0.008564 | Val Loss: 0.0499 | Best Val Loss: 0.0499
+  Dice: 95.66  IoU: 91.98  Prec: 96.48  Rec: 95.10  HD95: 7.43
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:02:07 | Remaining: 00:50:54
-  >>> New Best Validation Loss | Previous: 0.0605 | Current : 0.0597
+  Time: 00:00:35 | Avg: 00:00:35 | Elapsed: 00:02:22 | Remaining: 00:56:59
+  >>> New Best Validation Loss | Previous: 0.0559 | Current : 0.0499
   Early stopping patience: 0/20
 Epoch [5/100]
-  Train Loss: 0.0975 | CE: 0.0458 | Dice: 0.0499 | KD: 0.000000 | TSD: 0.017304 | Val Loss: 0.0545 | Best Val Loss: 0.0545
-  Dice: 95.37  IoU: 91.32  Prec: 95.01  Rec: 95.91  HD95: 7.97
+  Train Loss: 0.0788 | CE: 0.0367 | Dice: 0.0409 | KD: 0.000000 | TSD: 0.012322 | Val Loss: 0.0451 | Best Val Loss: 0.0451
+  Dice: 96.11  IoU: 92.77  Prec: 95.76  Rec: 96.69  HD95: 6.70
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:02:38 | Remaining: 00:50:11
-  >>> New Best Validation Loss | Previous: 0.0597 | Current : 0.0545
+  Time: 00:00:35 | Avg: 00:00:35 | Elapsed: 00:02:57 | Remaining: 00:56:19
+  >>> New Best Validation Loss | Previous: 0.0499 | Current : 0.0451
   Early stopping patience: 0/20
 Epoch [6/100]
-  Train Loss: 0.0913 | CE: 0.0430 | Dice: 0.0467 | KD: 0.000000 | TSD: 0.016071 | Val Loss: 0.0532 | Best Val Loss: 0.0532
-  Dice: 95.43  IoU: 91.46  Prec: 94.52  Rec: 96.63  HD95: 7.21
+  Train Loss: 0.0721 | CE: 0.0335 | Dice: 0.0371 | KD: 0.000000 | TSD: 0.015691 | Val Loss: 0.0466 | Best Val Loss: 0.0451
+  Dice: 96.04  IoU: 92.60  Prec: 95.79  Rec: 96.48  HD95: 6.88
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:31 | Elapsed: 00:03:09 | Remaining: 00:49:28
-  >>> New Best Validation Loss | Previous: 0.0545 | Current : 0.0532
-  Early stopping patience: 0/20
+  Time: 00:00:34 | Avg: 00:00:35 | Elapsed: 00:03:32 | Remaining: 00:55:28
+  Early stopping patience: 1/20
 Epoch [7/100]
-  Train Loss: 0.0881 | CE: 0.0414 | Dice: 0.0452 | KD: 0.000000 | TSD: 0.015391 | Val Loss: 0.0519 | Best Val Loss: 0.0519
-  Dice: 95.57  IoU: 91.71  Prec: 96.57  Rec: 94.78  HD95: 7.32
+  Train Loss: 0.0667 | CE: 0.0308 | Dice: 0.0343 | KD: 0.000000 | TSD: 0.016056 | Val Loss: 0.0470 | Best Val Loss: 0.0451
+  Dice: 95.99  IoU: 92.54  Prec: 96.33  Rec: 95.83  HD95: 7.00
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:03:41 | Remaining: 00:49:00
-  >>> New Best Validation Loss | Previous: 0.0532 | Current : 0.0519
-  Early stopping patience: 0/20
+  Time: 00:00:34 | Avg: 00:00:35 | Elapsed: 00:04:07 | Remaining: 00:54:46
+  Early stopping patience: 2/20
 Epoch [8/100]
-  Train Loss: 0.0814 | CE: 0.0383 | Dice: 0.0416 | KD: 0.000000 | TSD: 0.015097 | Val Loss: 0.0477 | Best Val Loss: 0.0477
-  Dice: 95.89  IoU: 92.24  Prec: 95.84  Rec: 96.08  HD95: 6.84
+  Train Loss: 0.0629 | CE: 0.0289 | Dice: 0.0320 | KD: 0.000000 | TSD: 0.019588 | Val Loss: 0.0487 | Best Val Loss: 0.0451
+  Dice: 95.95  IoU: 92.46  Prec: 96.49  Rec: 95.67  HD95: 6.85
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:04:12 | Remaining: 00:48:25
-  >>> New Best Validation Loss | Previous: 0.0519 | Current : 0.0477
-  Early stopping patience: 0/20
-Epoch [9/100]
-  Train Loss: 0.0782 | CE: 0.0365 | Dice: 0.0401 | KD: 0.000000 | TSD: 0.016260 | Val Loss: 0.0487 | Best Val Loss: 0.0477
-  Dice: 95.80  IoU: 92.08  Prec: 95.96  Rec: 95.78  HD95: 7.04
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:31 | Elapsed: 00:04:43 | Remaining: 00:47:45
-  Early stopping patience: 1/20
-Epoch [10/100]
-  Train Loss: 0.0748 | CE: 0.0348 | Dice: 0.0386 | KD: 0.000000 | TSD: 0.014736 | Val Loss: 0.0485 | Best Val Loss: 0.0477
-  Dice: 95.88  IoU: 92.24  Prec: 95.44  Rec: 96.45  HD95: 6.98
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:29 | Avg: 00:00:31 | Elapsed: 00:05:12 | Remaining: 00:46:53
-  Early stopping patience: 2/20
-Epoch [11/100]
-  Train Loss: 0.0749 | CE: 0.0351 | Dice: 0.0384 | KD: 0.000000 | TSD: 0.014165 | Val Loss: 0.0472 | Best Val Loss: 0.0472
-  Dice: 95.96  IoU: 92.43  Prec: 95.19  Rec: 96.94  HD95: 7.06
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:05:44 | Remaining: 00:46:24
-  >>> New Best Validation Loss | Previous: 0.0477 | Current : 0.0472
-  Early stopping patience: 0/20
-Epoch [12/100]
-  Train Loss: 0.0710 | CE: 0.0332 | Dice: 0.0364 | KD: 0.000000 | TSD: 0.013860 | Val Loss: 0.0484 | Best Val Loss: 0.0472
-  Dice: 95.91  IoU: 92.33  Prec: 96.74  Rec: 95.27  HD95: 7.19
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:30 | Avg: 00:00:31 | Elapsed: 00:06:15 | Remaining: 00:45:50
-  Early stopping patience: 1/20
-Epoch [13/100]
-  Train Loss: 0.0658 | CE: 0.0308 | Dice: 0.0336 | KD: 0.000000 | TSD: 0.014196 | Val Loss: 0.0491 | Best Val Loss: 0.0472
-  Dice: 95.96  IoU: 92.40  Prec: 94.89  Rec: 97.22  HD95: 7.04
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:06:46 | Remaining: 00:45:18
-  Early stopping patience: 2/20
-Epoch [14/100]
-  Train Loss: 0.0669 | CE: 0.0313 | Dice: 0.0343 | KD: 0.000000 | TSD: 0.012895 | Val Loss: 0.0500 | Best Val Loss: 0.0472
-  Dice: 95.86  IoU: 92.26  Prec: 96.52  Rec: 95.44  HD95: 7.45
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:32 | Avg: 00:00:31 | Elapsed: 00:07:18 | Remaining: 00:44:53
+  Time: 00:00:35 | Avg: 00:00:35 | Elapsed: 00:04:42 | Remaining: 00:54:09
   Early stopping patience: 3/20
-Epoch [15/100]
-  Train Loss: 0.0630 | CE: 0.0294 | Dice: 0.0322 | KD: 0.000000 | TSD: 0.014093 | Val Loss: 0.0516 | Best Val Loss: 0.0472
-  Dice: 95.66  IoU: 91.94  Prec: 95.19  Rec: 96.46  HD95: 7.42
+Epoch [9/100]
+  Train Loss: 0.0593 | CE: 0.0270 | Dice: 0.0298 | KD: 0.000000 | TSD: 0.024562 | Val Loss: 0.0485 | Best Val Loss: 0.0451
+  Dice: 95.89  IoU: 92.40  Prec: 94.72  Rec: 97.42  HD95: 7.30
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:32 | Avg: 00:00:31 | Elapsed: 00:07:50 | Remaining: 00:44:28
+  Time: 00:00:35 | Avg: 00:00:35 | Elapsed: 00:05:17 | Remaining: 00:53:32
   Early stopping patience: 4/20
-Epoch [16/100]
-  Train Loss: 0.0621 | CE: 0.0289 | Dice: 0.0317 | KD: 0.000000 | TSD: 0.014577 | Val Loss: 0.0521 | Best Val Loss: 0.0472
-  Dice: 95.81  IoU: 92.22  Prec: 95.25  Rec: 96.69  HD95: 7.40
+Epoch [10/100]
+  Train Loss: 0.0598 | CE: 0.0272 | Dice: 0.0303 | KD: 0.000000 | TSD: 0.022913 | Val Loss: 0.0454 | Best Val Loss: 0.0451
+  Dice: 96.25  IoU: 92.99  Prec: 95.99  Rec: 96.74  HD95: 6.56
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:08:22 | Remaining: 00:43:57
+  Time: 00:00:35 | Avg: 00:00:35 | Elapsed: 00:05:52 | Remaining: 00:52:54
   Early stopping patience: 5/20
-Epoch [17/100]
-  Train Loss: 0.0581 | CE: 0.0270 | Dice: 0.0296 | KD: 0.000000 | TSD: 0.015126 | Val Loss: 0.0514 | Best Val Loss: 0.0472
-  Dice: 95.92  IoU: 92.33  Prec: 96.72  Rec: 95.32  HD95: 7.05
+Epoch [11/100]
+  Train Loss: 0.0541 | CE: 0.0244 | Dice: 0.0273 | KD: 0.000000 | TSD: 0.023616 | Val Loss: 0.0482 | Best Val Loss: 0.0451
+  Dice: 95.90  IoU: 92.35  Prec: 97.13  Rec: 94.98  HD95: 6.85
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:08:54 | Remaining: 00:43:27
+  Time: 00:00:34 | Avg: 00:00:35 | Elapsed: 00:06:27 | Remaining: 00:52:12
   Early stopping patience: 6/20
-Epoch [18/100]
-  Train Loss: 0.0571 | CE: 0.0266 | Dice: 0.0291 | KD: 0.000000 | TSD: 0.013381 | Val Loss: 0.0506 | Best Val Loss: 0.0472
-  Dice: 95.86  IoU: 92.29  Prec: 96.28  Rec: 95.71  HD95: 7.26
+Epoch [12/100]
+  Train Loss: 0.0507 | CE: 0.0229 | Dice: 0.0255 | KD: 0.000000 | TSD: 0.022763 | Val Loss: 0.0463 | Best Val Loss: 0.0451
+  Dice: 96.25  IoU: 93.02  Prec: 96.73  Rec: 96.05  HD95: 6.49
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:09:25 | Remaining: 00:42:54
+  Time: 00:00:34 | Avg: 00:00:35 | Elapsed: 00:07:01 | Remaining: 00:51:29
   Early stopping patience: 7/20
-Epoch [19/100]
-  Train Loss: 0.0574 | CE: 0.0265 | Dice: 0.0294 | KD: 0.000000 | TSD: 0.014554 | Val Loss: 0.0550 | Best Val Loss: 0.0472
-  Dice: 95.83  IoU: 92.27  Prec: 96.45  Rec: 95.54  HD95: 7.22
+Epoch [13/100]
+  Train Loss: 0.0494 | CE: 0.0219 | Dice: 0.0248 | KD: 0.000000 | TSD: 0.026959 | Val Loss: 0.0466 | Best Val Loss: 0.0451
+  Dice: 96.20  IoU: 92.95  Prec: 95.94  Rec: 96.76  HD95: 6.44
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:09:56 | Remaining: 00:42:24
+  Time: 00:00:34 | Avg: 00:00:35 | Elapsed: 00:07:36 | Remaining: 00:50:52
   Early stopping patience: 8/20
-Epoch [20/100]
-  Train Loss: 0.0534 | CE: 0.0247 | Dice: 0.0272 | KD: 0.000000 | TSD: 0.014969 | Val Loss: 0.0533 | Best Val Loss: 0.0472
-  Dice: 95.90  IoU: 92.41  Prec: 96.26  Rec: 95.89  HD95: 7.06
+Epoch [14/100]
+  Train Loss: 0.0544 | CE: 0.0236 | Dice: 0.0275 | KD: 0.000000 | TSD: 0.033300 | Val Loss: 0.0520 | Best Val Loss: 0.0451
+  Dice: 95.94  IoU: 92.52  Prec: 96.35  Rec: 95.90  HD95: 7.17
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:10:28 | Remaining: 00:41:55
+  Time: 00:00:34 | Avg: 00:00:35 | Elapsed: 00:08:10 | Remaining: 00:50:15
   Early stopping patience: 9/20
-Epoch [21/100]
-  Train Loss: 0.0509 | CE: 0.0236 | Dice: 0.0258 | KD: 0.000000 | TSD: 0.014827 | Val Loss: 0.0529 | Best Val Loss: 0.0472
-  Dice: 95.84  IoU: 92.25  Prec: 94.80  Rec: 97.19  HD95: 7.31
+Epoch [15/100]
+  Train Loss: 0.0494 | CE: 0.0217 | Dice: 0.0245 | KD: 0.000000 | TSD: 0.031787 | Val Loss: 0.0492 | Best Val Loss: 0.0451
+  Dice: 95.99  IoU: 92.63  Prec: 96.34  Rec: 96.00  HD95: 6.94
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:11:00 | Remaining: 00:41:24
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:08:44 | Remaining: 00:49:32
   Early stopping patience: 10/20
-Epoch [22/100]
-  Train Loss: 0.0508 | CE: 0.0236 | Dice: 0.0258 | KD: 0.000000 | TSD: 0.013766 | Val Loss: 0.0508 | Best Val Loss: 0.0472
-  Dice: 95.97  IoU: 92.45  Prec: 96.36  Rec: 95.80  HD95: 7.03
+Epoch [16/100]
+  Train Loss: 0.0567 | CE: 0.0242 | Dice: 0.0292 | KD: 0.000000 | TSD: 0.032428 | Val Loss: 0.0523 | Best Val Loss: 0.0451
+  Dice: 95.86  IoU: 92.34  Prec: 95.52  Rec: 96.53  HD95: 7.17
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:11:32 | Remaining: 00:40:54
+  Time: 00:00:35 | Avg: 00:00:34 | Elapsed: 00:09:19 | Remaining: 00:48:59
   Early stopping patience: 11/20
-Epoch [23/100]
-  Train Loss: 0.0510 | CE: 0.0236 | Dice: 0.0260 | KD: 0.000000 | TSD: 0.014546 | Val Loss: 0.0494 | Best Val Loss: 0.0472
-  Dice: 96.00  IoU: 92.53  Prec: 95.68  Rec: 96.57  HD95: 6.92
+Epoch [17/100]
+  Train Loss: 0.0511 | CE: 0.0224 | Dice: 0.0257 | KD: 0.000000 | TSD: 0.030296 | Val Loss: 0.0485 | Best Val Loss: 0.0451
+  Dice: 96.16  IoU: 92.82  Prec: 96.60  Rec: 95.97  HD95: 6.75
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:32 | Avg: 00:00:31 | Elapsed: 00:12:04 | Remaining: 00:40:25
+  Time: 00:00:34 | Avg: 00:00:34 | Elapsed: 00:09:54 | Remaining: 00:48:22
   Early stopping patience: 12/20
-Epoch [24/100]
-  Train Loss: 0.0504 | CE: 0.0232 | Dice: 0.0258 | KD: 0.000000 | TSD: 0.014094 | Val Loss: 0.0501 | Best Val Loss: 0.0472
-  Dice: 96.00  IoU: 92.52  Prec: 95.91  Rec: 96.28  HD95: 6.80
+Epoch [18/100]
+  Train Loss: 0.0446 | CE: 0.0194 | Dice: 0.0224 | KD: 0.000000 | TSD: 0.028433 | Val Loss: 0.0503 | Best Val Loss: 0.0451
+  Dice: 96.18  IoU: 92.93  Prec: 96.89  Rec: 95.78  HD95: 6.44
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:32 | Avg: 00:00:31 | Elapsed: 00:12:36 | Remaining: 00:39:56
+  Time: 00:00:34 | Avg: 00:00:34 | Elapsed: 00:10:28 | Remaining: 00:47:45
   Early stopping patience: 13/20
-Epoch [25/100]
-  Train Loss: 0.0476 | CE: 0.0219 | Dice: 0.0243 | KD: 0.000000 | TSD: 0.013698 | Val Loss: 0.0555 | Best Val Loss: 0.0472
-  Dice: 95.83  IoU: 92.27  Prec: 96.80  Rec: 95.17  HD95: 7.10
+Epoch [19/100]
+  Train Loss: 0.0416 | CE: 0.0181 | Dice: 0.0204 | KD: 0.000000 | TSD: 0.030413 | Val Loss: 0.0529 | Best Val Loss: 0.0451
+  Dice: 96.01  IoU: 92.65  Prec: 96.14  Rec: 96.23  HD95: 7.13
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:13:08 | Remaining: 00:39:25
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:11:02 | Remaining: 00:47:05
   Early stopping patience: 14/20
-Epoch [26/100]
-  Train Loss: 0.0459 | CE: 0.0211 | Dice: 0.0235 | KD: 0.000000 | TSD: 0.012995 | Val Loss: 0.0547 | Best Val Loss: 0.0472
-  Dice: 95.96  IoU: 92.52  Prec: 96.06  Rec: 96.21  HD95: 7.10
+Epoch [20/100]
+  Train Loss: 0.0397 | CE: 0.0170 | Dice: 0.0196 | KD: 0.000000 | TSD: 0.030319 | Val Loss: 0.0509 | Best Val Loss: 0.0451
+  Dice: 96.08  IoU: 92.79  Prec: 96.02  Rec: 96.52  HD95: 7.16
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:32 | Avg: 00:00:31 | Elapsed: 00:13:40 | Remaining: 00:38:55
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:11:36 | Remaining: 00:46:24
   Early stopping patience: 15/20
-Epoch [27/100]
-  Train Loss: 0.0456 | CE: 0.0209 | Dice: 0.0232 | KD: 0.000000 | TSD: 0.014550 | Val Loss: 0.0538 | Best Val Loss: 0.0472
-  Dice: 95.91  IoU: 92.44  Prec: 95.98  Rec: 96.20  HD95: 7.05
+Epoch [21/100]
+  Train Loss: 0.0399 | CE: 0.0172 | Dice: 0.0195 | KD: 0.000000 | TSD: 0.031012 | Val Loss: 0.0550 | Best Val Loss: 0.0451
+  Dice: 96.08  IoU: 92.80  Prec: 96.49  Rec: 96.02  HD95: 7.22
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:14:12 | Remaining: 00:38:24
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:12:09 | Remaining: 00:45:45
   Early stopping patience: 16/20
-Epoch [28/100]
-  Train Loss: 0.0448 | CE: 0.0206 | Dice: 0.0229 | KD: 0.000000 | TSD: 0.012780 | Val Loss: 0.0545 | Best Val Loss: 0.0472
-  Dice: 96.02  IoU: 92.63  Prec: 95.91  Rec: 96.46  HD95: 6.89
+Epoch [22/100]
+  Train Loss: 0.0399 | CE: 0.0169 | Dice: 0.0200 | KD: 0.000000 | TSD: 0.030376 | Val Loss: 0.0529 | Best Val Loss: 0.0451
+  Dice: 96.13  IoU: 92.84  Prec: 96.18  Rec: 96.39  HD95: 6.97
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:14:44 | Remaining: 00:37:54
+  Time: 00:00:32 | Avg: 00:00:34 | Elapsed: 00:12:41 | Remaining: 00:45:01
   Early stopping patience: 17/20
-Epoch [29/100]
-  Train Loss: 0.0458 | CE: 0.0210 | Dice: 0.0235 | KD: 0.000000 | TSD: 0.013600 | Val Loss: 0.0573 | Best Val Loss: 0.0472
-  Dice: 95.92  IoU: 92.50  Prec: 95.78  Rec: 96.47  HD95: 6.95
+Epoch [23/100]
+  Train Loss: 0.0371 | CE: 0.0158 | Dice: 0.0181 | KD: 0.000000 | TSD: 0.032241 | Val Loss: 0.0526 | Best Val Loss: 0.0451
+  Dice: 96.22  IoU: 93.01  Prec: 96.50  Rec: 96.27  HD95: 6.86
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:15:16 | Remaining: 00:37:23
+  Time: 00:00:34 | Avg: 00:00:34 | Elapsed: 00:13:15 | Remaining: 00:44:24
   Early stopping patience: 18/20
-Epoch [30/100]
-  Train Loss: 0.0427 | CE: 0.0195 | Dice: 0.0218 | KD: 0.000000 | TSD: 0.013175 | Val Loss: 0.0524 | Best Val Loss: 0.0472
-  Dice: 96.02  IoU: 92.55  Prec: 96.10  Rec: 96.16  HD95: 6.78
+Epoch [24/100]
+  Train Loss: 0.0348 | CE: 0.0149 | Dice: 0.0166 | KD: 0.000000 | TSD: 0.032322 | Val Loss: 0.0591 | Best Val Loss: 0.0451
+  Dice: 96.16  IoU: 92.95  Prec: 96.49  Rec: 96.19  HD95: 6.90
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:31 | Avg: 00:00:31 | Elapsed: 00:15:48 | Remaining: 00:36:52
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:13:49 | Remaining: 00:43:47
   Early stopping patience: 19/20
-Epoch [31/100]
-  Train Loss: 0.0414 | CE: 0.0190 | Dice: 0.0212 | KD: 0.000000 | TSD: 0.012282 | Val Loss: 0.0621 | Best Val Loss: 0.0472
-  Dice: 95.90  IoU: 92.39  Prec: 96.43  Rec: 95.69  HD95: 7.16
+Epoch [25/100]
+  Train Loss: 0.0347 | CE: 0.0149 | Dice: 0.0167 | KD: 0.000000 | TSD: 0.031127 | Val Loss: 0.0603 | Best Val Loss: 0.0451
+  Dice: 96.19  IoU: 92.94  Prec: 95.99  Rec: 96.70  HD95: 6.92
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:00:32 | Avg: 00:00:31 | Elapsed: 00:16:20 | Remaining: 00:36:22
+  Time: 00:00:33 | Avg: 00:00:34 | Elapsed: 00:14:22 | Remaining: 00:43:07
   Early stopping patience: 20/20
   >>> Early stopping triggered after 20 epochs without improvement
 Skipping last epoch weight save (save_last_epoch=False)
 
-Best weight is loaded: weights/dsr_sam/vit_b_dsr_sam_s_OVATUS_best.pth
+Best weight is loaded: weights/dsr_sam/vit_b_ltsd5_s_OVATUS_best.pth
 
 ======================================================================
 TESTING
@@ -426,7 +380,7 @@ Source: OVATUS
 Target: OTU
 Weight: best
 Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
-[weight: best] Target OTU | Dice: 91.58 | IoU: 85.13 | Prec: 90.20 | Rec: 93.62 | HD95: 11.28
+[weight: best] Target OTU | Dice: 91.58 | IoU: 85.23 | Prec: 89.93 | Rec: 94.03 | HD95: 9.52
 
 ======================================================================
 TESTING
@@ -435,7 +389,7 @@ Target: USOVA
 Weight: best
 Dataset: USOVA | skipped blank-GT samples (train=425, val=42, test=96)
 Dataset: USOVA | Training data: 2168 | Validation data: 356 | Testing data: 332
-[weight: best] Target USOVA | Dice: 84.46 | IoU: 74.32 | Prec: 84.93 | Rec: 85.30 | HD95: 31.42
+[weight: best] Target USOVA | Dice: 83.55 | IoU: 73.06 | Prec: 87.48 | Rec: 81.29 | HD95: 31.44
 ======================================================================
 
 ======================================================================
@@ -453,149 +407,136 @@ Dataset: USOVA | skipped blank-GT samples (train=425, val=42, test=96)
 Dataset: USOVA | Training data: 2168 | Validation data: 356 | Testing data: 332
 Dataset: USOVA | Source val: 356
 Epoch [1/100]
-  Train Loss: 0.3613 | CE: 0.1959 | Dice: 0.1640 | KD: 0.000000 | TSD: 0.014334 | Val Loss: 0.1687 | Best Val Loss: 0.1687
-  Dice: 91.30  IoU: 84.70  Prec: 94.12  Rec: 89.19  HD95: 18.36
+  Train Loss: 0.3293 | CE: 0.1765 | Dice: 0.1517 | KD: 0.000000 | TSD: 0.011802 | Val Loss: 0.1495 | Best Val Loss: 0.1495
+  Dice: 91.97  IoU: 85.74  Prec: 94.28  Rec: 89.99  HD95: 17.95
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:20 | Avg: 00:01:20 | Elapsed: 00:01:20 | Remaining: 02:12:02
-  >>> New Best Validation Loss | Previous: N/A | Current : 0.1687
+  Time: 00:01:29 | Avg: 00:01:29 | Elapsed: 00:01:29 | Remaining: 02:27:05
+  >>> New Best Validation Loss | Previous: N/A | Current : 0.1495
   Early stopping patience: 0/20
 Epoch [2/100]
-  Train Loss: 0.1546 | CE: 0.0800 | Dice: 0.0729 | KD: 0.000000 | TSD: 0.016726 | Val Loss: 0.1731 | Best Val Loss: 0.1687
-  Dice: 92.07  IoU: 85.83  Prec: 94.91  Rec: 89.79  HD95: 18.18
+  Train Loss: 0.1314 | CE: 0.0663 | Dice: 0.0637 | KD: 0.000000 | TSD: 0.014811 | Val Loss: 0.1880 | Best Val Loss: 0.1495
+  Dice: 91.35  IoU: 84.83  Prec: 95.45  Rec: 88.00  HD95: 19.58
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:17 | Avg: 00:01:18 | Elapsed: 00:02:37 | Remaining: 02:08:31
+  Time: 00:02:18 | Avg: 00:01:53 | Elapsed: 00:03:47 | Remaining: 03:05:53
   Early stopping patience: 1/20
 Epoch [3/100]
-  Train Loss: 0.1130 | CE: 0.0569 | Dice: 0.0545 | KD: 0.000000 | TSD: 0.016601 | Val Loss: 0.1599 | Best Val Loss: 0.1599
-  Dice: 92.98  IoU: 87.37  Prec: 94.86  Rec: 91.40  HD95: 17.20
+  Train Loss: 0.0997 | CE: 0.0493 | Dice: 0.0487 | KD: 0.000000 | TSD: 0.016811 | Val Loss: 0.1861 | Best Val Loss: 0.1495
+  Dice: 91.99  IoU: 85.98  Prec: 95.72  Rec: 88.90  HD95: 17.48
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:18 | Avg: 00:01:18 | Elapsed: 00:03:56 | Remaining: 02:07:11
-  >>> New Best Validation Loss | Previous: 0.1687 | Current : 0.1599
-  Early stopping patience: 0/20
-Epoch [4/100]
-  Train Loss: 0.0939 | CE: 0.0459 | Dice: 0.0465 | KD: 0.000000 | TSD: 0.015449 | Val Loss: 0.2275 | Best Val Loss: 0.1599
-  Dice: 91.55  IoU: 85.06  Prec: 96.09  Rec: 87.87  HD95: 19.13
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:15 | Avg: 00:01:17 | Elapsed: 00:05:11 | Remaining: 02:04:44
-  Early stopping patience: 1/20
-Epoch [5/100]
-  Train Loss: 0.0853 | CE: 0.0414 | Dice: 0.0425 | KD: 0.000000 | TSD: 0.014581 | Val Loss: 0.2059 | Best Val Loss: 0.1599
-  Dice: 92.22  IoU: 86.25  Prec: 95.06  Rec: 89.89  HD95: 18.49
-  Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:16 | Avg: 00:01:17 | Elapsed: 00:06:28 | Remaining: 02:02:52
+  Time: 00:02:15 | Avg: 00:02:01 | Elapsed: 00:06:03 | Remaining: 03:15:56
   Early stopping patience: 2/20
-Epoch [6/100]
-  Train Loss: 0.0777 | CE: 0.0371 | Dice: 0.0392 | KD: 0.000000 | TSD: 0.013512 | Val Loss: 0.2125 | Best Val Loss: 0.1599
-  Dice: 92.24  IoU: 86.18  Prec: 94.87  Rec: 90.16  HD95: 18.57
+Epoch [4/100]
+  Train Loss: 0.0807 | CE: 0.0387 | Dice: 0.0404 | KD: 0.000000 | TSD: 0.016903 | Val Loss: 0.2239 | Best Val Loss: 0.1495
+  Dice: 92.29  IoU: 86.36  Prec: 94.18  Rec: 90.84  HD95: 19.54
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:15 | Avg: 00:01:17 | Elapsed: 00:07:43 | Remaining: 02:01:05
+  Time: 00:02:18 | Avg: 00:02:05 | Elapsed: 00:08:22 | Remaining: 03:20:54
   Early stopping patience: 3/20
-Epoch [7/100]
-  Train Loss: 0.0747 | CE: 0.0363 | Dice: 0.0371 | KD: 0.000000 | TSD: 0.013727 | Val Loss: 0.2020 | Best Val Loss: 0.1599
-  Dice: 92.63  IoU: 86.96  Prec: 94.57  Rec: 91.08  HD95: 17.62
+Epoch [5/100]
+  Train Loss: 0.0766 | CE: 0.0363 | Dice: 0.0387 | KD: 0.000000 | TSD: 0.016746 | Val Loss: 0.2438 | Best Val Loss: 0.1495
+  Dice: 91.63  IoU: 85.58  Prec: 93.80  Rec: 89.81  HD95: 21.81
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:19 | Avg: 00:01:17 | Elapsed: 00:09:03 | Remaining: 02:00:14
+  Time: 00:02:13 | Avg: 00:02:07 | Elapsed: 00:10:36 | Remaining: 03:21:28
   Early stopping patience: 4/20
-Epoch [8/100]
-  Train Loss: 0.0703 | CE: 0.0336 | Dice: 0.0353 | KD: 0.000000 | TSD: 0.013966 | Val Loss: 0.2650 | Best Val Loss: 0.1599
-  Dice: 91.59  IoU: 85.20  Prec: 95.29  Rec: 88.58  HD95: 20.11
+Epoch [6/100]
+  Train Loss: 0.0768 | CE: 0.0360 | Dice: 0.0389 | KD: 0.000000 | TSD: 0.019240 | Val Loss: 0.2324 | Best Val Loss: 0.1495
+  Dice: 92.45  IoU: 86.69  Prec: 93.50  Rec: 91.73  HD95: 21.11
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:17 | Avg: 00:01:17 | Elapsed: 00:10:20 | Remaining: 01:58:58
+  Time: 00:02:21 | Avg: 00:02:09 | Elapsed: 00:12:57 | Remaining: 03:23:02
   Early stopping patience: 5/20
-Epoch [9/100]
-  Train Loss: 0.0659 | CE: 0.0312 | Dice: 0.0334 | KD: 0.000000 | TSD: 0.012736 | Val Loss: 0.2330 | Best Val Loss: 0.1599
-  Dice: 92.40  IoU: 86.52  Prec: 94.97  Rec: 90.27  HD95: 18.98
+Epoch [7/100]
+  Train Loss: 0.0677 | CE: 0.0314 | Dice: 0.0342 | KD: 0.000000 | TSD: 0.021222 | Val Loss: 0.2120 | Best Val Loss: 0.1495
+  Dice: 92.81  IoU: 87.33  Prec: 94.49  Rec: 91.45  HD95: 19.33
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:16 | Avg: 00:01:17 | Elapsed: 00:11:36 | Remaining: 01:57:26
+  Time: 00:02:13 | Avg: 00:02:10 | Elapsed: 00:15:11 | Remaining: 03:21:46
   Early stopping patience: 6/20
-Epoch [10/100]
-  Train Loss: 0.0628 | CE: 0.0297 | Dice: 0.0318 | KD: 0.000000 | TSD: 0.013640 | Val Loss: 0.2078 | Best Val Loss: 0.1599
-  Dice: 92.30  IoU: 86.34  Prec: 94.42  Rec: 90.64  HD95: 18.99
+Epoch [8/100]
+  Train Loss: 0.0625 | CE: 0.0291 | Dice: 0.0313 | KD: 0.000000 | TSD: 0.021752 | Val Loss: 0.2256 | Best Val Loss: 0.1495
+  Dice: 92.67  IoU: 87.02  Prec: 94.56  Rec: 91.16  HD95: 20.15
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:15 | Avg: 00:01:17 | Elapsed: 00:12:52 | Remaining: 01:55:50
+  Time: 00:02:21 | Avg: 00:02:11 | Elapsed: 00:17:32 | Remaining: 03:21:42
   Early stopping patience: 7/20
-Epoch [11/100]
-  Train Loss: 0.0654 | CE: 0.0308 | Dice: 0.0331 | KD: 0.000000 | TSD: 0.014098 | Val Loss: 0.2783 | Best Val Loss: 0.1599
-  Dice: 91.22  IoU: 84.63  Prec: 95.89  Rec: 87.40  HD95: 20.07
+Epoch [9/100]
+  Train Loss: 0.0618 | CE: 0.0283 | Dice: 0.0314 | KD: 0.000000 | TSD: 0.020709 | Val Loss: 0.2481 | Best Val Loss: 0.1495
+  Dice: 92.10  IoU: 86.38  Prec: 93.57  Rec: 90.95  HD95: 20.85
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:16 | Avg: 00:01:17 | Elapsed: 00:14:08 | Remaining: 01:54:25
+  Time: 00:02:16 | Avg: 00:02:12 | Elapsed: 00:19:48 | Remaining: 03:20:16
   Early stopping patience: 8/20
-Epoch [12/100]
-  Train Loss: 0.0597 | CE: 0.0283 | Dice: 0.0301 | KD: 0.000000 | TSD: 0.013036 | Val Loss: 0.2744 | Best Val Loss: 0.1599
-  Dice: 91.65  IoU: 85.30  Prec: 95.71  Rec: 88.31  HD95: 19.72
+Epoch [10/100]
+  Train Loss: 0.0569 | CE: 0.0261 | Dice: 0.0286 | KD: 0.000000 | TSD: 0.021718 | Val Loss: 0.2522 | Best Val Loss: 0.1495
+  Dice: 92.27  IoU: 86.42  Prec: 94.96  Rec: 90.06  HD95: 21.37
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:14 | Avg: 00:01:16 | Elapsed: 00:15:23 | Remaining: 01:52:50
+  Time: 00:02:20 | Avg: 00:02:12 | Elapsed: 00:22:08 | Remaining: 03:19:18
   Early stopping patience: 9/20
-Epoch [13/100]
-  Train Loss: 0.0588 | CE: 0.0277 | Dice: 0.0298 | KD: 0.000000 | TSD: 0.012652 | Val Loss: 0.2643 | Best Val Loss: 0.1599
-  Dice: 91.94  IoU: 85.76  Prec: 94.65  Rec: 89.82  HD95: 22.29
+Epoch [11/100]
+  Train Loss: 0.0574 | CE: 0.0262 | Dice: 0.0291 | KD: 0.000000 | TSD: 0.021349 | Val Loss: 0.2468 | Best Val Loss: 0.1495
+  Dice: 92.28  IoU: 86.42  Prec: 95.17  Rec: 89.86  HD95: 19.99
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:12 | Avg: 00:01:16 | Elapsed: 00:16:36 | Remaining: 01:51:06
+  Time: 00:02:16 | Avg: 00:02:13 | Elapsed: 00:24:25 | Remaining: 03:17:36
   Early stopping patience: 10/20
-Epoch [14/100]
-  Train Loss: 0.0569 | CE: 0.0264 | Dice: 0.0293 | KD: 0.000000 | TSD: 0.012287 | Val Loss: 0.2670 | Best Val Loss: 0.1599
-  Dice: 91.46  IoU: 84.99  Prec: 94.94  Rec: 88.59  HD95: 21.12
+Epoch [12/100]
+  Train Loss: 0.0535 | CE: 0.0244 | Dice: 0.0271 | KD: 0.000000 | TSD: 0.020031 | Val Loss: 0.2186 | Best Val Loss: 0.1495
+  Dice: 92.55  IoU: 86.91  Prec: 93.15  Rec: 92.17  HD95: 21.97
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:15 | Avg: 00:01:16 | Elapsed: 00:17:52 | Remaining: 01:49:45
+  Time: 00:02:19 | Avg: 00:02:13 | Elapsed: 00:26:45 | Remaining: 03:16:12
   Early stopping patience: 11/20
-Epoch [15/100]
-  Train Loss: 0.0566 | CE: 0.0265 | Dice: 0.0289 | KD: 0.000000 | TSD: 0.012595 | Val Loss: 0.2420 | Best Val Loss: 0.1599
-  Dice: 91.95  IoU: 85.73  Prec: 94.12  Rec: 90.18  HD95: 22.91
+Epoch [13/100]
+  Train Loss: 0.0538 | CE: 0.0243 | Dice: 0.0268 | KD: 0.000000 | TSD: 0.026766 | Val Loss: 0.2490 | Best Val Loss: 0.1495
+  Dice: 92.40  IoU: 86.75  Prec: 94.47  Rec: 90.74  HD95: 20.48
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:16 | Avg: 00:01:16 | Elapsed: 00:19:08 | Remaining: 01:48:28
+  Time: 00:02:14 | Avg: 00:02:13 | Elapsed: 00:29:00 | Remaining: 03:14:05
   Early stopping patience: 12/20
-Epoch [16/100]
-  Train Loss: 0.0542 | CE: 0.0253 | Dice: 0.0275 | KD: 0.000000 | TSD: 0.012846 | Val Loss: 0.2386 | Best Val Loss: 0.1599
-  Dice: 92.38  IoU: 86.50  Prec: 93.77  Rec: 91.28  HD95: 22.24
+Epoch [14/100]
+  Train Loss: 0.0498 | CE: 0.0221 | Dice: 0.0248 | KD: 0.000000 | TSD: 0.028965 | Val Loss: 0.2555 | Best Val Loss: 0.1495
+  Dice: 92.49  IoU: 86.85  Prec: 94.47  Rec: 90.89  HD95: 19.80
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:15 | Avg: 00:01:16 | Elapsed: 00:20:24 | Remaining: 01:47:07
+  Time: 00:02:20 | Avg: 00:02:14 | Elapsed: 00:31:20 | Remaining: 03:12:30
   Early stopping patience: 13/20
-Epoch [17/100]
-  Train Loss: 0.0519 | CE: 0.0244 | Dice: 0.0264 | KD: 0.000000 | TSD: 0.011361 | Val Loss: 0.2786 | Best Val Loss: 0.1599
-  Dice: 92.05  IoU: 86.02  Prec: 94.70  Rec: 89.87  HD95: 22.50
+Epoch [15/100]
+  Train Loss: 0.0503 | CE: 0.0223 | Dice: 0.0251 | KD: 0.000000 | TSD: 0.028227 | Val Loss: 0.2518 | Best Val Loss: 0.1495
+  Dice: 92.30  IoU: 86.55  Prec: 94.25  Rec: 90.73  HD95: 20.86
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:16 | Avg: 00:01:16 | Elapsed: 00:21:41 | Remaining: 01:45:52
+  Time: 00:02:14 | Avg: 00:02:14 | Elapsed: 00:33:35 | Remaining: 03:10:19
   Early stopping patience: 14/20
-Epoch [18/100]
-  Train Loss: 0.0506 | CE: 0.0238 | Dice: 0.0257 | KD: 0.000000 | TSD: 0.011844 | Val Loss: 0.3054 | Best Val Loss: 0.1599
-  Dice: 91.73  IoU: 85.49  Prec: 95.62  Rec: 88.54  HD95: 21.33
+Epoch [16/100]
+  Train Loss: 0.0505 | CE: 0.0225 | Dice: 0.0252 | KD: 0.000000 | TSD: 0.027851 | Val Loss: 0.2777 | Best Val Loss: 0.1495
+  Dice: 92.06  IoU: 86.21  Prec: 93.86  Rec: 90.69  HD95: 21.84
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:17 | Avg: 00:01:16 | Elapsed: 00:22:58 | Remaining: 01:44:38
+  Time: 00:02:18 | Avg: 00:02:14 | Elapsed: 00:35:53 | Remaining: 03:08:26
   Early stopping patience: 15/20
-Epoch [19/100]
-  Train Loss: 0.0530 | CE: 0.0250 | Dice: 0.0269 | KD: 0.000000 | TSD: 0.011200 | Val Loss: 0.2803 | Best Val Loss: 0.1599
-  Dice: 91.75  IoU: 85.45  Prec: 94.80  Rec: 89.31  HD95: 22.08
+Epoch [17/100]
+  Train Loss: 0.0511 | CE: 0.0224 | Dice: 0.0259 | KD: 0.000000 | TSD: 0.027346 | Val Loss: 0.2418 | Best Val Loss: 0.1495
+  Dice: 92.27  IoU: 86.49  Prec: 94.16  Rec: 90.78  HD95: 21.55
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:24 | Avg: 00:01:16 | Elapsed: 00:24:22 | Remaining: 01:43:54
+  Time: 00:02:11 | Avg: 00:02:14 | Elapsed: 00:38:05 | Remaining: 03:05:56
   Early stopping patience: 16/20
-Epoch [20/100]
-  Train Loss: 0.0506 | CE: 0.0233 | Dice: 0.0262 | KD: 0.000000 | TSD: 0.011715 | Val Loss: 0.3209 | Best Val Loss: 0.1599
-  Dice: 91.42  IoU: 84.97  Prec: 95.26  Rec: 88.25  HD95: 21.66
+Epoch [18/100]
+  Train Loss: 0.0504 | CE: 0.0220 | Dice: 0.0246 | KD: 0.000000 | TSD: 0.037804 | Val Loss: 0.3425 | Best Val Loss: 0.1495
+  Dice: 92.09  IoU: 86.32  Prec: 94.45  Rec: 90.11  HD95: 21.53
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:25 | Avg: 00:01:17 | Elapsed: 00:25:47 | Remaining: 01:43:10
+  Time: 00:02:19 | Avg: 00:02:14 | Elapsed: 00:40:24 | Remaining: 03:04:06
   Early stopping patience: 17/20
-Epoch [21/100]
-  Train Loss: 0.0508 | CE: 0.0235 | Dice: 0.0260 | KD: 0.000000 | TSD: 0.013350 | Val Loss: 0.3034 | Best Val Loss: 0.1599
-  Dice: 90.95  IoU: 84.26  Prec: 94.66  Rec: 87.98  HD95: 22.96
+Epoch [19/100]
+  Train Loss: 0.0506 | CE: 0.0217 | Dice: 0.0246 | KD: 0.000000 | TSD: 0.042971 | Val Loss: 0.3005 | Best Val Loss: 0.1495
+  Dice: 92.28  IoU: 86.49  Prec: 95.21  Rec: 89.80  HD95: 20.64
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:28 | Avg: 00:01:17 | Elapsed: 00:27:15 | Remaining: 01:42:33
+  Time: 00:02:14 | Avg: 00:02:14 | Elapsed: 00:42:39 | Remaining: 03:01:49
   Early stopping patience: 18/20
-Epoch [22/100]
-  Train Loss: 0.0521 | CE: 0.0239 | Dice: 0.0268 | KD: 0.000000 | TSD: 0.013658 | Val Loss: 0.3089 | Best Val Loss: 0.1599
-  Dice: 91.70  IoU: 85.49  Prec: 95.47  Rec: 88.57  HD95: 21.87
+Epoch [20/100]
+  Train Loss: 0.0509 | CE: 0.0213 | Dice: 0.0247 | KD: 0.000000 | TSD: 0.048355 | Val Loss: 0.2719 | Best Val Loss: 0.1495
+  Dice: 92.40  IoU: 86.76  Prec: 93.96  Rec: 91.17  HD95: 21.90
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:27 | Avg: 00:01:18 | Elapsed: 00:28:43 | Remaining: 01:41:51
+  Time: 00:02:22 | Avg: 00:02:15 | Elapsed: 00:45:01 | Remaining: 03:00:05
   Early stopping patience: 19/20
-Epoch [23/100]
-  Train Loss: 0.0490 | CE: 0.0226 | Dice: 0.0252 | KD: 0.000000 | TSD: 0.012557 | Val Loss: 0.2662 | Best Val Loss: 0.1599
-  Dice: 91.84  IoU: 85.73  Prec: 95.28  Rec: 89.00  HD95: 19.83
+Epoch [21/100]
+  Train Loss: 0.0491 | CE: 0.0208 | Dice: 0.0235 | KD: 0.000000 | TSD: 0.047520 | Val Loss: 0.2497 | Best Val Loss: 0.1495
+  Dice: 92.28  IoU: 86.50  Prec: 95.20  Rec: 89.83  HD95: 20.95
   Lr: 0.000500 | Truncated TSDs: 0
-  Time: 00:01:28 | Avg: 00:01:18 | Elapsed: 00:30:12 | Remaining: 01:41:06
+  Time: 00:02:15 | Avg: 00:02:15 | Elapsed: 00:47:16 | Remaining: 02:57:50
   Early stopping patience: 20/20
   >>> Early stopping triggered after 20 epochs without improvement
 Skipping last epoch weight save (save_last_epoch=False)
 
-Best weight is loaded: weights/dsr_sam/vit_b_dsr_sam_s_USOVA_best.pth
+Best weight is loaded: weights/dsr_sam/vit_b_ltsd5_s_USOVA_best.pth
 
 ======================================================================
 TESTING
@@ -603,7 +544,7 @@ Source: USOVA
 Target: OTU
 Weight: best
 Dataset: OTU | Training data: 850 | Validation data: 150 | Testing data: 469
-[weight: best] Target OTU | Dice: 85.50 | IoU: 75.37 | Prec: 80.16 | Rec: 92.83 | HD95: 16.95
+[weight: best] Target OTU | Dice: 85.02 | IoU: 74.65 | Prec: 78.25 | Rec: 94.23 | HD95: 16.26
 
 ======================================================================
 TESTING
@@ -611,5 +552,11 @@ Source: USOVA
 Target: OVATUS
 Weight: best
 Dataset: OVATUS | Training data: 899 | Validation data: 113 | Testing data: 112
-[weight: best] Target OVATUS | Dice: 90.70 | IoU: 83.13 | Prec: 88.23 | Rec: 93.65 | HD95: 14.72
+[weight: best] Target OVATUS | Dice: 90.60 | IoU: 82.97 | Prec: 86.49 | Rec: 95.51 | HD95: 14.62
 ======================================================================
+
+# METHOD dsr_sam_ltsd5 DONE
+
+######################################################################
+# SOTA run complete.
+######################################################################

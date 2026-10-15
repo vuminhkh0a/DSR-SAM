@@ -99,23 +99,8 @@ def train_one_epoch(model, loader, device, optimizer, seg_loss, cfg, iter_num):
         # Add L_tsd loss with coefficient beta1 (always student LoRA, both modes).
         # L_tsd sums only the top-s change rates per qkv module, where
         # s = cfg['truncation_size'] (same top-s TSD selection as truncation).
-        # `compute_l_tsd2` is an alternate option for `compute_l_tsd`: the two
-        # are mutually exclusive, with compute_l_tsd2 taking precedence.
-        # `compute_l_tsd3` is a further alternate option (log-squashed rate);
-        # when set it takes precedence over both.
         loss_tsd = torch.tensor(0.0, device=device)
-        compute_l_tsd3 = cfg.get('compute_l_tsd3', False)
-        compute_l_tsd2 = cfg.get('compute_l_tsd2', False)
-        if compute_l_tsd3 and hasattr(model, 'compute_l_tsd3'):
-            loss_tsd = model.compute_l_tsd3(ema=False)
-            loss = loss + cfg['beta1'] * loss_tsd
-        elif (not compute_l_tsd3 and compute_l_tsd2
-              and hasattr(model, 'compute_l_tsd2')):
-            loss_tsd = model.compute_l_tsd2(ema=False)
-            loss = loss + cfg['beta1'] * loss_tsd
-        elif (not compute_l_tsd3 and not compute_l_tsd2
-              and cfg.get('compute_l_tsd', True)
-              and hasattr(model, 'compute_l_tsd')):
+        if cfg.get('compute_l_tsd', False) and hasattr(model, 'compute_l_tsd'):
             loss_tsd = model.compute_l_tsd(ema=False)
             loss = loss + cfg['beta1'] * loss_tsd
 

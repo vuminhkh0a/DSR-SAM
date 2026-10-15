@@ -9,6 +9,10 @@ LOG_FILE="log.txt"
 # Y_DG_SUPPRESS_WARNINGS only covers the determinism/CUDA subset at runtime.
 export PYTHONWARNINGS=ignore
 
+# Phase 1 (reproducibility): PYTHONHASHSEED must be set before the interpreter
+# starts (setting it inside utils/seed.py is too late to take effect).
+export PYTHONHASHSEED=42
+
 
 # ========== DG UNet (plain milesial baseline) ==========
 # nohup python3 -m DG.unet.main > "$LOG_FILE" 2>&1 &
@@ -32,7 +36,7 @@ export PYTHONWARNINGS=ignore
 # nohup python3 -m DG.sr_sam.main > "$LOG_FILE" 2>&1 &
 
 # ========== DG DSR-SAM (dual subspace regularization SAM) ==========
-nohup python3 -m DG.dsr_sam.main > "$LOG_FILE" 2>&1 &
+# nohup python3 -m DG.dsr_sam.main > "$LOG_FILE" 2>&1 &
 
 # ========== DG DSR-SAM Hyperparameter Analysis (main_h) ==========
 # nohup python3 -u -m DG.dsr_sam.main_h > "$LOG_FILE" 2>&1 &
@@ -74,7 +78,7 @@ nohup python3 -m DG.dsr_sam.main > "$LOG_FILE" 2>&1 &
 # nohup python3 -m DG.ultrasam.main > "$LOG_FILE" 2>&1 &
 
 # ========== DG SOTA (all methods consecutively, fresh log each run) ==========
-# nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
+nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
 
 echo "Tailing $LOG_FILE"
 tail -f "$LOG_FILE"

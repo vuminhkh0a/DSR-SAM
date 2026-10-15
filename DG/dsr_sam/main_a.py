@@ -67,6 +67,8 @@ def get_base_config():
         'pin_memory': True,
         'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
+        'seed': 42,              # RNG seed (reset per case for reproducibility)
+
         'n_epochs': 100,
         'base_lr': 0.0005,
         'warmup_period': 250,
@@ -84,12 +86,7 @@ def get_base_config():
         'truncation_period': 4,
         'dash_warm': 300,
         'compute_l_tsd': False,  # overwritten per case by l_tsd
-        'compute_l_tsd2': False, # alternate L_tsd (mutually exclusive with
-                                 # compute_l_tsd; when True, compute_l_tsd is off)
-        'compute_l_tsd3': False, # alternate L_tsd using log(1 + alpha * change_rate)
-                                 # instead of dividing by max(change_rate)
-                                 # (takes precedence over compute_l_tsd/2)
-        'alpha': 0.1,            # coefficient of the L_tsd3 log-squash term
+        'alpha': 0.1,            # coefficient of the L_tsd log-squash term
         'd_delta': False,        # overwritten per case
 
         'experiment_process_save_epochs': False,
@@ -141,6 +138,9 @@ def run_one_case(case_idx, flags, source, targets, base_config, runner):
         'source': source,
         'overwrite_name': OVERWRITE_NAME,
     })
+    # Phase 2 (reproducibility): reseed per case so each case is independent
+    # of the RNG consumed by previously run cases.
+    set_seed(cfg.get('seed', 42))
     tag = case_tag(*flags)
     model_type = cfg['model_type']
     best_path = shared_best(model_type, OVERWRITE_NAME)
