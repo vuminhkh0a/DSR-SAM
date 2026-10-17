@@ -135,7 +135,7 @@ CONFIG = {
     'd_delta': False,           # L_tsd numerator: keep only change rates that
                                 # grew since the previous iteration (dDelta)
 
-    'experiment_process_save_epochs': False,  # save weights at epochs 1-20 and 60,100,140,...
+    'experiment_process_save_epochs': False,  # off here; run_sota enables it (even epochs 2,4,...,20)
     'save_last_epoch': False,  # whether to save weights at the last epoch
 
     'phase': 'train',

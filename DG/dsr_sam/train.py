@@ -235,13 +235,14 @@ def train_dsr_sam(model, train_loader, val_loader, device, cfg):
         else:
             epochs_no_improve += 1
 
-        # Experiment process saving: epochs 1-20, then 60, 100, 140, ...
-        # (every 40 epochs after 20). Controlled by config flag.
+        # Experiment process saving: even epochs 2, 4, ..., 20.
+        # Controlled by config flag.
         if cfg.get('experiment_process_save_epochs', False):
-            save_exp = (epoch <= 20)
+            save_exp = (epoch <= 20 and epoch % 2 == 0)
             if save_exp:
-                exp_name = (f'dsr_sam_{cfg["model_type"]}_experiment_'
-                            f'{cfg["source"]}_epoch_{epoch}.pth')
+                # Prefix encodes model_type + run_name + source, so the
+                # compute_l_tsd=True/False SOTA runs do not overwrite each other.
+                exp_name = f'{prefix}_experiment_epoch_{epoch}.pth'
                 torch.save(model.state_dict(), os.path.join(model_dir, exp_name))
 
         epoch_time = time.time() - epoch_start

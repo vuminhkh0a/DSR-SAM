@@ -123,6 +123,7 @@ CONFIG = {
     'phase': 'train',
 
     'save_last_epoch': False,  # turned off: keep best checkpoint only
+    'experiment_process_save_epochs': False,  # off here; run_sota enables it (even epochs 2,4,...,20)
 
     'model_type': 'vit_b',
     'checkpoint': 'weights/sam/sam_vit_b_01ec64.pth',

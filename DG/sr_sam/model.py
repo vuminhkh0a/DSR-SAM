@@ -36,6 +36,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from utils.seed import deterministic_warn_only
+
 
 # ============================================================
 # Common building blocks (repo segment_anything/modeling/common.py)
@@ -268,8 +270,13 @@ class PositionEmbeddingRandom(nn.Module):
         h, w = size
         device = self.positional_encoding_gaussian_matrix.device
         grid = torch.ones((h, w), device=device, dtype=torch.float32)
-        y_embed = grid.cumsum(dim=0) - 0.5
-        x_embed = grid.cumsum(dim=1) - 0.5
+        # Determinism exception: `cumsum` has no deterministic CUDA kernel per
+        # PyTorch, but here it runs over a constant all-ones grid (a sequential
+        # prefix sum), so the result is exact/stable. Scoped warn-only keeps
+        # strict mode for every other op.
+        with deterministic_warn_only():
+            y_embed = grid.cumsum(dim=0) - 0.5
+            x_embed = grid.cumsum(dim=1) - 0.5
         y_embed = y_embed / h
         x_embed = x_embed / w
         pe = self._pe_encoding(torch.stack([x_embed, y_embed], dim=-1))

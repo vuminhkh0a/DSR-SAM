@@ -228,6 +228,25 @@
   {"name": "vit_b_dsr_sam_lora_sam_s_USOVA_t_OTU_best",
    "results": {"dice": 84.79, "iou": 74.48, "precision": 80.69, "recall": 90.49, "hd95": 16.77}},
   {"name": "vit_b_dsr_sam_lora_sam_s_USOVA_t_OVATUS_best",
-   "results": {"dice": 90.57, "iou": 82.91, "precision": 88.45, "recall": 93.24, "hd95": 14.43}}
- 
+   "results": {"dice": 90.57, "iou": 82.91, "precision": 88.45, "recall": 93.24, "hd95": 14.43}},
+  {"name": "vit_b_dsr_sam_noLtsd_sam_s_OTU_t_OVATUS_best",
+   "results": {"dice": 94.91, "iou": 90.42, "precision": 97.31, "recall": 92.79, "hd95": 9.51}},
+  {"name": "vit_b_dsr_sam_noLtsd_sam_s_OTU_t_USOVA_best",
+   "results": {"dice": 83.85, "iou": 73.06, "precision": 87.3, "recall": 82.76, "hd95": 31.87}},
+  {"name": "vit_b_dsr_sam_ltsd_sam_s_OTU_t_OVATUS_best",
+   "results": {"dice": 94.87, "iou": 90.35, "precision": 97.42, "recall": 92.62, "hd95": 9.14}},
+  {"name": "vit_b_dsr_sam_ltsd_sam_s_OTU_t_USOVA_best",
+   "results": {"dice": 83.88, "iou": 73.25, "precision": 86.98, "recall": 82.89, "hd95": 31.63}},
+  {"name": "vit_b_sr_sam_s_OTU_t_OVATUS_best",
+   "results": {"dice": 94.17, "iou": 89.09, "precision": 96.89, "recall": 91.81, "hd95": 9.84}},
+  {"name": "vit_b_sr_sam_s_OTU_t_USOVA_best",
+   "results": {"dice": 85.36, "iou": 75.38, "precision": 86.04, "recall": 86.3, "hd95": 26.61}},
+  {"name": "vit_b_dsr_sam_noLtsd_sam_s_OTU_t_OVATUS_best",
+   "results": {"dice": 94.91, "iou": 90.42, "precision": 97.31, "recall": 92.79, "hd95": 9.51}},
+  {"name": "vit_b_dsr_sam_noLtsd_sam_s_OTU_t_USOVA_best",
+   "results": {"dice": 83.85, "iou": 73.06, "precision": 87.3, "recall": 82.76, "hd95": 31.87}},
+  {"name": "vit_b_dsr_sam_ltsd_sam_s_OTU_t_OVATUS_best",
+   "results": {"dice": 94.87, "iou": 90.35, "precision": 97.42, "recall": 92.62, "hd95": 9.14}},
+  {"name": "vit_b_dsr_sam_ltsd_sam_s_OTU_t_USOVA_best",
+   "results": {"dice": 83.88, "iou": 73.25, "precision": 86.98, "recall": 82.89, "hd95": 31.63}}
 ]

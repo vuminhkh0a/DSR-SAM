@@ -18,10 +18,9 @@ Usage (from ``y_DG/`` with khoa-env active):
     python3 -m DG.sota.run_sota
     python3 -m DG.sota.run_sota --methods unet,maxstyle
     python3 -m DG.sota.run_sota --datasets OTU,OVATUS
-    # DSR-SAM (with its single L_tsd loss):
-    python3 -m DG.sota.run_sota --methods dsr_sam_ltsd
-    # plain LoRA-only baseline (all DSR-SAM mechanisms off):
-    python3 -m DG.sota.run_sota --methods dsr_sam_lora
+    # train on a single source: edit SOURCE_DATASETS (below ALL_DATASETS), e.g. ['OTU']
+    # DSR-SAM without / with the L_tsd loss, then SR-SAM:
+    python3 -m DG.sota.run_sota --methods dsr_sam_noLtsd,dsr_sam_ltsd,sr_sam
 
 ``run.sh`` launches it detached, with every line streamed to ``log.txt``:
     nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
@@ -72,14 +71,19 @@ def reset_log(tag='sota'):
 # The DSR-SAM ablation/hyperparameter studies are NOT part of this SOTA run;
 # they live in DG.dsr_sam.main_a (ablation) and DG.dsr_sam.main_h (HP grid).
 #
-# The `dsr_sam_ltsd` entry is DSR-SAM with its single L_tsd loss: the
+# `dsr_sam_noLtsd` is DSR-SAM with the L_tsd loss turned off
+# (compute_l_tsd=False, so no L_tsd term is added).
+#
+# `dsr_sam_ltsd` is DSR-SAM with its single L_tsd loss: the
 # log-squashed rate = (bb / (a + eps))**2 squashed with
 # log(1 + alpha * rate) (no deltaW Frobenius norm in the denominator), enabled
 # via compute_l_tsd.
 #
-# `dsr_sam_lora` is the plain LoRA-only baseline: DSR-SAM with every extra
-# mechanism turned off (no L_tsd of any kind, no d_delta, no truncation, no
-# EMA LoRA, no distillation), i.e. SAM + LoRA adaptation only.
+# `sr_sam` is the SR-SAM reference method (DG.sr_sam.main).
+#
+# All three save per-epoch experiment snapshots (experiment_process_save_epochs
+# is turned on here via the run_sota overrides: even epochs 2, 4, ..., 20; the
+# method CONFIGs keep it off for direct 'python -m DG.<x>.main' runs).
 # ---------------------------------------------------------------------------
 METHOD_SPECS = [
     # ('unet',             'DG.unet.main',             {}),
@@ -99,9 +103,14 @@ METHOD_SPECS = [
     # ('transsam',         'DG.transsam.main',         {}),
     # ('nora',             'DG.nora.main',             {}),
     
+    ('dsr_sam_noLtsd',   'DG.dsr_sam.main',
+     {'compute_l_tsd': False, 'experiment_process_save_epochs': True,
+      'run_name': 'noLtsd',   'result_tag': 'dsr_sam_noLtsd'}),
     ('dsr_sam_ltsd',     'DG.dsr_sam.main',
-     {'compute_l_tsd': True,
-      'run_name': 'ltsd',   'result_tag': 'dsr_sam_ltsd'})
+     {'compute_l_tsd': True, 'experiment_process_save_epochs': True,
+      'run_name': 'ltsd',   'result_tag': 'dsr_sam_ltsd'}),
+    # ('sr_sam',           'DG.sr_sam.main',
+    #  {'experiment_process_save_epochs': True})
 ]
 
 LOOKUP = {name: (module, overrides)
@@ -109,10 +118,20 @@ LOOKUP = {name: (module, overrides)
 ALL_METHODS = [name for name, _, _ in METHOD_SPECS]
 
 ALL_DATASETS = [
-                'OTU', 
-                'OVATUS', 
-                'USOVA'
+                'OTU',
+                'OVATUS',
+                'USOVA',
                 ]
+
+# ---------------------------------------------------------------------------
+# Which SOURCE domain(s) to TRAIN on in this run. Edit this line to restrict
+# the SOTA run. Each source is trained once and tested on the remaining
+# domains (leave-one-out), so the targets are automatic:
+#   ['OTU']                    -> only OTU source  (test on OVATUS + USOVA)
+#   ['OTU', 'OVATUS', 'USOVA'] -> every source (full leave-one-out)
+#   None                       -> same as every source
+# ---------------------------------------------------------------------------
+SOURCE_DATASETS = ['OTU']
 
 
 def _csv_list(value):
@@ -169,6 +188,10 @@ def _runs_for(module, datasets):
         domains = getattr(module, 'DATASETS', None) or ALL_DATASETS
         runs = [(src, [t for t in domains if t != src]) for src in domains]
     runs = [(src, list(targets)) for src, targets in runs]
+    # SOURCE_DATASETS (edit near the top of this file) restricts which SOURCE
+    # domains run; each source keeps its full leave-one-out target list.
+    if SOURCE_DATASETS is not None:
+        runs = [(src, targets) for src, targets in runs if src in SOURCE_DATASETS]
     runs = [(src, [t for t in targets if t in datasets])
             for src, targets in runs if src in datasets]
     return [(src, targets) for src, targets in runs if targets]
@@ -212,6 +235,7 @@ def main(argv=None):
     print(f'# SOTA run: {len(methods)} method(s) consecutively')
     print(f'# methods : {methods}')
     print(f'# datasets: {datasets}')
+    print(f'# sources : {SOURCE_DATASETS if SOURCE_DATASETS is not None else "all"}')
     print(f'# log     : {LOG_FILE}')
     print(f'# {"#" * 68}')
     sys.stdout.flush()

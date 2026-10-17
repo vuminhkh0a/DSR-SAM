@@ -213,6 +213,13 @@ def train_sr_sam(model, train_loader, val_loader, device, cfg):
         else:
             epochs_no_improve += 1
 
+        # Experiment process saving: even epochs 2, 4, ..., 20.
+        # Controlled by config flag.
+        if cfg.get('experiment_process_save_epochs', False):
+            if epoch <= 20 and epoch % 2 == 0:
+                exp_name = (f'{prefix}_experiment_epoch_{epoch}.pth')
+                torch.save(model.state_dict(), os.path.join(model_dir, exp_name))
+
         epoch_time = time.time() - epoch_start
         epoch_times.append(epoch_time)
         elapsed = time.time() - start_time
