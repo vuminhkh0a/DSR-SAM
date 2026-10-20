@@ -31,11 +31,20 @@ set_seed()
 
 DATASETS = ['OTU', 'OVATUS', 'USOVA']
 
+SINGLE_SOURCE_RUNS = [
+    ('OTU', ['OVATUS', 'USOVA']),
+    ('OVATUS', ['OTU', 'USOVA']),
+    ('USOVA', ['OTU', 'OVATUS']),
+]
+
 CHECKPOINT = 'weights/sam/sam_vit_b_01ec64.pth'
 
 
 def run_single_source(source, targets, cfg, device, runner):
     cfg = dict(cfg)
+    # Reseed per source so a case does not depend on RNG consumed by earlier
+    # sources (same reproducibility policy as DSR-SAM).
+    set_seed(cfg.get('seed', 42))
     cfg['model_dir'] = 'weights/desam/'
     cfg['prefix'] = f'{cfg["model_type"]}_desam_s_{source}'
     if os.environ.get('DESAM_SMOKE') == '1':
@@ -111,6 +120,7 @@ def run_single_source(source, targets, cfg, device, runner):
 
 CONFIG = {
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
+    'seed': 42,                 # RNG seed (reset per source for reproducibility)
     'model_type': 'vit_b',
     'checkpoint': CHECKPOINT,
     'n_epochs': 100,
@@ -137,16 +147,19 @@ if __name__ == '__main__':
         CONFIG['n_epochs'] = 1
         CONFIG['write_results'] = False
     else:
-        domains = DATASETS
-        if os.environ.get('DESAM_DOMAINS'):
-            domains = [d for d in DATASETS if d in os.environ['DESAM_DOMAINS'].split(',')]
         if os.environ.get('DESAM_EPOCHS'):
             CONFIG['n_epochs'] = int(os.environ['DESAM_EPOCHS'])
-        runs = [(src, [d for d in DATASETS if d != src]) for src in domains]
+        runs = SINGLE_SOURCE_RUNS
+        if os.environ.get('DESAM_DOMAINS'):
+            allowed = set(os.environ['DESAM_DOMAINS'].split(','))
+            runs = [(src, targets) for src, targets in SINGLE_SOURCE_RUNS
+                    if src in allowed]
 
     device = torch.device(CONFIG['device'])
     runner = SequentialDomainRunner(device=device)
 
-    for src, target in runs:
+    for src, targets in runs:
+        if not targets:
+            continue
         cleanup_resources(device)
-        run_single_source(src, target, CONFIG, device, runner)
+        run_single_source(src, targets, CONFIG, device, runner)

@@ -47,6 +47,9 @@ CHECKPOINT = 'weights/sam/sam_vit_b_01ec64.pth'
 
 def run_single_source(source, targets, cfg, device, runner):
     cfg = dict(cfg)
+    # Reseed per source so a case does not depend on RNG consumed by earlier
+    # sources (same reproducibility policy as DSR-SAM).
+    set_seed(cfg.get('seed', 42))
     cfg['model_dir'] = 'weights/sammed/'
     cfg['prefix'] = f'{cfg["model_type"]}_sammed_s_{source}'
     cfg['resnet_prefix'] = f'sammed_resnet_s_{source}'
@@ -175,6 +178,7 @@ CONFIG = {
     'num_workers': 4,
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
+    'seed': 42,                 # RNG seed (reset per source for reproducibility)
 
     # Stage 1: DeepLabV3-ResNet50 backbone (repo resnet_prostate.py)
     'resnet_epochs': 30,

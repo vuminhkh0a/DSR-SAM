@@ -32,9 +32,18 @@ set_seed()
 
 DATASETS = ['OTU', 'OVATUS', 'USOVA']
 
+SINGLE_SOURCE_RUNS = [
+    ('OTU', ['OVATUS', 'USOVA']),
+    ('OVATUS', ['OTU', 'USOVA']),
+    ('USOVA', ['OTU', 'OVATUS']),
+]
+
 
 def run_single_source(src, targets, cfg, runner):
     domain_cfg = dict(cfg)
+    # Reseed per source so a case does not depend on RNG consumed by earlier
+    # sources (same reproducibility policy as DSR-SAM).
+    set_seed(domain_cfg.get('seed', 42))
     domain_cfg['source_domains'] = [src]
     domain_cfg['num_domains'] = 2
     domain_cfg['model_dir'] = 'weights/dn/'
@@ -164,6 +173,8 @@ def get_multi_source_val_loader(source_names, image_size, batch_size, num_worker
 
 def run_multi_source(sources, target, cfg, runner):
     cfg = dict(cfg)
+    # Reseed per target so each multi-source case is independent.
+    set_seed(cfg.get('seed', 42))
     cfg['source_domains'] = sources
     cfg['num_domains'] = len(sources)
     cfg['model_dir'] = 'weights/dn/'
@@ -268,6 +279,7 @@ CONFIG = {
     'num_workers': 4,
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
+    'seed': 42,                 # RNG seed (reset per source for reproducibility)
 
     'n_epochs': 100,
     'patience': 20,
@@ -300,8 +312,14 @@ if __name__ == '__main__':
             run_multi_source(sources, tgt, CONFIG, runner)
 
     elif mode == 'single_source':
-        for src in domains:
-            targets = [d for d in DATASETS if d != src]
+        runs = SINGLE_SOURCE_RUNS
+        if os.environ.get('DN_DOMAINS'):
+            allowed = set(os.environ['DN_DOMAINS'].split(','))
+            runs = [(src, targets) for src, targets in SINGLE_SOURCE_RUNS
+                    if src in allowed]
+        for src, targets in runs:
+            if not targets:
+                continue
             cleanup_resources(device)
             run_single_source(src, targets, CONFIG, runner)
     else:

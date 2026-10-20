@@ -27,6 +27,8 @@ DATASETS = ['OTU', 'OVATUS', 'USOVA']
 
 def run_testonly(targets, cfg, runner):
     cfg = dict(cfg)
+    # Reseed once per invocation (same reproducibility policy as DSR-SAM).
+    set_seed(cfg.get('seed', 42))
     ckpt = cfg['test_checkpoint']
     print(f'\n{"="*70}')
     print('TEST-ONLY (official UltraSAM, no training)')
@@ -67,6 +69,7 @@ CONFIG = {
     'num_workers': 4,
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
+    'seed': 42,                 # RNG seed (reset per invocation for reproducibility)
 
     'test_checkpoint': 'weights/ultrasam/ultrasam_vit_b.pth',
 

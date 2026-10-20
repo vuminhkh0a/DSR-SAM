@@ -1,7 +1,10 @@
 import json
+import re
 import torch
 import torch.nn.functional as F
 import numpy as np
+
+from utils.env import get_physical_gpu_index
 
 try:
     from torchmetrics.functional.image import structural_similarity_index_measure as ssim_fn
@@ -98,14 +101,29 @@ def _to_plain_float(v):
         return v
 
 
+def results_name_prefix():
+    """``gpu<N>_`` for physical GPU N (from CUDA_DEVICE), else ``cpu_``."""
+    idx = get_physical_gpu_index()
+    return f'gpu{idx}_' if idx is not None else 'cpu_'
+
+
 def save_results(name, results_dict, file_path='results.json'):
-    """Append one test case to results.json: exactly 2 lines per case.
+    """Insert or update one test case in results.json (2 lines per case).
 
     Line 1: {"name": "<name>",
     Line 2:  "results": {"dice":.., "iou":.., "precision":.., "recall":.., "hd95":..}}
     Only the 5 metrics are stored (extra keys like 'loss' are dropped).
+    Every name is prefixed with its physical GPU (``gpu0_``, ``gpu1_``, ...;
+    ``cpu_`` without CUDA) so runs on different GPUs stay distinguishable.
+
+    Re-running the same case updates its existing entry in place instead of
+    appending a duplicate, so results.json never accumulates overlapping rows.
     """
     FIVE_KEYS = ('dice', 'iou', 'precision', 'recall', 'hd95')
+    # Tag once; re-saving an already tagged name must not add gpuN_gpuN_.
+    name = str(name)
+    if not re.match(r'^(gpu\d+|cpu)_', name):
+        name = results_name_prefix() + name
     if all(k in results_dict for k in FIVE_KEYS):
         ordered = {k: _to_plain_float(results_dict[k]) for k in FIVE_KEYS}
     else:
@@ -118,7 +136,21 @@ def save_results(name, results_dict, file_path='results.json'):
                 existing_data = [existing_data]
     except (FileNotFoundError, json.JSONDecodeError):
         pass
-    existing_data.append({'name': name, 'results': ordered})
+    entry = {'name': name, 'results': ordered}
+    # Replace the existing row(s) for this case, keeping the first position;
+    # also collapses any duplicates inherited from older result files.
+    updated = []
+    inserted = False
+    for old in existing_data:
+        if isinstance(old, dict) and old.get('name') == name:
+            if not inserted:
+                updated.append(entry)
+                inserted = True
+            continue
+        updated.append(old)
+    if not inserted:
+        updated.append(entry)
+    existing_data = updated
     with open(file_path, 'w', encoding='utf-8') as f:
         if not existing_data:
             f.write('[]\n')

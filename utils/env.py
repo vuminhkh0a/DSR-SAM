@@ -65,6 +65,37 @@ def _visible_physical_ids():
     return items
 
 
+def get_physical_gpu_index():
+    """Return the **physical** GPU index selected by ``CUDA_DEVICE``.
+
+    ``CUDA_DEVICE`` is documented as a physical id (see ``get_device``), so
+    ``cuda:1`` -> ``1`` even when ``CUDA_VISIBLE_DEVICES`` remaps it to
+    logical ``cuda:0``.  Returns ``None`` for CPU / unavailable CUDA.
+    """
+    load_env()
+    device = os.environ.get('CUDA_DEVICE', DEFAULT_DEVICE).strip() or DEFAULT_DEVICE
+    if not device.startswith('cuda'):
+        return None
+    parts = device.split(':')
+    if len(parts) > 1 and parts[1].strip():
+        try:
+            return int(parts[1])
+        except ValueError:
+            return None
+    # Plain 'cuda': map torch's current logical device through the visible list.
+    try:
+        import torch
+        if not torch.cuda.is_available():
+            return None
+        logical = torch.cuda.current_device()
+    except ImportError:
+        return None
+    visible = _visible_physical_ids()
+    if visible is not None and logical < len(visible):
+        return int(visible[logical])
+    return logical
+
+
 def get_device(default=DEFAULT_DEVICE):
     """Return the CUDA device configured in ``.env`` (or CPU as a fallback).
 

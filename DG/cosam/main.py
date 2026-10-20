@@ -38,6 +38,9 @@ DATASETS = ['OTU', 'OVATUS', 'USOVA']
 
 def run_single_source(source, targets, cfg, runner):
     cfg = dict(cfg)
+    # Reseed per source so a case does not depend on RNG consumed by earlier
+    # sources (same reproducibility policy as DSR-SAM).
+    set_seed(cfg.get('seed', 42))
     cfg['model_dir'] = 'weights/cosam/'
     cfg['prefix'] = f'{cfg["model_type"]}_cosam_s_{source}'
     if os.environ.get('COSAM_SMOKE') == '1':
@@ -113,6 +116,7 @@ CONFIG = {
     'num_workers': 4,
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
+    'seed': 42,                 # RNG seed (reset per source for reproducibility)
 
     'n_epochs': 100,
     'base_lr': 0.0001,          # paper Sec. 5.2 (prostate)

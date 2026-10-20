@@ -19,6 +19,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from utils.seed import deterministic_warn_only
+
 
 # ============================================================
 # Adapter (repo models/common/adapter.py)
@@ -306,8 +308,11 @@ class PositionEmbeddingRandom(nn.Module):
         h, w = size
         device = self.positional_encoding_gaussian_matrix.device
         grid = torch.ones((h, w), device=device, dtype=torch.float32)
-        y_embed = grid.cumsum(dim=0) - 0.5
-        x_embed = grid.cumsum(dim=1) - 0.5
+        # cumsum has no deterministic CUDA kernel; the grid is constant, so
+        # warn-only is exact here (see utils.seed.deterministic_warn_only).
+        with deterministic_warn_only():
+            y_embed = grid.cumsum(dim=0) - 0.5
+            x_embed = grid.cumsum(dim=1) - 0.5
         y_embed = y_embed / h
         x_embed = x_embed / w
         pe = self._pe_encoding(torch.stack([x_embed, y_embed], dim=-1))

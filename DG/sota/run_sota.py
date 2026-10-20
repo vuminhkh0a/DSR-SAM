@@ -1,24 +1,29 @@
 """SOTA runner for y_DG (DG/sota/run_sota.py).
 
-Runs every trainable single-source DG method consecutively and writes one
-continuous ``log.txt`` for the whole invocation. This mirrors
+Runs every benchmark DG method consecutively and writes one continuous
+``log.txt`` for the whole invocation. This mirrors
 ``z_SSL/SSL/sota/run_sota.py``, adapted to y_DG's per-method interface:
 
     DG.<method>.main exposes
         CONFIG                  -> dict of hyper-parameters
         SINGLE_SOURCE_RUNS      -> [(source, [targets...]), ...]   (optional)
-        [DATASETS]              -> source domains (used when runs are absent)
-        run_single_source(source, targets, cfg[, device], runner)
+        [DATASETS]              -> domains (fallback split / test-only targets)
+        run_single_source(source, targets, cfg[, device], runner)   # trainable
+        run_testonly(targets, cfg, runner)                          # inference-only
 
 Nothing in any method's files is modified: the same per-domain
 train->test flow runs with each method's own CONFIG, writing to the same
 ``weights/<method>/`` checkpoints and ``results.json`` entries.
 
+A method that raises is logged with its full traceback and skipped; the
+remaining methods still run (a summary of failures is printed at the end).
+
 Usage (from ``y_DG/`` with khoa-env active):
     python3 -m DG.sota.run_sota
     python3 -m DG.sota.run_sota --methods unet,maxstyle
-    python3 -m DG.sota.run_sota --datasets OTU,OVATUS
-    # train on a single source: edit SOURCE_DATASETS (below ALL_DATASETS), e.g. ['OTU']
+    python3 -m DG.sota.run_sota --datasets OTU,OVATUS   # source domains only
+    # train on a single source (tests both held-out targets):
+    python3 -m DG.sota.run_sota --datasets OTU
     # DSR-SAM without / with the L_tsd loss, then SR-SAM:
     python3 -m DG.sota.run_sota --methods dsr_sam_noLtsd,dsr_sam_ltsd,sr_sam
 
@@ -35,6 +40,7 @@ import importlib
 import inspect
 import os
 import sys
+import traceback
 
 import torch
 
@@ -49,68 +55,85 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 LOG_FILE = os.path.join(PROJECT_ROOT, 'log.txt')
 
 
+def _stdout_is_log_file():
+    """True when stdout already points at LOG_FILE (run.sh ``> log.txt``)."""
+    try:
+        out = os.fstat(sys.stdout.fileno())
+        log = os.stat(LOG_FILE)
+    except (OSError, AttributeError, ValueError):
+        return False
+    return (out.st_dev, out.st_ino) == (log.st_dev, log.st_ino)
+
+
 def reset_log(tag='sota'):
     """Truncate/create log.txt with a startup header (once per process)."""
     ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     header = f'=== NEW RUN: {tag} | started {ts} ===\n'
     os.makedirs(os.path.dirname(LOG_FILE) or '.', exist_ok=True)
-    with open(LOG_FILE, 'w', encoding='utf-8') as f:
-        f.write(header)
-        f.flush()
+    if not os.path.exists(LOG_FILE):
+        open(LOG_FILE, 'a', encoding='utf-8').close()
+
+    if _stdout_is_log_file():
+        # run.sh redirects stdout straight to LOG_FILE. Truncate and rewind
+        # *that* fd, then let stdout carry the header. A separate file handle
+        # here would race with the redirected stdout, garbling the first line
+        # ("=== NEW RUN ... === NEW RUN") or leaving a NUL hole when anything
+        # was printed before reset_log().
+        sys.stdout.flush()
         try:
-            os.fsync(f.fileno())
-        except OSError:
+            fd = sys.stdout.fileno()
+            os.ftruncate(fd, 0)
+            os.lseek(fd, 0, os.SEEK_SET)
+        except (OSError, AttributeError, ValueError):
             pass
+    else:
+        # Not redirected: reset the on-disk log with the header; the rest of
+        # this process's output still goes to the terminal.
+        with open(LOG_FILE, 'w', encoding='utf-8') as f:
+            f.write(header)
+            f.flush()
+            try:
+                os.fsync(f.fileno())
+            except OSError:
+                pass
+
     print(header.strip())
     sys.stdout.flush()
 
 
 # ---------------------------------------------------------------------------
 # Method registry. Short name -> module + optional CONFIG overrides.
-# Order matches run.sh: baseline first, then the SAM-based methods.
-# The DSR-SAM ablation/hyperparameter studies are NOT part of this SOTA run;
-# they live in DG.dsr_sam.main_a (ablation) and DG.dsr_sam.main_h (HP grid).
+# Every benchmark method is listed; the ablation / hyper-parameter studies are
+# intentionally excluded (run those via DG.dsr_sam.main_a / main_h and
+# DG.dsr_sam2.main_a / main_h).
 #
-# `dsr_sam_noLtsd` is DSR-SAM with the L_tsd loss turned off
-# (compute_l_tsd=False, so no L_tsd term is added).
-#
-# `dsr_sam_ltsd` is DSR-SAM with its single L_tsd loss: the
-# log-squashed rate = (bb / (a + eps))**2 squashed with
-# log(1 + alpha * rate) (no deltaW Frobenius norm in the denominator), enabled
-# via compute_l_tsd.
-#
-# `sr_sam` is the SR-SAM reference method (DG.sr_sam.main).
-#
-# All three save per-epoch experiment snapshots (experiment_process_save_epochs
-# is turned on here via the run_sota overrides: even epochs 2, 4, ..., 20; the
-# method CONFIGs keep it off for direct 'python -m DG.<x>.main' runs).
+# Trainable methods expose CONFIG + run_single_source() and are driven over
+# their SINGLE_SOURCE_RUNS (3 sources x 2 held-out targets).
+# The final three are inference-only official checkpoints: they expose
+# CONFIG + run_testonly() and are evaluated once on every benchmark domain.
 # ---------------------------------------------------------------------------
 METHOD_SPECS = [
-    # ('unet',             'DG.unet.main',             {}),
-    # ('dualnormalization', 'DG.dualnormalization.main', {}),
-    # ('mi_segnet',        'DG.mi_segnet.main',        {}),
-    # ('maxstyle',         'DG.maxstyle.main',         {}),
-    # ('desam',            'DG.desam.main',            {}),
-    # ('masam',            'DG.masam.main',            {}),
-    # ('sr_sam',           'DG.sr_sam.main',           {}),
-    # ('dsr_sam',          'DG.dsr_sam.main',          {}),
-    # ('sammed',           'DG.sammed.main',           {}),
-    # ('samus',            'DG.samus.main',            {}),
-    # ('dapsam',           'DG.dapsam.main',           {}),
-    # ('cosam',            'DG.cosam.main',            {}),
-    # ('medsa',            'DG.medsa.main',            {}),
-    # ('bussam',           'DG.bussam.main',           {}),
-    # ('transsam',         'DG.transsam.main',         {}),
-    # ('nora',             'DG.nora.main',             {}),
-    
-    ('dsr_sam_noLtsd',   'DG.dsr_sam.main',
-     {'compute_l_tsd': False, 'experiment_process_save_epochs': True,
-      'run_name': 'noLtsd',   'result_tag': 'dsr_sam_noLtsd'}),
-    ('dsr_sam_ltsd',     'DG.dsr_sam.main',
-     {'compute_l_tsd': True, 'experiment_process_save_epochs': True,
-      'run_name': 'ltsd',   'result_tag': 'dsr_sam_ltsd'}),
-    # ('sr_sam',           'DG.sr_sam.main',
-    #  {'experiment_process_save_epochs': True})
+    ('unet',             'DG.unet.main',             {}),
+    ('dualnormalization', 'DG.dualnormalization.main', {}),
+    ('mi_segnet',        'DG.mi_segnet.main',        {}),
+    ('maxstyle',         'DG.maxstyle.main',         {}),
+    ('desam',            'DG.desam.main',            {}),
+    ('masam',            'DG.masam.main',            {}),
+    ('sr_sam',           'DG.sr_sam.main',           {}),
+    ('dsr_sam',          'DG.dsr_sam.main',          {}),
+    # ('dsr_sam2',         'DG.dsr_sam2.main',         {}),
+    ('sammed',           'DG.sammed.main',           {}),
+    ('samus',            'DG.samus.main',            {}),
+    ('dapsam',           'DG.dapsam.main',           {}),
+    ('cosam',            'DG.cosam.main',            {}),
+    ('medsa',            'DG.medsa.main',            {}),
+    ('bussam',           'DG.bussam.main',           {}),
+    ('transsam',         'DG.transsam.main',         {}),
+    ('nora',             'DG.nora.main',             {}),
+    # ---- inference-only official checkpoints ----
+    ('medsam',           'DG.medsam.main',           {}),
+    ('sammed2d',         'DG.sammed2d.main',         {}),
+    ('ultrasam',         'DG.ultrasam.main',         {}),
 ]
 
 LOOKUP = {name: (module, overrides)
@@ -124,14 +147,15 @@ ALL_DATASETS = [
                 ]
 
 # ---------------------------------------------------------------------------
-# Which SOURCE domain(s) to TRAIN on in this run. Edit this line to restrict
-# the SOTA run. Each source is trained once and tested on the remaining
-# domains (leave-one-out), so the targets are automatic:
+# Which SOURCE domain(s) to TRAIN on in this run. Each source is trained once
+# and tested on the remaining domains (leave-one-out), so the targets are
+# automatic:
+#   None                       -> every source (full leave-one-out, 3x2 cases)
 #   ['OTU']                    -> only OTU source  (test on OVATUS + USOVA)
-#   ['OTU', 'OVATUS', 'USOVA'] -> every source (full leave-one-out)
-#   None                       -> same as every source
+#   ['OTU', 'OVATUS', 'USOVA'] -> same as None
+# Per-source CLI restriction: --datasets OTU (or SOTA_DATASETS=OTU).
 # ---------------------------------------------------------------------------
-SOURCE_DATASETS = ['OTU']
+SOURCE_DATASETS = None
 
 
 def _csv_list(value):
@@ -182,24 +206,37 @@ def parse_datasets_argv(argv=None):
 
 
 def _runs_for(module, datasets):
-    """Return [(source, [targets...])] for a method module, filtered by datasets."""
+    """Return [(source, [targets...])] for a method module.
+
+    Methods declare their runs as ``SINGLE_SOURCE_RUNS`` (preferred); modules
+    that only define ``DATASETS`` fall back to a full leave-one-out split.
+    ``datasets`` (CLI ``--datasets`` / ``SOTA_DATASETS``) and ``SOURCE_DATASETS``
+    select which SOURCE domains to train. Each selected source keeps the full
+    target list declared in ``SINGLE_SOURCE_RUNS`` -- e.g. ``--datasets OTU``
+    trains OTU and still tests on both OVATUS and USOVA.
+    """
     runs = getattr(module, 'SINGLE_SOURCE_RUNS', None)
     if runs is None:
         domains = getattr(module, 'DATASETS', None) or ALL_DATASETS
         runs = [(src, [t for t in domains if t != src]) for src in domains]
-    runs = [(src, list(targets)) for src, targets in runs]
-    # SOURCE_DATASETS (edit near the top of this file) restricts which SOURCE
-    # domains run; each source keeps its full leave-one-out target list.
+    runs = [(src, list(dict.fromkeys(targets))) for src, targets in runs]
+    sources = set(datasets)
     if SOURCE_DATASETS is not None:
-        runs = [(src, targets) for src, targets in runs if src in SOURCE_DATASETS]
-    runs = [(src, [t for t in targets if t in datasets])
-            for src, targets in runs if src in datasets]
-    return [(src, targets) for src, targets in runs if targets]
+        sources &= set(SOURCE_DATASETS)
+    return [(src, targets) for src, targets in runs
+            if src in sources and targets]
 
 
 def run_method(name, datasets):
     module_name, overrides = LOOKUP[name]
     module = importlib.import_module(module_name)
+
+    is_trainable = hasattr(module, 'run_single_source')
+    is_testonly = hasattr(module, 'run_testonly')
+    if not (is_trainable or is_testonly):
+        raise RuntimeError(
+            f'{name} ({module_name}) exposes neither run_single_source() nor '
+            f'run_testonly(); remove it from METHOD_SPECS or run it directly.')
 
     cfg = dict(module.CONFIG)
     cfg.update(overrides)
@@ -212,12 +249,32 @@ def run_method(name, datasets):
         worker_init_fn=worker_init_fn,
     )
 
+    # Inference-only official checkpoints: one evaluation over every selected
+    # benchmark domain (no source/target split, no training).
+    if not is_trainable:
+        targets = [d for d in datasets if d in getattr(module, 'DATASETS', ALL_DATASETS)]
+        if SOURCE_DATASETS is not None:
+            targets = [d for d in targets if d in SOURCE_DATASETS]
+        if not targets:
+            print(f'# {name}: no test domains for datasets={datasets}; skipping.')
+            sys.stdout.flush()
+            return
+        print(f'# {name}: test-only -> {", ".join(targets)}')
+        sys.stdout.flush()
+        cleanup_resources(device)
+        module.run_testonly(targets, cfg, runner)
+        return
+
     wants_device = 'device' in inspect.signature(module.run_single_source).parameters
     runs = _runs_for(module, datasets)
     if not runs:
         print(f'# {name}: no (source, targets) runs for datasets={datasets}; skipping.')
         sys.stdout.flush()
         return
+
+    print(f'# {name}: {len(runs)} run(s) -> ' +
+          ', '.join(f'{src}->{"+".join(targets)}' for src, targets in runs))
+    sys.stdout.flush()
 
     for source, targets in runs:
         cleanup_resources(device)
@@ -234,23 +291,46 @@ def main(argv=None):
     print(f'\n{"#" * 70}')
     print(f'# SOTA run: {len(methods)} method(s) consecutively')
     print(f'# methods : {methods}')
-    print(f'# datasets: {datasets}')
-    print(f'# sources : {SOURCE_DATASETS if SOURCE_DATASETS is not None else "all"}')
+    print(f'# sources : {datasets} (train each source, test the held-out targets)')
+    print(f'# from    : {SOURCE_DATASETS if SOURCE_DATASETS is not None else "all sources allowed"}')
     print(f'# log     : {LOG_FILE}')
     print(f'# {"#" * 68}')
     sys.stdout.flush()
 
+    failed = []
     for i, name in enumerate(methods, 1):
         print(f'\n{"#" * 70}')
         print(f'# METHOD {i}/{len(methods)}: {name} [{LOOKUP[name][0]}]')
         print(f'{"#" * 70}')
         sys.stdout.flush()
-        run_method(name, datasets)
+        try:
+            run_method(name, datasets)
+        except KeyboardInterrupt:
+            raise
+        except Exception as exc:
+            # Skip the failing method and keep the SOTA sweep going. The full
+            # traceback is written to log.txt for debugging.
+            failed.append((name, f'{type(exc).__name__}: {exc}'))
+            print(f'\n# METHOD {name} FAILED: {type(exc).__name__}: {exc}')
+            traceback.print_exc()
+            print(f'# Skipping {name}; continuing with the next method.')
+            sys.stdout.flush()
+            try:
+                cleanup_resources(
+                    torch.device('cuda') if torch.cuda.is_available() else None)
+            except Exception:
+                pass
+            continue
         print(f'\n# METHOD {name} DONE')
         sys.stdout.flush()
 
     print(f'\n{"#" * 70}')
-    print('# SOTA run complete.')
+    if failed:
+        print(f'# SOTA run finished with {len(failed)} failed method(s):')
+        for name, err in failed:
+            print(f'#   - {name}: {err}')
+    else:
+        print('# SOTA run complete. All methods finished.')
     print(f'{"#" * 70}')
     sys.stdout.flush()
 

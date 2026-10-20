@@ -44,6 +44,9 @@ export PYTHONHASHSEED=42
 # ========== DG DSR-SAM Ablation Study (main_a) ==========
 # nohup python3 -u -m DG.dsr_sam.main_a > "$LOG_FILE" 2>&1 &
 
+# ========== DG DSR-SAM2 (dual-branch ViT + ResNet18 CNN, Grassmann CBA) ==========
+# nohup python3 -m DG.dsr_sam2.main > "$LOG_FILE" 2>&1 &
+
 # ========== DG SAMMed (leveraging SAM for single-source DG) ==========
 # nohup python3 -m DG.sammed.main > "$LOG_FILE" 2>&1 &
 
