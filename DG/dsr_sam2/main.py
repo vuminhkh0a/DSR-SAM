@@ -59,6 +59,9 @@ def run_single_source(source, targets, cfg, runner):
             cba_last_n=cfg.get('cba_last_n', 4),
             # grassmann_grad=False (default) -> detach the Grassmann gate.
             grassmann_detach=not cfg.get('grassmann_grad', False),
+            truncate_before_compute_grassmann=cfg.get(
+                'truncate_before_compute_grassmann', 0),
+            truncate_ref=cfg.get('truncate_ref', False),
         ).to(device)
 
         params = sum(p.numel() for p in model.parameters())
@@ -152,6 +155,15 @@ CONFIG = {
     'cnn_pretrained': True,   # ResNet18 IMAGENET1K_V1 through layer3
     'cba_last_n': 4,          # last 4 ViT blocks x 2 CBA each = 8 CBA blocks
     'grassmann_grad': False,  # False -> G_score detached (fixed per-channel gate)
+
+    # s = number of smallest singular values/vectors to remove before the
+    # Grassmann score (e.g. 96 -> zero the 96 lowest sigma). 0 = disabled.
+    'truncate_before_compute_grassmann': 0,
+    # Only valid when truncate_before_compute_grassmann > 0:
+    # True  -> truncated features are only the G_score reference (fusion
+    #          keeps the original f_vit/f_cnn);
+    # False -> the truncated features are also fused.
+    'truncate_ref': False,
 }
 
 DATASETS = ['OTU', 'OVATUS', 'USOVA']

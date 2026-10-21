@@ -100,6 +100,8 @@ def get_base_config():
         'cnn_pretrained': True,
         'cba_last_n': 4,
         'grassmann_grad': False,  # False -> detach G_score (fixed gate)
+        'truncate_before_compute_grassmann': 0,
+        'truncate_ref': False,
     }
 
 
@@ -172,6 +174,9 @@ def run_one_case(case_idx, flags, source, targets, base_config, runner):
             cnn_pretrained=cfg.get('cnn_pretrained', True),
             cba_last_n=cfg.get('cba_last_n', 4),
             grassmann_detach=not cfg.get('grassmann_grad', False),
+            truncate_before_compute_grassmann=cfg.get(
+                'truncate_before_compute_grassmann', 0),
+            truncate_ref=cfg.get('truncate_ref', False),
         ).to(device)
 
         train_loader, val_loader = get_dsr_sam2_loaders(
