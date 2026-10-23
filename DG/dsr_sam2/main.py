@@ -1,7 +1,7 @@
 """DSR-SAM2 entry point.
 
 Dual-branch DSR-SAM: unchanged SAM ViT encoder plus an ImageNet1k-v1
-ResNet18 CNN branch (layer4-8 reach 16x16x768), with 8 Grassmann-weighted
+ResNet18 CNN branch (layer4-8 reach 16x16x768), with 8 Grassmann-scaled
 Cross-Branch Attention blocks coupling ViT blocks 8-11 to ResBlocks 5-8.
 LoRA/EMA/subspace truncation and the L_tsd loss are inherited from DSR-SAM.
 
@@ -57,11 +57,13 @@ def run_single_source(source, targets, cfg, runner):
             alpha=cfg.get('alpha', 0.1),
             cnn_pretrained=cfg.get('cnn_pretrained', True),
             cba_last_n=cfg.get('cba_last_n', 4),
-            # grassmann_grad=False (default) -> detach the Grassmann gate.
-            grassmann_detach=not cfg.get('grassmann_grad', False),
-            truncate_before_compute_grassmann=cfg.get(
-                'truncate_before_compute_grassmann', 0),
-            truncate_ref=cfg.get('truncate_ref', False),
+            cnn_branch=cfg.get('cnn_branch', True),
+            grassmann_fusion=cfg.get('grassmann_fusion', 'add'),
+            # grassmann_enable_grad=False (default) -> detach the Grassmann gate.
+            grassmann_detach=not cfg.get('grassmann_enable_grad', False),
+            grassmann_truncate_sigma=cfg.get('grassmann_truncate_sigma', 0),
+            grassmann_truncate_reference_only=cfg.get(
+                'grassmann_truncate_reference_only', False),
         ).to(device)
 
         params = sum(p.numel() for p in model.parameters())
@@ -152,18 +154,28 @@ CONFIG = {
     'checkpoint': 'weights/sam/sam_vit_b_01ec64.pth',
 
     # ---- DSR-SAM2 dual-branch architecture ----
+    'cnn_branch': True,       # False -> plain SAM + LoRA (no CNN, no CBA)
     'cnn_pretrained': True,   # ResNet18 IMAGENET1K_V1 through layer3
     'cba_last_n': 4,          # last 4 ViT blocks x 2 CBA each = 8 CBA blocks
-    'grassmann_grad': False,  # False -> G_score detached (fixed per-channel gate)
+
+    # CBA fusion: f_vit[c] + (G_cc[c] / (pi/2)) * f_cnn[c], where G_cc is the
+    # Grassmann self-distance between same-index channels of f_cnn and f_vit.
+    # The CNN branch therefore expands the ViT features instead of replacing
+    # them. Off-diagonal G_ci (c != i) is not used.
+    # 'add'   -> f_vit + G'*f_cnn       (DSR-SAM2)
+    # 'blend' -> (1-G')*f_vit + G'*f_cnn (ablation)
+    # 'sum'   -> f_vit + f_cnn           (ablation: no Grassmann weight)
+    'grassmann_fusion': 'add',
+    'grassmann_enable_grad': False,  # False -> detach G_cc (fixed gate)
 
     # s = number of smallest singular values/vectors to remove before the
-    # Grassmann score (e.g. 96 -> zero the 96 lowest sigma). 0 = disabled.
-    'truncate_before_compute_grassmann': 0,
-    # Only valid when truncate_before_compute_grassmann > 0:
-    # True  -> truncated features are only the G_score reference (fusion
-    #          keeps the original f_vit/f_cnn);
+    # G_cc score (e.g. 96 -> zero the 96 lowest sigma). 0 = disabled.
+    'grassmann_truncate_sigma': 0,
+    # Only valid when grassmann_truncate_sigma > 0:
+    # True  -> truncated features are only the G_cc reference (fusion keeps
+    #          the original f_vit/f_cnn);
     # False -> the truncated features are also fused.
-    'truncate_ref': False,
+    'grassmann_truncate_reference_only': False,
 }
 
 DATASETS = ['OTU', 'OVATUS', 'USOVA']

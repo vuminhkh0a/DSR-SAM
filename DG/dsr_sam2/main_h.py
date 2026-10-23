@@ -122,11 +122,13 @@ def get_base_config():
         'checkpoint': 'weights/sam/sam_vit_b_01ec64.pth',
 
         # DSR-SAM2 dual-branch architecture
+        'cnn_branch': True,       # False -> plain SAM + LoRA (no CNN, no CBA)
         'cnn_pretrained': True,
         'cba_last_n': 4,
-        'grassmann_grad': False,  # False -> detach G_score (fixed gate)
-        'truncate_before_compute_grassmann': 0,
-        'truncate_ref': False,
+        'grassmann_fusion': 'add',  # 'add' | 'blend' | 'sum' (last two: ablation)
+        'grassmann_enable_grad': False,  # False -> detach G_cc (fixed gate)
+        'grassmann_truncate_sigma': 0,
+        'grassmann_truncate_reference_only': False,
     }
 
 
@@ -215,10 +217,12 @@ def run_one_case(case_idx, n_cases, case, source, targets, base_config, runner):
             alpha=cfg.get('alpha', 0.1),
             cnn_pretrained=cfg.get('cnn_pretrained', True),
             cba_last_n=cfg.get('cba_last_n', 4),
-            grassmann_detach=not cfg.get('grassmann_grad', False),
-            truncate_before_compute_grassmann=cfg.get(
-                'truncate_before_compute_grassmann', 0),
-            truncate_ref=cfg.get('truncate_ref', False),
+            cnn_branch=cfg.get('cnn_branch', True),
+            grassmann_fusion=cfg.get('grassmann_fusion', 'add'),
+            grassmann_detach=not cfg.get('grassmann_enable_grad', False),
+            grassmann_truncate_sigma=cfg.get('grassmann_truncate_sigma', 0),
+            grassmann_truncate_reference_only=cfg.get(
+                'grassmann_truncate_reference_only', False),
         ).to(device)
 
         train_loader, val_loader = get_dsr_sam2_loaders(

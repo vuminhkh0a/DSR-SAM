@@ -103,9 +103,10 @@ def reset_log(tag='sota'):
 
 # ---------------------------------------------------------------------------
 # Method registry. Short name -> module + optional CONFIG overrides.
-# Every benchmark method is listed; the ablation / hyper-parameter studies are
-# intentionally excluded (run those via DG.dsr_sam.main_a / main_h and
-# DG.dsr_sam2.main_a / main_h).
+# Every benchmark method is listed. The DSR-SAM2 G_cc ablation ladder is
+# registered at the end of the list (cnn_branch / cba_last_n /
+# grassmann_fusion); the remaining hyper-parameter studies stay in
+# DG.dsr_sam.main_a / main_h and DG.dsr_sam2.main_a / main_h.
 #
 # Trainable methods expose CONFIG + run_single_source() and are driven over
 # their SINGLE_SOURCE_RUNS (3 sources x 2 held-out targets).
@@ -134,6 +135,43 @@ METHOD_SPECS = [
     ('medsam',           'DG.medsam.main',           {}),
     ('sammed2d',         'DG.sammed2d.main',         {}),
     ('ultrasam',         'DG.ultrasam.main',         {}),
+
+    # ---- DSR-SAM2 ablation ladder for the novel G_cc fusion -----------------
+    # CNN branch off -> plain SAM + LoRA. Weights/results:
+    #   weights/dsr_sam2/vit_b_dsr_sam2_cnnF_s_<src>_best.pth
+    #   results.json: vit_b_dsr_sam2_cnnF_sam_s_<src>_t_<tgt>_<tag>
+    ('dsr_sam2_cnnF',    'DG.dsr_sam2.main', {
+        'cnn_branch': False,
+        'run_name': 'dsr_sam2_cnnF',
+        'result_tag': 'dsr_sam2_cnnF',
+    }),
+    # CNN branch on, CBA off (CNN contributes only via x + 0.5*cnn_final).
+    ('dsr_sam2_cnnT_cbaF', 'DG.dsr_sam2.main', {
+        'cnn_branch': True, 'cba_last_n': 0,
+        'run_name': 'dsr_sam2_cnnT_cbaF',
+        'result_tag': 'dsr_sam2_cnnT_cbaF',
+    }),
+    # CNN on, CBA on, G_cc fusion = add (DSR-SAM2): f_vit + G'*f_cnn.
+    ('dsr_sam2_cnnT_cbaT_gccAdd', 'DG.dsr_sam2.main', {
+        'cnn_branch': True, 'cba_last_n': 4,
+        'grassmann_fusion': 'add',
+        'run_name': 'dsr_sam2_cnnT_cbaT_gccAdd',
+        'result_tag': 'dsr_sam2_cnnT_cbaT_gccAdd',
+    }),
+    # CNN on, CBA on, G_cc fusion = blend: (1-G')*f_vit + G'*f_cnn.
+    ('dsr_sam2_cnnT_cbaT_gccBlend', 'DG.dsr_sam2.main', {
+        'cnn_branch': True, 'cba_last_n': 4,
+        'grassmann_fusion': 'blend',
+        'run_name': 'dsr_sam2_cnnT_cbaT_gccBlend',
+        'result_tag': 'dsr_sam2_cnnT_cbaT_gccBlend',
+    }),
+    # CNN on, CBA on, no G_cc weight: f_vit + f_cnn (BUSSAM adapter).
+    ('dsr_sam2_cnnT_cbaT_gccSum', 'DG.dsr_sam2.main', {
+        'cnn_branch': True, 'cba_last_n': 4,
+        'grassmann_fusion': 'sum',
+        'run_name': 'dsr_sam2_cnnT_cbaT_gccSum',
+        'result_tag': 'dsr_sam2_cnnT_cbaT_gccSum',
+    }),
 ]
 
 LOOKUP = {name: (module, overrides)

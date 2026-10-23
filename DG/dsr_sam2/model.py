@@ -16,16 +16,17 @@ Architecture (input 256x256 -> ViT 16x16 tokens):
       Each ViT block has two CBA blocks:
         * after norm1, with the resblock "before" feature;
         * after norm2, with the resblock "after" feature.
-      Each CBA computes a per-channel Grassmann geodesic score G[c]
-      (mean over ViT channels of arccos(|cos|), in [0, pi/2]) and fuses
-          (1 - G[c]) * f_vit[..., c] + G[c] * f_cnn[..., c]
-      with G[c] normalized to [0, 1] by dividing the geodesic distance by pi/2.
+      Each CBA computes the per-channel Grassmann self-distance
+          G_cc[c] = arccos(|cos(f_cnn[..., c], f_vit[..., c])|)
+      in [0, pi/2] and expands the ViT features additively:
+          f_vit[..., c] + (G_cc[c] / (pi/2)) * f_cnn[..., c]
+      so the CNN branch adds capacity instead of replacing ViT channels.
+      The off-diagonal distances G_ci (c != i) are not used yet.
       Optionally, the s smallest singular values/vectors of both branch
       features are removed before G is computed
-      (truncate_before_compute_grassmann=s); truncate_ref=True uses those
-      truncated copies only as the G reference, while truncate_ref=False
-      fuses them too.
-      before running BUSSAM's spatial-attention + MLP adapter.
+      (grassmann_truncate_sigma=s); grassmann_truncate_reference_only=True
+      uses those truncated copies only as the G reference, while False fuses
+      them too; then BUSSAM's spatial-attention + MLP adapter runs.
 
   Everything else (LoRA/EMA/subspace truncation, prompt encoder, mask
   decoder, L_tsd) is inherited from DSR-SAM.
@@ -193,9 +194,9 @@ class Block(nn.Module):
       * ``cba1`` acts on ``norm1(x)`` before the attention (residual add);
       * ``cba2`` acts on ``norm2(x)`` after the MLP (residual add, scale 0.5).
 
-    The ViT/CNN fusion itself is not BUSSAM's direct ``f_vit + f_cnn``: it is
-    the per-channel Grassmann-weighted blend described in
-    ``CrossBranchAttention``.
+    The ViT/CNN fusion itself is not BUSSAM's direct ``f_vit + f_cnn``: the
+    CNN branch is added as ``f_vit + G_cc/(pi/2) * f_cnn`` per channel, as
+    described in ``CrossBranchAttention``.
     """
 
     def __init__(self, dim: int, num_heads: int, mlp_ratio: float = 4.0,
@@ -204,8 +205,9 @@ class Block(nn.Module):
                  rel_pos_zero_init: bool = True, window_size: int = 0,
                  input_size: Optional[Tuple[int, int]] = None,
                  use_cba: bool = False, detach_g: bool = True,
-                 truncate_before_compute_grassmann: int = 0,
-                 truncate_ref: bool = False) -> None:
+                 grassmann_truncate_sigma: int = 0,
+                 grassmann_truncate_reference_only: bool = False,
+                 grassmann_fusion: str = 'add') -> None:
         super().__init__()
         self.norm1 = norm_layer(dim)
         self.attn = Attention(dim, num_heads=num_heads, qkv_bias=qkv_bias,
@@ -221,13 +223,15 @@ class Block(nn.Module):
             self.cba1 = CrossBranchAttention(
                 dim, mlp_ratio=0.25, act_layer=act_layer, skip_connect=False,
                 detach_g=detach_g,
-                truncate_before_compute_grassmann=truncate_before_compute_grassmann,
-                truncate_ref=truncate_ref)
+                grassmann_truncate_sigma=grassmann_truncate_sigma,
+                grassmann_truncate_reference_only=grassmann_truncate_reference_only,
+                fusion=grassmann_fusion)
             self.cba2 = CrossBranchAttention(
                 dim, mlp_ratio=0.25, act_layer=act_layer, skip_connect=False,
                 detach_g=detach_g,
-                truncate_before_compute_grassmann=truncate_before_compute_grassmann,
-                truncate_ref=truncate_ref)
+                grassmann_truncate_sigma=grassmann_truncate_sigma,
+                grassmann_truncate_reference_only=grassmann_truncate_reference_only,
+                fusion=grassmann_fusion)
             # BUSSAM: x = x + scale * adapter(norm2(x), cnnx), scale = 0.5
             self.cba2_scale = 0.5
 
@@ -255,8 +259,8 @@ class Block(nn.Module):
 
 
 # ============================================================
-# DSR-SAM2 CNN branch, Grassmann score and CBA (BUSSAM cross-branch
-# attention fused by the per-channel Grassmann geodesic distance)
+# DSR-SAM2 CNN branch, Grassmann self-distance and CBA (BUSSAM cross-branch
+# attention, ViT features expanded by the per-channel Grassmann G_cc)
 # ============================================================
 
 class SpatialAttention(nn.Module):
@@ -353,20 +357,19 @@ class ResNet18Branch(nn.Module):
 def per_channel_grassmann_score(f_vit: torch.Tensor, f_cnn: torch.Tensor,
                                 eps: float = 1e-6,
                                 detach: bool = True) -> torch.Tensor:
-    """Per-CNN-channel mean Grassmann geodesic distance.
+    """Per-CNN-channel Grassmann self-distance ``G_cc``.
 
     ``f_vit`` and ``f_cnn`` are ``(B, H, W, C)`` (here ``B, 16, 16, 768``).
     Each channel is the ``H*W``-dimensional spatial vector, i.e. a 1-D
-    subspace.  With ``cos_ij = <v_i, n_j> / (||v_i|| ||n_j||)``:
+    subspace.  Only the same-index pair is compared:
 
-        G_score[j] = mean_i arccos(|cos_ij|)        in [0, pi/2] rad
+        G_cc[c] = arccos(|<f_cnn[..., c], f_vit[..., c]>|
+                         / (||f_cnn[..., c]|| ||f_vit[..., c]||))
 
-    i.e. every CNN channel ``j`` is compared with all C ViT channels and the
-    C geodesic distances are averaged.  The whole C x C cosine matrix is one
-    batched matmul (no Python loop), which is the speed-optimized form.
-
-    Returns ``(B, C)``.  ``detach=True`` blocks gradients through the metric
-    (the score is used as a fixed gate); ``detach=False`` lets them flow.
+    in ``[0, pi/2]`` rad.  The off-diagonal distances ``G_ci`` (c != i) are
+    not computed.  Returns ``(B, C)``.  ``detach=True`` blocks gradients
+    through the metric (the score is used as a fixed gate); ``detach=False``
+    lets them flow.
     """
     if f_vit.shape[1:3] != f_cnn.shape[1:3]:
         # Defensive: the CNN and ViT maps must have the same spatial grid.
@@ -384,14 +387,15 @@ def per_channel_grassmann_score(f_vit: torch.Tensor, f_cnn: torch.Tensor,
     n = f_cnn.reshape(b, h * w, c)
     v = v / v.norm(dim=1, keepdim=True).clamp_min(eps)
     n = n / n.norm(dim=1, keepdim=True).clamp_min(eps)
-    cos = torch.bmm(v.transpose(1, 2), n).abs()          # (B, C_vit, C_cnn)
+    # Diagonal of the C x C cosine matrix only: the elementwise product of
+    # the same-index channels summed over space.  No C x C matmul is needed.
+    cos = (v * n).sum(dim=1).abs()                       # (B, C)
     if detach:
         cos = cos.clamp(0.0, 1.0)
     else:
         # arccos'(1) is infinite; stay a hair away when gradients flow.
         cos = cos.clamp(0.0, 1.0 - 1e-6)
-    g = torch.arccos(cos).mean(dim=1)                    # mean over ViT channels
-    return g
+    return torch.arccos(cos)
 
 
 def truncate_lowest_sigma(x: torch.Tensor, n_remove: int) -> torch.Tensor:
@@ -418,37 +422,52 @@ def truncate_lowest_sigma(x: torch.Tensor, n_remove: int) -> torch.Tensor:
 
 
 class CrossBranchAttention(nn.Module):
-    """CBA block: Grassmann-weighted ViT/CNN fusion + BUSSAM MLP adapter.
+    """CBA block: Grassmann-weighted ViT/CNN expansion + BUSSAM MLP adapter.
 
     BUSSAM's MLPAdapter starts with ``x = f_vit + f_cnn``.  DSR-SAM2 replaces
     that sum by, for every channel c (with G' = G_score / (pi/2) in [0, 1]),
 
-        fused[..., c] = (1 - G'[c]) * f_vit[..., c]
-                        +     G'[c]  * f_cnn[..., c]
+        fused[..., c] = f_vit[..., c] + G'[c] * f_cnn[..., c]
 
-    and then continues with BUSSAM's SpatialAttention + Linear/GELU/Linear.
-    With ``skip_connect=False`` the returned tensor is the adapter output
-    (the owning ``Block`` applies the residual, exactly like BUSSAM).
+    so the CNN branch expands the ViT representation instead of replacing it.
+    G_score[c] is the Grassmann self-distance ``G_cc`` between the same-index
+    channels of ``f_cnn`` and ``f_vit``.  The off-diagonal distances
+    ``G_ci`` (c != i) are not used.  The block then continues with BUSSAM's
+    SpatialAttention + Linear/GELU/Linear.  With ``skip_connect=False`` the
+    returned tensor is the adapter output (the owning ``Block`` applies the
+    residual, exactly like BUSSAM).
 
-    ``truncate_before_compute_grassmann = s > 0`` truncates the s smallest
-    singular values before the Grassmann score.  With ``truncate_ref=True``
-    the truncated copies are only the reference used to compute G_score and
-    the fused features stay original; with ``truncate_ref=False`` the
-    truncated features are also the ones fused.
+    ``grassmann_truncate_sigma = s > 0`` truncates the s smallest singular
+    values before the Grassmann score.  With
+    ``grassmann_truncate_reference_only`` the truncated copies are only the
+    reference used to compute G_score and the fused features stay original;
+    otherwise the truncated features are also the ones fused.
+
+    ``fusion`` selects the f_vit/f_cnn combination (G' = G_cc / (pi/2)):
+      * ``'add'``   (default, DSR-SAM2) -> f_vit + G' * f_cnn
+      * ``'blend'`` (ablation)          -> (1 - G') * f_vit + G' * f_cnn
+      * ``'sum'``   (ablation)          -> f_vit + f_cnn (no Grassmann weight)
     """
+
+    _FUSIONS = ('add', 'blend', 'sum')
 
     def __init__(self, dim: int, mlp_ratio: float = 0.25,
                  act_layer: Type[nn.Module] = nn.GELU,
                  skip_connect: bool = False, detach_g: bool = True,
-                 truncate_before_compute_grassmann: int = 0,
-                 truncate_ref: bool = False) -> None:
+                 grassmann_truncate_sigma: int = 0,
+                 grassmann_truncate_reference_only: bool = False,
+                 fusion: str = 'add') -> None:
         super().__init__()
+        if fusion not in self._FUSIONS:
+            raise ValueError(f'fusion must be one of {self._FUSIONS}, got {fusion!r}')
+        self.fusion = fusion
         self.skip_connect = skip_connect
         self.detach_g = detach_g
-        self.truncate_before_compute_grassmann = max(
-            0, int(truncate_before_compute_grassmann))
-        # truncate_ref only has an effect when truncation is enabled.
-        self.truncate_ref = bool(truncate_ref)
+        self.grassmann_truncate_sigma = max(
+            0, int(grassmann_truncate_sigma))
+        # grassmann_truncate_reference_only only matters when truncation is on.
+        self.grassmann_truncate_reference_only = bool(
+            grassmann_truncate_reference_only)
         hidden = int(dim * mlp_ratio)
         self.act = act_layer()
         self.D_fc1 = nn.Linear(dim, hidden)
@@ -458,26 +477,35 @@ class CrossBranchAttention(nn.Module):
     def forward(self, f_vit: torch.Tensor, f_cnn: torch.Tensor,
                 detach_g: Optional[bool] = None) -> torch.Tensor:
         detach_g = self.detach_g if detach_g is None else detach_g
-        n_trunc = self.truncate_before_compute_grassmann
+        n_trunc = self.grassmann_truncate_sigma
         if n_trunc > 0:
-            # truncate_ref=True only needs a reference for G_score, so when
+            # reference_only=True only needs a reference for G_score, so when
             # G is detached we can drop those SVD graphs immediately.
             src_vit, src_cnn = f_vit, f_cnn
-            if self.truncate_ref and detach_g:
+            if self.grassmann_truncate_reference_only and detach_g:
                 src_vit, src_cnn = f_vit.detach(), f_cnn.detach()
             f_vit_ref = truncate_lowest_sigma(src_vit, n_trunc)
             f_cnn_ref = truncate_lowest_sigma(src_cnn, n_trunc)
         else:
             f_vit_ref, f_cnn_ref = f_vit, f_cnn
 
-        g = per_channel_grassmann_score(f_vit_ref, f_cnn_ref, detach=detach_g)
-        g = g[:, None, None, :]                       # (B, 1, 1, C)
-
-        # truncate_ref=False: the truncated features are fused as well.
-        if n_trunc > 0 and not self.truncate_ref:
+        # reference_only=False: the truncated features are fused as well.
+        if n_trunc > 0 and not self.grassmann_truncate_reference_only:
             f_vit, f_cnn = f_vit_ref, f_cnn_ref
 
-        fused = (1.0 - g * (2.0 / math.pi)) * f_vit + g * (2.0 / math.pi) * f_cnn
+        if self.fusion == 'sum':
+            # Ablation control: BUSSAM's plain f_vit + f_cnn, no G_cc.
+            fused = f_vit + f_cnn
+        else:
+            g = per_channel_grassmann_score(f_vit_ref, f_cnn_ref,
+                                            detach=detach_g)
+            w = g[:, None, None, :] * (2.0 / math.pi)   # (B, 1, 1, C)
+            if self.fusion == 'add':
+                # DSR-SAM2: the CNN branch expands the ViT representation.
+                fused = f_vit + w * f_cnn
+            else:
+                # Ablation: convex blend (the CNN branch replaces ViT channels).
+                fused = (1.0 - w) * f_vit + w * f_cnn
         xs = self.spatial_attention(fused.permute(0, 3, 1, 2))
         xs = xs.permute(0, 2, 3, 1)
         xs = self.D_fc2(self.act(self.D_fc1(xs)))
@@ -502,6 +530,10 @@ class ImageEncoderViT(nn.Module):
         after norm2.  Total = 8 CBA blocks.
       * Before the SAM decoder the branches are added as in BUSSAM:
         ``x = x + 0.5 * cnn_final`` followed by the frozen SAM neck.
+
+    ``cnn_branch=False`` disables the whole dual-branch path (no ResNet18,
+    no CBA, no final CNN fusion): the model is plain SAM + LoRA.  It is used
+    by the ablation study in ``DG/sota/run_sota.py``.
     """
 
     def __init__(self, img_size: int = 1024, patch_size: int = 16, in_chans: int = 3,
@@ -512,13 +544,20 @@ class ImageEncoderViT(nn.Module):
                  rel_pos_zero_init: bool = True, window_size: int = 0,
                  global_attn_indexes: Tuple[int, ...] = (),
                  cnn_pretrained: bool = True, cba_last_n: int = 4,
+                 cnn_branch: bool = True, grassmann_fusion: str = 'add',
                  grassmann_detach: bool = True,
-                 truncate_before_compute_grassmann: int = 0,
-                 truncate_ref: bool = False) -> None:
+                 grassmann_truncate_sigma: int = 0,
+                 grassmann_truncate_reference_only: bool = False) -> None:
         super().__init__()
         self.img_size = img_size
-        self.cnn_encoder = ResNet18Branch(pretrained=cnn_pretrained,
-                                          out_chans=embed_dim)
+        self.cnn_branch = bool(cnn_branch)
+        if self.cnn_branch:
+            self.cnn_encoder = ResNet18Branch(pretrained=cnn_pretrained,
+                                              out_chans=embed_dim)
+        else:
+            # Ablation: plain SAM + LoRA; the CNN path (and CBA) is absent.
+            self.cnn_encoder = None
+            cba_last_n = 0
         self.patch_embed = PatchEmbed(kernel_size=(patch_size, patch_size),
                                       stride=(patch_size, patch_size),
                                       in_chans=in_chans, embed_dim=embed_dim)
@@ -541,8 +580,9 @@ class ImageEncoderViT(nn.Module):
                           window_size=window_size if i not in global_attn_indexes else 0,
                           input_size=(img_size // patch_size, img_size // patch_size),
                           use_cba=use_cba, detach_g=grassmann_detach,
-                          truncate_before_compute_grassmann=truncate_before_compute_grassmann,
-                          truncate_ref=truncate_ref)
+                          grassmann_truncate_sigma=grassmann_truncate_sigma,
+                          grassmann_truncate_reference_only=grassmann_truncate_reference_only,
+                          grassmann_fusion=grassmann_fusion)
             self.blocks.append(block)
         self.neck = nn.Sequential(
             nn.Conv2d(embed_dim, out_chans, kernel_size=1, bias=False),
@@ -552,8 +592,9 @@ class ImageEncoderViT(nn.Module):
         )
 
     def forward(self, x: torch.Tensor, ema: bool = False) -> torch.Tensor:
-        # CNN branch: (before, after) for layers 5-8 plus the layer8 output.
-        cnn_pairs, cnn_final = self.cnn_encoder(x)
+        if self.cnn_branch:
+            # CNN branch: (before, after) for layers 5-8 plus layer8 output.
+            cnn_pairs, cnn_final = self.cnn_encoder(x)
         x = self.patch_embed(x)
         if self.pos_embed is not None:
             x = x + self.pos_embed
@@ -566,8 +607,9 @@ class ImageEncoderViT(nn.Module):
                         cnn_after=after.permute(0, 2, 3, 1))
             else:
                 x = blk(x, ema=ema)
-        # BUSSAM final fusion: x = x + 0.5 * cnnx (then the frozen SAM neck).
-        x = x + 0.5 * cnn_final.permute(0, 2, 3, 1)
+        if self.cnn_branch:
+            # BUSSAM final fusion: x = x + 0.5 * cnnx (then the SAM neck).
+            x = x + 0.5 * cnn_final.permute(0, 2, 3, 1)
         x = self.neck(x.permute(0, 3, 1, 2))
         return x
 
@@ -1425,8 +1467,10 @@ def _load_from(sam, state_dict, image_size, vit_patch_size, encoder_global_attn_
 
 
 def _build_sam(image_size, num_classes, checkpoint=None, model_type='vit_h',
-               cnn_pretrained=True, cba_last_n=4, grassmann_detach=True,
-               truncate_before_compute_grassmann=0, truncate_ref=False):
+               cnn_pretrained=True, cba_last_n=4,
+               cnn_branch=True, grassmann_fusion='add',
+               grassmann_detach=True,
+               grassmann_truncate_sigma=0, grassmann_truncate_reference_only=False):
     prompt_embed_dim = 256
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
@@ -1441,9 +1485,10 @@ def _build_sam(image_size, num_classes, checkpoint=None, model_type='vit_h',
             global_attn_indexes=cfg['encoder_global_attn_indexes'],
             window_size=14, out_chans=prompt_embed_dim,
             cnn_pretrained=cnn_pretrained, cba_last_n=cba_last_n,
+            cnn_branch=cnn_branch, grassmann_fusion=grassmann_fusion,
             grassmann_detach=grassmann_detach,
-            truncate_before_compute_grassmann=truncate_before_compute_grassmann,
-            truncate_ref=truncate_ref,
+            grassmann_truncate_sigma=grassmann_truncate_sigma,
+            grassmann_truncate_reference_only=grassmann_truncate_reference_only,
         ),
         prompt_encoder=PromptEncoder(
             embed_dim=prompt_embed_dim,
@@ -1476,27 +1521,40 @@ def build_dsr_sam2(checkpoint=None, model_type='vit_b', image_size=256,
                  num_classes=1, rank=64, ema_mode=True, truncation_size=96,
                  top_s_change_rates=None, d_delta=False, alpha=0.1,
                  cnn_pretrained=True, cba_last_n=4,
+                 cnn_branch=True, grassmann_fusion='add',
                  grassmann_detach=True,
-                 truncate_before_compute_grassmann=0, truncate_ref=False):
+                 grassmann_truncate_sigma=0, grassmann_truncate_reference_only=False):
     """Build DSR-SAM2: SAM ViT + ResNet18 CNN branch + 8 CBA blocks, wrapped
     by the DSR-SAM LoRA/EMA/subspace-truncation wrapper.
 
-    ``grassmann_detach``: True detaches G_score (fixed gate); the entry-point
-    config exposes the inverse switch ``grassmann_grad`` (default False).
+    ``cnn_branch``: True builds the dual-branch model. False removes the
+    ResNet18 branch, the CBA blocks and the final CNN fusion, i.e. plain
+    SAM + LoRA (ablation control).
 
-    ``truncate_before_compute_grassmann``: 0 keeps the usual DSR-SAM2 path.
+    ``grassmann_fusion``: CBA combination rule. ``'add'`` (default) is
+    ``f_vit + G_cc/(pi/2) * f_cnn``; ``'blend'`` is the convex
+    ``(1 - G')*f_vit + G'*f_cnn``; ``'sum'`` is the unweighted
+    ``f_vit + f_cnn``.  The last two are ablation controls only.
+
+    ``grassmann_detach``: True detaches G_score (fixed gate); the entry-point
+    config exposes the inverse switch ``grassmann_enable_grad`` (default False).
+
+    ``grassmann_truncate_sigma``: 0 keeps the usual DSR-SAM2 path.
     When > 0, the s smallest singular values/vectors of each branch feature
-    are removed before G_score is computed. ``truncate_ref=True`` uses those
-    truncated features only as the G_score reference and leaves the fused
-    features untouched; ``truncate_ref=False`` fuses the truncated features.
+    are removed before G_score is computed. With
+    ``grassmann_truncate_reference_only=True`` those truncated features are
+    only the G_score reference and the fused features stay untouched;
+    otherwise the truncated features are fused.
     """
     assert model_type in VIT_CONFIGS
     sam, _ = _build_sam(image_size=image_size, num_classes=num_classes,
                         checkpoint=checkpoint, model_type=model_type,
                         cnn_pretrained=cnn_pretrained, cba_last_n=cba_last_n,
+                        cnn_branch=cnn_branch,
+                        grassmann_fusion=grassmann_fusion,
                         grassmann_detach=grassmann_detach,
-                        truncate_before_compute_grassmann=truncate_before_compute_grassmann,
-                        truncate_ref=truncate_ref)
+                        grassmann_truncate_sigma=grassmann_truncate_sigma,
+                        grassmann_truncate_reference_only=grassmann_truncate_reference_only)
     net = LoRA_Sam(sam, r=rank, ema_mode=ema_mode,
                    Dash_index=truncation_size,
                    top_s_change_rates=top_s_change_rates,
