@@ -72,15 +72,6 @@ HP_GRID = {
     'ema_rate': [0.999],
     # losses
     'kd_weight': [1e-7, 1e-6],
-    'beta1': [0.1],
-    # subspace regularization / L_tsd
-    'compute_l_tsd': [True],
-    'd_delta': [True],
-    'truncation': [True],
-    'truncation_size': [96],
-    'top_s_change_rates': [96],
-    'truncation_period': [4],
-    'dash_warm': [300],
 }
 
 
@@ -105,14 +96,6 @@ def get_base_config():
         'ema_mode': True,
         'ema_rate': 0.999,
         'kd_weight': 1e-7,
-        'beta1': 0.1,
-        'truncation': True,
-        'truncation_size': 96,
-        'top_s_change_rates': 96,
-        'truncation_period': 4,
-        'dash_warm': 300,
-        'compute_l_tsd': True,
-        'd_delta': True,
 
         'experiment_process_save_epochs': False,
         'save_last_epoch': False,
@@ -124,11 +107,15 @@ def get_base_config():
         # DSR-SAM2 dual-branch architecture
         'cnn_branch': True,       # False -> plain SAM + LoRA (no CNN, no CBA)
         'cnn_pretrained': True,
+        # n -> last n ViT blocks get CBA and n extra CNN ResBlocks are added.
         'cba_last_n': 4,
-        'grassmann_fusion': 'add',  # 'add' | 'blend' | 'sum' (last two: ablation)
-        'grassmann_enable_grad': False,  # False -> detach G_cc (fixed gate)
-        'grassmann_truncate_sigma': 0,
-        'grassmann_truncate_reference_only': False,
+        'cka_fusion': True,  # True: CKA + AttentionGate fusion | False: f_vit + f_cnn
+        'use_attention_gate': True,
+        'use_attention_gate_cba': True,
+        'attention_gate_channels': 768,
+        # Final fusion: plain x + cnn_final (no CKA, no gate).
+        'compute_cka_loss': True,
+        'cka_loss_weight': 0.1,
     }
 
 
@@ -185,12 +172,6 @@ def run_one_case(case_idx, n_cases, case, source, targets, base_config, runner):
     # Phase 2 (reproducibility): reseed per case so each case is independent
     # of the RNG consumed by previously run cases.
     set_seed(cfg.get('seed', 42))
-    # L_tsd off -> no L_tsd term regardless of the beta1 grid value.
-    if not cfg.get('compute_l_tsd', False):
-        cfg['beta1'] = 0.0
-    # d_delta is only meaningful with L_tsd on.
-    if not cfg.get('compute_l_tsd', False):
-        cfg['d_delta'] = False
     cfg['source'] = source
     cfg['overwrite_name'] = OVERWRITE_NAME
 
@@ -211,18 +192,13 @@ def run_one_case(case_idx, n_cases, case, source, targets, base_config, runner):
             checkpoint=cfg['checkpoint'], model_type=model_type,
             image_size=cfg['image_size'], num_classes=cfg['num_classes'],
             rank=cfg['rank'], ema_mode=cfg['ema_mode'],
-            truncation_size=cfg['truncation_size'],
-            top_s_change_rates=cfg['top_s_change_rates'],
-            d_delta=cfg['d_delta'],
-            alpha=cfg.get('alpha', 0.1),
             cnn_pretrained=cfg.get('cnn_pretrained', True),
             cba_last_n=cfg.get('cba_last_n', 4),
             cnn_branch=cfg.get('cnn_branch', True),
-            grassmann_fusion=cfg.get('grassmann_fusion', 'add'),
-            grassmann_detach=not cfg.get('grassmann_enable_grad', False),
-            grassmann_truncate_sigma=cfg.get('grassmann_truncate_sigma', 0),
-            grassmann_truncate_reference_only=cfg.get(
-                'grassmann_truncate_reference_only', False),
+            cka_fusion=cfg.get('cka_fusion', True),
+            use_attention_gate=cfg.get('use_attention_gate', True),
+            use_attention_gate_cba=cfg.get('use_attention_gate_cba', True),
+            attention_gate_channels=cfg.get('attention_gate_channels', None),
         ).to(device)
 
         train_loader, val_loader = get_dsr_sam2_loaders(

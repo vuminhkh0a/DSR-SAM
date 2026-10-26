@@ -1,13 +1,21 @@
 """DSR-SAM2 entry point.
 
-Dual-branch DSR-SAM: unchanged SAM ViT encoder plus an ImageNet1k-v1
-ResNet18 CNN branch (layer4-8 reach 16x16x768), with 8 Grassmann-scaled
-Cross-Branch Attention blocks coupling ViT blocks 8-11 to ResBlocks 5-8.
-LoRA/EMA/subspace truncation and the L_tsd loss are inherited from DSR-SAM.
+Dual-branch DSR-SAM: unchanged SAM ViT encoder (all blocks kept) plus an
+ImageNet1k-v1 ResNet18 CNN branch. ``cba_last_n = n`` appends n extra
+768->768 CNN ResBlocks after the always-kept layer4 and enables 2n
+CKA-scaled Cross-Branch Attention blocks in the last n ViT blocks
+(no ViT block is added). Each CBA uses
+``f_gated_cnn = AttentionGate(f_cnn, f_vit)`` (Oktay et al. 2018) and
+``f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2``, where ``C_weight``
+is the per-channel linear CKA. The final fusion is plain
+``x = x + cnn_final`` (no CKA, no gate).
+Training adds ``cka_loss_weight * L_CKA`` (default 0.1): ``L_CKA`` is the
+normalized sum of all CBA ``C_weight`` terms.
+LoRA/EMA are inherited from DSR-SAM.
 
 Single-source DG: trains on ONE source domain, evaluates on the two
 held-out domains (leave-one-out benchmark, one source per run).
-Results go to results.json as ``*_dsr_sam2_*`` and weights to
+Results go to results.json as ``*_dsr_sam2_cka_*`` and weights to
 ``weights/dsr_sam2/``.
 """
 import os
@@ -32,8 +40,9 @@ def run_single_source(source, targets, cfg, runner):
     # depends on RNG consumed by previously run sources/cases.
     set_seed(cfg.get('seed', 42))
     cfg['model_dir'] = 'weights/dsr_sam2/'
-    # `run_name` lets variants (e.g. dsr_sam2_noLtsd) save to distinct weights.
-    cfg['prefix'] = f'{cfg["model_type"]}_{cfg.get("run_name", "dsr_sam2")}_s_{source}'
+    # `weight_name_tag` lets variants save to distinct weights; ablations pass
+    # the same tag so their checkpoints overwrite one set of files.
+    cfg['prefix'] = f'{cfg["model_type"]}_{cfg.get("weight_name_tag", "dsr_sam2_cka")}_s_{source}'
     cfg['source'] = source
 
     print(f'\n{"="*70}')
@@ -51,19 +60,13 @@ def run_single_source(source, targets, cfg, runner):
             checkpoint=cfg['checkpoint'], model_type=cfg['model_type'],
             image_size=cfg['image_size'], num_classes=cfg['num_classes'],
             rank=cfg['rank'], ema_mode=cfg['ema_mode'],
-            truncation_size=cfg['truncation_size'],
-            top_s_change_rates=cfg['top_s_change_rates'],
-            d_delta=cfg['d_delta'],
-            alpha=cfg.get('alpha', 0.1),
             cnn_pretrained=cfg.get('cnn_pretrained', True),
             cba_last_n=cfg.get('cba_last_n', 4),
             cnn_branch=cfg.get('cnn_branch', True),
-            grassmann_fusion=cfg.get('grassmann_fusion', 'add'),
-            # grassmann_enable_grad=False (default) -> detach the Grassmann gate.
-            grassmann_detach=not cfg.get('grassmann_enable_grad', False),
-            grassmann_truncate_sigma=cfg.get('grassmann_truncate_sigma', 0),
-            grassmann_truncate_reference_only=cfg.get(
-                'grassmann_truncate_reference_only', False),
+            cka_fusion=cfg.get('cka_fusion', True),
+            use_attention_gate=cfg.get('use_attention_gate', True),
+            use_attention_gate_cba=cfg.get('use_attention_gate_cba', True),
+            attention_gate_channels=cfg.get('attention_gate_channels', None),
         ).to(device)
 
         params = sum(p.numel() for p in model.parameters())
@@ -106,7 +109,7 @@ def run_single_source(source, targets, cfg, runner):
                     num_workers=cfg['num_workers'], pin_memory=cfg['pin_memory'],
                     source_name=source, model_type=cfg['model_type'],
                     write_results=True, weight_tag=weight_tag,
-                    result_tag=cfg.get('result_tag'),
+                    result_tag=cfg.get('result_name_tag'),
                 )
             print(f'{"="*70}')
 
@@ -134,16 +137,6 @@ CONFIG = {
     'ema_mode': False,
     'ema_rate': 0.999,          # paper Sec. 2.3 (EMA rate alpha)
     'kd_weight': 1e-7,          # paper Sec. 3 (lambda, polyp) / repo --kd_weight
-    'beta1': 0.1,                # L_tsd coefficient
-    'truncation': False,
-    'truncation_size': 96,      # paper Sec. 3 (s, Table 4)
-    'top_s_change_rates': 96,   # number of top change rates contributing to L_tsd
-    'truncation_period': 4,     # paper Sec. 3 (every 4 epochs)
-    'dash_warm': 300,           # repo run_CVC-ClinicDB.sh --Dash_warm 300
-    'compute_l_tsd': False,      # whether to compute L_tsd loss
-    'alpha': 0.1,              # coefficient of the L_tsd log-squash term
-    'd_delta': False,           # L_tsd numerator: keep only change rates that
-                                # grew since the previous iteration (dDelta)
 
     'experiment_process_save_epochs': False,  # off here; run_sota enables it (even epochs 2,4,...,20)
     'save_last_epoch': False,  # whether to save weights at the last epoch
@@ -156,26 +149,43 @@ CONFIG = {
     # ---- DSR-SAM2 dual-branch architecture ----
     'cnn_branch': True,       # False -> plain SAM + LoRA (no CNN, no CBA)
     'cnn_pretrained': True,   # ResNet18 IMAGENET1K_V1 through layer3
-    'cba_last_n': 4,          # last 4 ViT blocks x 2 CBA each = 8 CBA blocks
+    # n -> last n ViT blocks x 2 CBA each = 2*n CBA blocks, plus n additional
+    # 768->768 CNN ResBlocks (layer5 ... layer(4+n)). 0..12 for vit_b.
+    # default: 8
+    'cba_last_n': 8,
 
-    # CBA fusion: f_vit[c] + (G_cc[c] / (pi/2)) * f_cnn[c], where G_cc is the
-    # Grassmann self-distance between same-index channels of f_cnn and f_vit.
-    # The CNN branch therefore expands the ViT features instead of replacing
-    # them. Off-diagonal G_ci (c != i) is not used.
-    # 'add'   -> f_vit + G'*f_cnn       (DSR-SAM2)
-    # 'blend' -> (1-G')*f_vit + G'*f_cnn (ablation)
-    # 'sum'   -> f_vit + f_cnn           (ablation: no Grassmann weight)
-    'grassmann_fusion': 'add',
-    'grassmann_enable_grad': False,  # False -> detach G_cc (fixed gate)
+    # CBA fusion: f_vit + ((1 - C_weight)*f_cnn + f_gated_cnn) / 2, where
+    # C_weight is the per-channel linear CKA between same-index channels of
+    # f_vit and f_cnn, and f_gated_cnn = AttentionGate(f_cnn, f_vit) uses
+    # f_vit as the gating signal. C_weight in [0, 1] (1 = aligned,
+    # 0 = uncorrelated), so the CNN branch contributes most where the two
+    # branches are least aligned. Off-diagonal channel pairs are not used.
+    # True  -> CKA + attention-gated fusion (DSR-SAM2)
+    # False -> f_vit + f_cnn (ablation: gate bypassed)
+    'cka_fusion': True,
 
-    # s = number of smallest singular values/vectors to remove before the
-    # G_cc score (e.g. 96 -> zero the 96 lowest sigma). 0 = disabled.
-    'grassmann_truncate_sigma': 0,
-    # Only valid when grassmann_truncate_sigma > 0:
-    # True  -> truncated features are only the G_cc reference (fusion keeps
-    #          the original f_vit/f_cnn);
-    # False -> the truncated features are also fused.
-    'grassmann_truncate_reference_only': False,
+    # Paper-style additive AttentionGate (Oktay et al. 2018) at the 2n CBA
+    # fusion points.  The gate is
+    # sigmoid(psi(ReLU(W_x(f_cnn) + W_g(f_vit)))) applied to f_cnn, with 1x1
+    # convs and biases, no BatchNorm.  CKA and all gate params are always
+    # differentiable (no detach toggle).
+    'use_attention_gate': True,
+    'use_attention_gate_cba': True,
+    'attention_gate_channels': 768,  # F_int; 768 = C for vit_b
+
+    # Final ViT/CNN fusion (after the last ViT block, before the SAM neck):
+    # plain x = x + cnn_final (no CKA, no attention gate).
+
+    # L_CKA = normalized sum of every CBA C_weight term, added to the
+    # training loss as cka_loss_weight * L_CKA.  The model exposes it as
+    # outputs['cka_loss'].
+    'compute_cka_loss': True,
+    'cka_loss_weight': 0.1,
+
+    # Saved artifacts: weights/dsr_sam2/<model_type>_<weight_name_tag>_s_<src>*
+    # and results.json entries tagged with <result_name_tag>.
+    'weight_name_tag': 'dsr_sam2_cka',
+    'result_name_tag': 'dsr_sam2_cka',
 }
 
 DATASETS = ['OTU', 'OVATUS', 'USOVA']

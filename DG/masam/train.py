@@ -17,10 +17,37 @@ import time
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 
 from utils.metrics import metric_dice_iou_prec_rec_hd95
 from utils.checkpoint import save_trainable
+
+
+class DeterministicCrossEntropyLoss(nn.Module):
+    """Drop-in replacement for ``nn.CrossEntropyLoss``.
+
+    PyTorch's CUDA ``nll_loss2d`` kernel (used by ``nn.CrossEntropyLoss``) has
+    no deterministic implementation, so it raises under the repo's strict
+    ``torch.use_deterministic_algorithms(True)``. Composing ``log_softmax`` +
+    ``gather`` + ``mean`` is mathematically identical and deterministic.
+    """
+
+    def __init__(self, ignore_index=-100):
+        super().__init__()
+        self.ignore_index = ignore_index
+
+    def forward(self, logits, target):
+        target = target.long()
+        log_probs = F.log_softmax(logits.float(), dim=1)
+        valid = target != self.ignore_index
+        safe_target = target.masked_fill(~valid, 0)
+        nll = -log_probs.gather(1, safe_target.unsqueeze(1)).squeeze(1)
+        nll = nll[valid]
+        if nll.numel() == 0:
+            # Keep the graph connected (same convention as PyTorch's CE).
+            return log_probs.sum() * 0.0
+        return nll.mean()
 
 
 class DiceLoss(nn.Module):
@@ -169,7 +196,7 @@ def train_masam(model, train_loader, val_loader, device, cfg):
     best_path = os.path.join(model_dir, f'{prefix}_best.pth')
     last_path = os.path.join(model_dir, f'{prefix}_last.pth')
 
-    ce_loss = nn.CrossEntropyLoss(ignore_index=-100)
+    ce_loss = DeterministicCrossEntropyLoss(ignore_index=-100)
     dice_loss = DiceLoss(n_classes=cfg['num_classes'] + 1)
 
     b_lr = base_lr / warmup_period if cfg['warmup'] else base_lr

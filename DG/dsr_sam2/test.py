@@ -54,10 +54,9 @@ def test_dsr_sam2_on_target(model, target_name, device, image_size, batch_size,
     avg_recall = running_recall / n * 100
     avg_hd95 = running_hd95 / n
 
-    # Ablation variants pass a distinct `result_tag` (e.g. the
-    # no-L_tsd/no-delta_d case) so their results.json entries do not collide
-    # with the full DSR-SAM run.
-    variant = result_tag if result_tag else 'dsr_sam2'
+    # Ablation variants pass a distinct `result_tag` so their results.json
+    # entries do not collide with the full DSR-SAM run.
+    variant = result_tag if result_tag else 'dsr_sam2_cka'
     name = f'{model_type}_{variant}_sam_s_{source_name}_t_{target_name}_{weight_tag}'
 
     print(f'[weight: {weight_tag}] Target {target_name} | Dice: {avg_dice:.2f} | IoU: {avg_iou:.2f} | '

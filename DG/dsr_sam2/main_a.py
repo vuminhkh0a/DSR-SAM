@@ -1,14 +1,11 @@
 """
 DSR-SAM ablation study (main_a.py).
 
-Full 2^4 = 16-case ablation over the four DSR-SAM switches:
+2-case ablation over the EMA-LoRA switch:
 
-    l_tsd      -> cfg['compute_l_tsd']   (beta1 = 0.1 when True, else 0.0)
-    d_delta    -> cfg['d_delta']
-    truncation -> cfg['truncation']
-    ema_lora   -> cfg['ema_mode']
+    ema_lora -> cfg['ema_mode']
 
-All 16 cases are run for EVERY chosen training (source) domain, and each case
+All cases are run for EVERY chosen training (source) domain, and each case
 is tested on the held-out (target) domains right after training.
 
 Dataset choice (source domains to train on):
@@ -17,11 +14,11 @@ Dataset choice (source domains to train on):
     # domains of the leave-one-out benchmark.
 
 Weight policy (save disk):
-    ALL 16 cases x every source overwrite ONE file:
+    ALL cases x every source overwrite ONE file:
         weights/dsr_sam2/analysis/vit_b_ablation_overwrite_best.pth
-    Per-case identity is kept ONLY in results.json; the name lists all four
-    flags, e.g.
-        vit_b_dsr_sam2_ablation_ltsdT_ddeltaF_truncT_emaF_s_OTU_t_OVATUS_best
+    Per-case identity is kept ONLY in results.json; the name lists the flag,
+    e.g.
+        vit_b_dsr_sam2_ablation_emaT_s_OTU_t_OVATUS_best
 
 Usage (from y_DG/ with khoa-env active):
     python3 -u -m DG.dsr_sam2.main_a
@@ -53,8 +50,7 @@ SOURCE_RUNS = [
     ('USOVA', ['OTU', 'OVATUS']),
 ]
 # Order matches the four switches requested for the ablation.
-ABLATION_VARS = ['l_tsd', 'd_delta', 'truncation', 'ema_lora']
-L_TSD_BETA = 0.1
+ABLATION_VARS = ['ema_lora']
 OVERWRITE_NAME = 'ablation_overwrite'
 
 
@@ -79,15 +75,6 @@ def get_base_config():
         'ema_mode': False,       # overwritten per case by ema_lora
         'ema_rate': 0.999,
         'kd_weight': 1e-7,
-        'beta1': 0.0,            # overwritten per case by l_tsd
-        'truncation': False,     # overwritten per case
-        'truncation_size': 96,
-        'top_s_change_rates': 96,
-        'truncation_period': 4,
-        'dash_warm': 300,
-        'compute_l_tsd': False,  # overwritten per case by l_tsd
-        'alpha': 0.1,            # coefficient of the L_tsd log-squash term
-        'd_delta': False,        # overwritten per case
 
         'experiment_process_save_epochs': False,
         'save_last_epoch': False,
@@ -99,11 +86,15 @@ def get_base_config():
         # DSR-SAM2 dual-branch architecture
         'cnn_branch': True,       # False -> plain SAM + LoRA (no CNN, no CBA)
         'cnn_pretrained': True,
+        # n -> last n ViT blocks get CBA and n extra CNN ResBlocks are added.
         'cba_last_n': 4,
-        'grassmann_fusion': 'add',  # 'add' | 'blend' | 'sum' (last two: ablation)
-        'grassmann_enable_grad': False,  # False -> detach G_cc (fixed gate)
-        'grassmann_truncate_sigma': 0,
-        'grassmann_truncate_reference_only': False,
+        'cka_fusion': True,  # True: CKA + AttentionGate fusion | False: f_vit + f_cnn
+        'use_attention_gate': True,
+        'use_attention_gate_cba': True,
+        'attention_gate_channels': 768,
+        # Final fusion: plain x + cnn_final (no CKA, no gate).
+        'compute_cka_loss': True,
+        'cka_loss_weight': 0.1,
     }
 
 
@@ -124,10 +115,9 @@ def flag(value):
     return 'T' if value else 'F'
 
 
-def case_tag(l_tsd, d_delta, truncation, ema_lora):
-    """Results tag carrying ALL four ablation switches."""
-    return (f'ltsd{flag(l_tsd)}_ddelta{flag(d_delta)}'
-            f'_trunc{flag(truncation)}_ema{flag(ema_lora)}')
+def case_tag(ema_lora):
+    """Results tag for the EMA-LoRA switch."""
+    return f'ema{flag(ema_lora)}'
 
 
 def result_name(model_type, tag, source, target):
@@ -136,13 +126,9 @@ def result_name(model_type, tag, source, target):
 
 def run_one_case(case_idx, flags, source, targets, base_config, runner):
     """Train ONE ablation case (source) into the shared weight, then test."""
-    l_tsd, d_delta, truncation, ema_lora = flags
+    (ema_lora,) = flags
     cfg = dict(base_config)
     cfg.update({
-        'compute_l_tsd': bool(l_tsd),
-        'beta1': L_TSD_BETA if l_tsd else 0.0,
-        'd_delta': bool(d_delta),
-        'truncation': bool(truncation),
         'ema_mode': bool(ema_lora),
         'source': source,
         'overwrite_name': OVERWRITE_NAME,
@@ -155,9 +141,8 @@ def run_one_case(case_idx, flags, source, targets, base_config, runner):
     best_path = shared_best(model_type, OVERWRITE_NAME)
 
     print(f'\n{"=" * 70}')
-    print(f'ABLATION CASE {case_idx:02d}/16 [{source}]: {tag}')
-    print(f'  l_tsd={l_tsd} (beta1={cfg["beta1"]}) | d_delta={d_delta} | '
-          f'truncation={truncation} | lora_ema={ema_lora}')
+    print(f'ABLATION CASE {case_idx:02d}/2 [{source}]: {tag}')
+    print(f'  lora_ema={ema_lora}')
     print(f'  Source: {source} | Targets: {", ".join(targets)}')
     print(f'  Weight file (shared, overwritten): {best_path}')
     print(f'{"=" * 70}')
@@ -169,18 +154,13 @@ def run_one_case(case_idx, flags, source, targets, base_config, runner):
             checkpoint=cfg['checkpoint'], model_type=model_type,
             image_size=cfg['image_size'], num_classes=cfg['num_classes'],
             rank=cfg['rank'], ema_mode=cfg['ema_mode'],
-            truncation_size=cfg['truncation_size'],
-            top_s_change_rates=cfg['top_s_change_rates'],
-            d_delta=cfg['d_delta'],
-            alpha=cfg.get('alpha', 0.1),
             cnn_pretrained=cfg.get('cnn_pretrained', True),
             cba_last_n=cfg.get('cba_last_n', 4),
             cnn_branch=cfg.get('cnn_branch', True),
-            grassmann_fusion=cfg.get('grassmann_fusion', 'add'),
-            grassmann_detach=not cfg.get('grassmann_enable_grad', False),
-            grassmann_truncate_sigma=cfg.get('grassmann_truncate_sigma', 0),
-            grassmann_truncate_reference_only=cfg.get(
-                'grassmann_truncate_reference_only', False),
+            cka_fusion=cfg.get('cka_fusion', True),
+            use_attention_gate=cfg.get('use_attention_gate', True),
+            use_attention_gate_cba=cfg.get('use_attention_gate_cba', True),
+            attention_gate_channels=cfg.get('attention_gate_channels', None),
         ).to(device)
 
         train_loader, val_loader = get_dsr_sam2_loaders(

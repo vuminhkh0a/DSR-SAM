@@ -24,8 +24,8 @@ Usage (from ``y_DG/`` with khoa-env active):
     python3 -m DG.sota.run_sota --datasets OTU,OVATUS   # source domains only
     # train on a single source (tests both held-out targets):
     python3 -m DG.sota.run_sota --datasets OTU
-    # DSR-SAM without / with the L_tsd loss, then SR-SAM:
-    python3 -m DG.sota.run_sota --methods dsr_sam_noLtsd,dsr_sam_ltsd,sr_sam
+    # DSR-SAM2 CKA ablation, then SR-SAM:
+    python3 -m DG.sota.run_sota --methods dsr_sam2_cka_ab_full,sr_sam
 
 ``run.sh`` launches it detached, with every line streamed to ``log.txt``:
     nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
@@ -103,75 +103,78 @@ def reset_log(tag='sota'):
 
 # ---------------------------------------------------------------------------
 # Method registry. Short name -> module + optional CONFIG overrides.
-# Every benchmark method is listed. The DSR-SAM2 G_cc ablation ladder is
-# registered at the end of the list (cnn_branch / cba_last_n /
-# grassmann_fusion); the remaining hyper-parameter studies stay in
+# Every benchmark method is listed. The DSR-SAM2 ablation study
+# (L_CKA / AttentionGate / CKA channel fusion) is registered at the end of
+# the list; the remaining hyper-parameter studies stay in
 # DG.dsr_sam.main_a / main_h and DG.dsr_sam2.main_a / main_h.
 #
 # Trainable methods expose CONFIG + run_single_source() and are driven over
 # their SINGLE_SOURCE_RUNS (3 sources x 2 held-out targets).
-# The final three are inference-only official checkpoints: they expose
-# CONFIG + run_testonly() and are evaluated once on every benchmark domain.
+# Inference-only methods expose CONFIG + run_testonly() and are evaluated
+# once on every benchmark domain.
 # ---------------------------------------------------------------------------
-METHOD_SPECS = [
-    ('unet',             'DG.unet.main',             {}),
-    ('dualnormalization', 'DG.dualnormalization.main', {}),
-    ('mi_segnet',        'DG.mi_segnet.main',        {}),
-    ('maxstyle',         'DG.maxstyle.main',         {}),
-    ('desam',            'DG.desam.main',            {}),
-    ('masam',            'DG.masam.main',            {}),
-    ('sr_sam',           'DG.sr_sam.main',           {}),
-    ('dsr_sam',          'DG.dsr_sam.main',          {}),
-    # ('dsr_sam2',         'DG.dsr_sam2.main',         {}),
-    ('sammed',           'DG.sammed.main',           {}),
-    ('samus',            'DG.samus.main',            {}),
-    ('dapsam',           'DG.dapsam.main',           {}),
-    ('cosam',            'DG.cosam.main',            {}),
-    ('medsa',            'DG.medsa.main',            {}),
-    ('bussam',           'DG.bussam.main',           {}),
-    ('transsam',         'DG.transsam.main',         {}),
-    ('nora',             'DG.nora.main',             {}),
-    # ---- inference-only official checkpoints ----
-    ('medsam',           'DG.medsam.main',           {}),
-    ('sammed2d',         'DG.sammed2d.main',         {}),
-    ('ultrasam',         'DG.ultrasam.main',         {}),
 
-    # ---- DSR-SAM2 ablation ladder for the novel G_cc fusion -----------------
-    # CNN branch off -> plain SAM + LoRA. Weights/results:
-    #   weights/dsr_sam2/vit_b_dsr_sam2_cnnF_s_<src>_best.pth
-    #   results.json: vit_b_dsr_sam2_cnnF_sam_s_<src>_t_<tgt>_<tag>
-    ('dsr_sam2_cnnF',    'DG.dsr_sam2.main', {
-        'cnn_branch': False,
-        'run_name': 'dsr_sam2_cnnF',
-        'result_tag': 'dsr_sam2_cnnF',
-    }),
-    # CNN branch on, CBA off (CNN contributes only via x + 0.5*cnn_final).
-    ('dsr_sam2_cnnT_cbaF', 'DG.dsr_sam2.main', {
-        'cnn_branch': True, 'cba_last_n': 0,
-        'run_name': 'dsr_sam2_cnnT_cbaF',
-        'result_tag': 'dsr_sam2_cnnT_cbaF',
-    }),
-    # CNN on, CBA on, G_cc fusion = add (DSR-SAM2): f_vit + G'*f_cnn.
-    ('dsr_sam2_cnnT_cbaT_gccAdd', 'DG.dsr_sam2.main', {
-        'cnn_branch': True, 'cba_last_n': 4,
-        'grassmann_fusion': 'add',
-        'run_name': 'dsr_sam2_cnnT_cbaT_gccAdd',
-        'result_tag': 'dsr_sam2_cnnT_cbaT_gccAdd',
-    }),
-    # CNN on, CBA on, G_cc fusion = blend: (1-G')*f_vit + G'*f_cnn.
-    ('dsr_sam2_cnnT_cbaT_gccBlend', 'DG.dsr_sam2.main', {
-        'cnn_branch': True, 'cba_last_n': 4,
-        'grassmann_fusion': 'blend',
-        'run_name': 'dsr_sam2_cnnT_cbaT_gccBlend',
-        'result_tag': 'dsr_sam2_cnnT_cbaT_gccBlend',
-    }),
-    # CNN on, CBA on, no G_cc weight: f_vit + f_cnn (BUSSAM adapter).
-    ('dsr_sam2_cnnT_cbaT_gccSum', 'DG.dsr_sam2.main', {
-        'cnn_branch': True, 'cba_last_n': 4,
-        'grassmann_fusion': 'sum',
-        'run_name': 'dsr_sam2_cnnT_cbaT_gccSum',
-        'result_tag': 'dsr_sam2_cnnT_cbaT_gccSum',
-    }),
+# ---- DSR-SAM2 ablation study: L_CKA / AttentionGate / CKA channel fusion ----
+# Full 2^3 factorial, CBA-side switches only.  Fixed for every variant:
+#   cba_last_n=8                  (n_last_cba = 8)
+#   final fusion x + cnn_final    (no CKA, no gate)
+#   use_attention_gate=True       (master switch)
+#   attention_gate_channels=768   (C for vit_b)
+#   cka_loss_weight=0.1
+# CKA and all gate parameters are always differentiable (no cka_grad flag).
+# All variants share weight_name_tag='dsr_sam2_cka_ablation' to save disk;
+# result_name_tag stays distinct.
+# Note: cka_fusion=False bypasses the CBA gate, so the gate on/off variants
+# with cka_fusion=False are behaviorally identical (kept for completeness).
+DSR_SAM2_ABLATIONS = (
+    ('full', True, True, True),
+    ('no_lcka', False, True, True),
+    ('no_gate', True, False, True),
+    ('no_cka_channel_fusion', True, True, False),
+    ('no_lcka_no_gate', False, False, True),
+    ('no_lcka_no_cka_channel_fusion', False, True, False),
+    ('no_gate_no_cka_channel_fusion', True, False, False),
+    ('no_lcka_no_gate_no_cka_channel_fusion', False, False, False),
+)
+DSR_SAM2_ABLATION_FIXED = {
+    'cnn_branch': True,
+    'cba_last_n': 8,
+    'use_attention_gate': True,
+    'attention_gate_channels': 768,
+    'cka_loss_weight': 0.1,
+    'weight_name_tag': 'dsr_sam2_cka_ablation',
+}
+
+METHOD_SPECS = [
+    # ('unet',             'DG.unet.main',             {}),
+    # ('dualnormalization', 'DG.dualnormalization.main', {}),
+    # ('mi_segnet',        'DG.mi_segnet.main',        {}),
+    # ('maxstyle',         'DG.maxstyle.main',         {}),
+    # ('desam',            'DG.desam.main',            {}),
+    # ('masam',            'DG.masam.main',            {}),
+    # ('sr_sam',           'DG.sr_sam.main',           {}),
+    # ('dsr_sam2',         'DG.dsr_sam2.main',         {}),
+    # ('sammed',           'DG.sammed.main',           {}),
+    # ('samus',            'DG.samus.main',            {}),
+    # ('dapsam',           'DG.dapsam.main',           {}),
+    # ('cosam',            'DG.cosam.main',            {}),
+    # ('medsa',            'DG.medsa.main',            {}),
+    # ('bussam',           'DG.bussam.main',           {}),
+    # ('transsam',         'DG.transsam.main',         {}),
+    # ('nora',             'DG.nora.main',             {}),
+    # ---- inference-only official checkpoints ----
+    # ('medsam',           'DG.medsam.main',           {}),
+    # ('sammed2d',         'DG.sammed2d.main',         {}),
+    # ('ultrasam',         'DG.ultrasam.main',         {}),
+] + [
+    (f'dsr_sam2_cka_ab_{tag}', 'DG.dsr_sam2.main', {
+        **DSR_SAM2_ABLATION_FIXED,
+        'use_attention_gate_cba': gate,
+        'cka_fusion': fusion,
+        'compute_cka_loss': lcka,
+        'result_name_tag': f'dsr_sam2_cka_ab_{tag}',
+    })
+    for tag, lcka, gate, fusion in DSR_SAM2_ABLATIONS
 ]
 
 LOOKUP = {name: (module, overrides)

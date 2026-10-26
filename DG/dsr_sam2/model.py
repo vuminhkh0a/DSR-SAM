@@ -1,35 +1,49 @@
-"""DSR-SAM2: dual-branch SAM with Grassmann cross-branch attention.
+"""DSR-SAM2: dual-branch SAM with CKA cross-branch attention.
 
 Architecture (input 256x256 -> ViT 16x16 tokens):
 
   ViT branch (unchanged SAM ViT-B):
       patch embed 16x16 -> 12 transformer blocks (window/global attention)
-      -> BUSSAM-style fusion x + 0.5 * f_cnn -> SAM neck (256ch).
+      -> final ViT/CNN fusion -> SAM neck (256ch).
 
   CNN branch (ResNet18, IMAGENET1K_V1):
       stem/layer1/layer2/layer3 -> 16x16x256
-      -> layer4 (new 256->768 ResBlock, 16x16x768)
-      -> layer5..layer8 (new 768->768 ResBlocks, 16x16x768).
+      -> layer4 (new 256->768 ResBlock, 16x16x768), the 7-ResBlock base
+      -> layer5..layer(4+cba_last_n) (new 768->768 ResBlocks, 16x16x768).
 
-  Cross-branch attention (8 CBA blocks):
-      ViT blocks 8,9,10,11 pair with CNN layers 5,6,7,8.
+  Cross-branch attention (2*cba_last_n CBA blocks):
+      The last cba_last_n ViT blocks pair one-to-one with the additional
+      CNN ResBlocks (ViT block depth-n+r with layer 5+r).
       Each ViT block has two CBA blocks:
         * after norm1, with the resblock "before" feature;
         * after norm2, with the resblock "after" feature.
-      Each CBA computes the per-channel Grassmann self-distance
-          G_cc[c] = arccos(|cos(f_cnn[..., c], f_vit[..., c])|)
-      in [0, pi/2] and expands the ViT features additively:
-          f_vit[..., c] + (G_cc[c] / (pi/2)) * f_cnn[..., c]
-      so the CNN branch adds capacity instead of replacing ViT channels.
-      The off-diagonal distances G_ci (c != i) are not used yet.
-      Optionally, the s smallest singular values/vectors of both branch
-      features are removed before G is computed
-      (grassmann_truncate_sigma=s); grassmann_truncate_reference_only=True
-      uses those truncated copies only as the G reference, while False fuses
-      them too; then BUSSAM's spatial-attention + MLP adapter runs.
+      Each CBA computes the per-channel linear CKA (Centered Kernel
+      Alignment) between the same-index spatial channels:
+          C_weight[c] = CKA(f_vit[..., c], f_cnn[..., c])
+                      = <v_c, n_c>^2 / (||v_c||^2 ||n_c||^2)
+      where v_c and n_c are the H*W spatial vectors centered over space, so
+      C_weight lies in [0, 1] (the squared Pearson correlation).  An
+      AttentionGate (Oktay et al. 2018) uses f_vit as the gating signal to
+      filter f_cnn:
+          f_gated_cnn = AttentionGate(f_cnn, f_vit)
+      and the ViT features are expanded by
+          f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2
+      so the CNN branch contributes most when the two branches are least
+      aligned, while the gate highlights the relevant CNN regions.
+      Off-diagonal channel pairs are not used.
+      Then BUSSAM's spatial-attention + MLP adapter runs.
 
-  Everything else (LoRA/EMA/subspace truncation, prompt encoder, mask
-  decoder, L_tsd) is inherited from DSR-SAM.
+  Final ViT/CNN fusion:
+      x = x + cnn_final
+      (plain addition, no CKA and no attention gate).
+
+  ``use_attention_gate=False`` removes the CBA gates and falls back to
+  ``f_vit + (1 - C_weight) * f_cnn``.  ``cka_fusion=False`` bypasses the
+  CBA gate and CKA weighting for its ablation.  CKA and the CBA gates are
+  always differentiable.
+
+  Everything else (LoRA/EMA, prompt encoder, mask decoder) is
+  inherited from DSR-SAM.
 """
 import copy
 import math
@@ -192,10 +206,11 @@ class Block(nn.Module):
     inserts its Cross-Branch Adapter:
 
       * ``cba1`` acts on ``norm1(x)`` before the attention (residual add);
-      * ``cba2`` acts on ``norm2(x)`` after the MLP (residual add, scale 0.5).
+      * ``cba2`` acts on ``norm2(x)`` after the MLP (residual add).
 
     The ViT/CNN fusion itself is not BUSSAM's direct ``f_vit + f_cnn``: the
-    CNN branch is added as ``f_vit + G_cc/(pi/2) * f_cnn`` per channel, as
+    CNN branch is added as
+    ``f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2`` per channel, as
     described in ``CrossBranchAttention``.
     """
 
@@ -204,10 +219,10 @@ class Block(nn.Module):
                  act_layer: Type[nn.Module] = nn.GELU, use_rel_pos: bool = False,
                  rel_pos_zero_init: bool = True, window_size: int = 0,
                  input_size: Optional[Tuple[int, int]] = None,
-                 use_cba: bool = False, detach_g: bool = True,
-                 grassmann_truncate_sigma: int = 0,
-                 grassmann_truncate_reference_only: bool = False,
-                 grassmann_fusion: str = 'add') -> None:
+                 use_cba: bool = False,
+                 use_attention_gate: bool = True,
+                 attention_gate_channels: Optional[int] = None,
+                 cka_fusion: bool = True) -> None:
         super().__init__()
         self.norm1 = norm_layer(dim)
         self.attn = Attention(dim, num_heads=num_heads, qkv_bias=qkv_bias,
@@ -222,18 +237,14 @@ class Block(nn.Module):
             # skip_connect=False; the residual is applied by the block.
             self.cba1 = CrossBranchAttention(
                 dim, mlp_ratio=0.25, act_layer=act_layer, skip_connect=False,
-                detach_g=detach_g,
-                grassmann_truncate_sigma=grassmann_truncate_sigma,
-                grassmann_truncate_reference_only=grassmann_truncate_reference_only,
-                fusion=grassmann_fusion)
+                use_attention_gate=use_attention_gate,
+                attention_gate_channels=attention_gate_channels,
+                fusion=cka_fusion)
             self.cba2 = CrossBranchAttention(
                 dim, mlp_ratio=0.25, act_layer=act_layer, skip_connect=False,
-                detach_g=detach_g,
-                grassmann_truncate_sigma=grassmann_truncate_sigma,
-                grassmann_truncate_reference_only=grassmann_truncate_reference_only,
-                fusion=grassmann_fusion)
-            # BUSSAM: x = x + scale * adapter(norm2(x), cnnx), scale = 0.5
-            self.cba2_scale = 0.5
+                use_attention_gate=use_attention_gate,
+                attention_gate_channels=attention_gate_channels,
+                fusion=cka_fusion)
 
     def forward(self, x: torch.Tensor, ema: bool = False,
                 cnn_before: Optional[torch.Tensor] = None,
@@ -253,14 +264,14 @@ class Block(nn.Module):
         xn = self.norm2(x)
         x = x + self.mlp(xn)
         if self.use_cba and cnn_after is not None:
-            # CBA n.2 of this block + BUSSAM-style 0.5 residual, after the MLP.
-            x = x + self.cba2_scale * self.cba2(xn, cnn_after)
+            # CBA n.2 of this block + residual, after the MLP.
+            x = x + self.cba2(xn, cnn_after)
         return x
 
 
 # ============================================================
-# DSR-SAM2 CNN branch, Grassmann self-distance and CBA (BUSSAM cross-branch
-# attention, ViT features expanded by the per-channel Grassmann G_cc)
+# DSR-SAM2 CNN branch, per-channel CKA and CBA (BUSSAM cross-branch
+# attention, ViT features expanded by the CKA disagreement weight)
 # ============================================================
 
 class SpatialAttention(nn.Module):
@@ -310,15 +321,18 @@ class BasicResBlock(nn.Module):
 
 class ResNet18Branch(nn.Module):
     """CNN branch: ImageNet1k-v1 ResNet18 up to layer3 (16x16x256), then
-    one 256->768 ResBlock (layer4) and four 768->768 ResBlocks (layer5-8),
-    all at 16x16 for a 256x256 input.
+    one 256->768 ResBlock (layer4) and ``num_extra_blocks`` additional
+    768->768 ResBlocks (layer5 ... layer(4+num_extra_blocks)), all at 16x16
+    for a 256x256 input.
 
-    layer4-8 are new (no pretrained weights). layer5-8 are consumed by the
-    last four ViT blocks: their *before* feature feeds CBA n.1 and their
-    *after* feature feeds CBA n.2, so 4 blocks x 2 = 8 CBA blocks.
+    The fixed base is 7 ResBlocks: layer1-3 (2 each, pretrained) + layer4
+    (projection, new).  The additional ResBlocks are new and are consumed by
+    the last ``num_extra_blocks`` ViT blocks: each block's *before* feature
+    feeds CBA n.1 and its *after* feature feeds CBA n.2.
     """
 
-    def __init__(self, pretrained: bool = True, out_chans: int = 768) -> None:
+    def __init__(self, pretrained: bool = True, out_chans: int = 768,
+                 num_extra_blocks: int = 4) -> None:
         super().__init__()
         if resnet18 is None:
             raise ImportError('torchvision is required for the ResNet18 CNN branch')
@@ -330,12 +344,13 @@ class ResNet18Branch(nn.Module):
         self.layer1 = backbone.layer1   # 64ch,  64x64
         self.layer2 = backbone.layer2   # 128ch, 32x32
         self.layer3 = backbone.layer3   # 256ch, 16x16
-        # New branch-specific layers (no pretrained weights).
+        # Fixed base projection (new, no pretrained weights).
         self.layer4 = BasicResBlock(256, out_chans, stride=1)   # 16x16x768
-        self.layer5 = BasicResBlock(out_chans, out_chans)       # 16x16x768
-        self.layer6 = BasicResBlock(out_chans, out_chans)
-        self.layer7 = BasicResBlock(out_chans, out_chans)
-        self.layer8 = BasicResBlock(out_chans, out_chans)
+        # Additional branch-specific layers (new, no pretrained weights).
+        # Named layer5, layer6, ... to keep n=4 state-dict compatibility.
+        self.num_extra_blocks = max(0, int(num_extra_blocks))
+        for i in range(self.num_extra_blocks):
+            setattr(self, f'layer{5 + i}', BasicResBlock(out_chans, out_chans))
         self.out_chans = out_chans
 
     def forward(self, x: torch.Tensor):
@@ -347,165 +362,192 @@ class ResNet18Branch(nn.Module):
         x = self.layer3(x)
         x = self.layer4(x)
         pairs = []
-        for layer in (self.layer5, self.layer6, self.layer7, self.layer8):
+        for i in range(self.num_extra_blocks):
+            layer = getattr(self, f'layer{5 + i}')
             before = x
             x = layer(x)
             pairs.append((before, x))
         return pairs, x
 
 
-def per_channel_grassmann_score(f_vit: torch.Tensor, f_cnn: torch.Tensor,
-                                eps: float = 1e-6,
-                                detach: bool = True) -> torch.Tensor:
-    """Per-CNN-channel Grassmann self-distance ``G_cc``.
-
-    ``f_vit`` and ``f_cnn`` are ``(B, H, W, C)`` (here ``B, 16, 16, 768``).
-    Each channel is the ``H*W``-dimensional spatial vector, i.e. a 1-D
-    subspace.  Only the same-index pair is compared:
-
-        G_cc[c] = arccos(|<f_cnn[..., c], f_vit[..., c]>|
-                         / (||f_cnn[..., c]|| ||f_vit[..., c]||))
-
-    in ``[0, pi/2]`` rad.  The off-diagonal distances ``G_ci`` (c != i) are
-    not computed.  Returns ``(B, C)``.  ``detach=True`` blocks gradients
-    through the metric (the score is used as a fixed gate); ``detach=False``
-    lets them flow.
-    """
+def _align_spatial(f_vit: torch.Tensor, f_cnn: torch.Tensor) -> torch.Tensor:
+    """Resize ``f_cnn`` to the ViT spatial grid when the two grids differ."""
     if f_vit.shape[1:3] != f_cnn.shape[1:3]:
-        # Defensive: the CNN and ViT maps must have the same spatial grid.
         f_cnn = F.interpolate(f_cnn.permute(0, 3, 1, 2),
                               size=f_vit.shape[1:3], mode='bilinear',
                               align_corners=False).permute(0, 2, 3, 1)
-    if detach:
-        f_vit = f_vit.detach()
-        f_cnn = f_cnn.detach()
-    # arccos is evaluated in fp32 even if the branches run under autocast.
+    return f_cnn
+
+
+def per_channel_cka_score(f_vit: torch.Tensor, f_cnn: torch.Tensor,
+                          eps: float = 1e-12) -> torch.Tensor:
+    """Per-channel linear CKA ``C_weight`` between ViT and CNN features.
+
+    ``f_vit`` and ``f_cnn`` are ``(B, H, W, C)`` (here ``B, 16, 16, 768``).
+    For each same-index channel pair, the ``H*W`` spatial values are centered
+    over space and compared with the linear CKA, which for two 1-D variables
+    is exactly the squared Pearson correlation:
+
+        C_weight[c] = <v_c, n_c>^2 / (||v_c||^2 ||n_c||^2)  in [0, 1]
+
+    ``C_weight = 1`` means the two channels are perfectly aligned, ``0``
+    means they are uncorrelated.  Only same-index channel pairs are used.
+    Returns ``(B, C)``.  The score is always differentiable.
+    """
+    if f_vit.shape[1:3] != f_cnn.shape[1:3]:
+        # Defensive: the CNN and ViT maps must have the same spatial grid.
+        f_cnn = _align_spatial(f_vit, f_cnn)
+    # CKA is evaluated in fp32 even if the branches run under autocast.
     f_vit = f_vit.float()
     f_cnn = f_cnn.float()
     b, h, w, c = f_vit.shape
     v = f_vit.reshape(b, h * w, c)
     n = f_cnn.reshape(b, h * w, c)
-    v = v / v.norm(dim=1, keepdim=True).clamp_min(eps)
-    n = n / n.norm(dim=1, keepdim=True).clamp_min(eps)
-    # Diagonal of the C x C cosine matrix only: the elementwise product of
-    # the same-index channels summed over space.  No C x C matmul is needed.
-    cos = (v * n).sum(dim=1).abs()                       # (B, C)
-    if detach:
-        cos = cos.clamp(0.0, 1.0)
-    else:
-        # arccos'(1) is infinite; stay a hair away when gradients flow.
-        cos = cos.clamp(0.0, 1.0 - 1e-6)
-    return torch.arccos(cos)
+    # Center each channel over its H*W spatial positions.
+    v = v - v.mean(dim=1, keepdim=True)
+    n = n - n.mean(dim=1, keepdim=True)
+    cross = (v * n).sum(dim=1)                            # (B, C)
+    var_v = (v * v).sum(dim=1)                            # (B, C)
+    var_n = (n * n).sum(dim=1)                            # (B, C)
+    c_weight = (cross * cross) / (var_v * var_n).clamp_min(eps)
+    return c_weight.clamp(0.0, 1.0)
 
 
-def truncate_lowest_sigma(x: torch.Tensor, n_remove: int) -> torch.Tensor:
-    """Truncate the ``n_remove`` smallest singular values of each sample's
-    ``(H*W, C)`` feature matrix and reconstruct.
+def cka_fused_features(f_vit: torch.Tensor, f_cnn: torch.Tensor,
+                       gate: Optional[nn.Module] = None,
+                       use_weight: bool = True,
+                       return_weight: bool = False):
+    """Fuse ``f_vit``/``f_cnn`` with CKA and an optional attention gate.
 
-    ``x`` is ``(B, H, W, C)``.  Per sample, ``X = U diag(S) V^T``; the lowest
-    ``n_remove`` entries of ``S`` and their matching ``U`` columns / ``V^T``
-    rows are zeroed, then ``X_trunc = (U_z * S_z) @ Vh_z``.  This is the same
-    operation used by the per-channel Grassmann analysis notebook.
+    With ``gate`` (paper-style additive attention gate) and
+    ``use_weight=True``:
+
+        f_gated_cnn = gate(f_cnn, f_vit)          # f_vit gates f_cnn
+        fused = f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2
+
+    Without a gate, the legacy fusion is used:
+
+        fused = f_vit + (1 - C_weight) * f_cnn
+
+    ``use_weight=False`` returns the unweighted ``f_vit + f_cnn`` and bypasses
+    the gate (the CKA term is still computed when ``return_weight=True`` so
+    ``L_CKA`` remains available for the ablation).
+
+    ``return_weight=True`` also returns ``C_weight``; the CBA blocks use this
+    to collect the per-channel terms for ``L_CKA``.
     """
-    b, h, w, c = x.shape
-    x2 = x.reshape(b, h * w, c).float()
-    u, s, vh = torch.linalg.svd(x2, full_matrices=False)
-    keep = max(s.shape[-1] - int(n_remove), 0)
-    s_z = s.clone()
-    s_z[..., keep:] = 0.0
-    u_z = u.clone()
-    u_z[..., :, keep:] = 0.0
-    vh_z = vh.clone()
-    vh_z[..., keep:, :] = 0.0
-    x_trunc = (u_z * s_z.unsqueeze(-2)) @ vh_z
-    return x_trunc.reshape(b, h, w, c).to(x.dtype)
+    if not use_weight and not return_weight:
+        return f_vit + f_cnn
+    # Align once so the CKA score, the gate, and the fused residual share a grid.
+    f_cnn = _align_spatial(f_vit, f_cnn)
+    c_weight = per_channel_cka_score(f_vit, f_cnn)
+    if use_weight:
+        w = (1.0 - c_weight)[:, None, None, :]   # (B, 1, 1, C)
+        cnn_term = w * f_cnn
+        if gate is not None:
+            f_gated_cnn = gate(f_cnn, f_vit)
+            fused = f_vit + (cnn_term + f_gated_cnn) / 2.0
+        else:
+            fused = f_vit + cnn_term
+    else:
+        fused = f_vit + f_cnn
+    if return_weight:
+        return fused, c_weight
+    return fused
+
+
+class AttentionGate(nn.Module):
+    """Additive attention gate from Attention U-Net (Oktay et al. 2018).
+
+    Paper Eq. (1)-(2), with f_vit as the gating signal ``g`` and f_cnn as the
+    skip feature ``x``:
+
+        q     = psi( ReLU( W_x(f_cnn) + W_g(f_vit) ) )
+        alpha = sigmoid(q)
+        f_gated_cnn = f_cnn * alpha
+
+    ``W_x``, ``W_g`` and ``psi`` are 1x1 convolutions with biases; there is
+    no BatchNorm in the paper formulation.  ``inter_channels`` is ``F_int``
+    (default: ``channels``, i.e. C).
+    """
+
+    def __init__(self, channels: int,
+                 inter_channels: Optional[int] = None) -> None:
+        super().__init__()
+        inter = channels if inter_channels is None else int(inter_channels)
+        self.W_x = nn.Conv2d(channels, inter, kernel_size=1, bias=True)
+        self.W_g = nn.Conv2d(channels, inter, kernel_size=1, bias=True)
+        self.psi = nn.Conv2d(inter, 1, kernel_size=1, bias=True)
+        self.relu = nn.ReLU(inplace=True)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, f_cnn: torch.Tensor,
+                f_vit: torch.Tensor) -> torch.Tensor:
+        # (B, H, W, C) -> (B, C, H, W) for the 1x1 convolutions.
+        x = f_cnn.permute(0, 3, 1, 2)
+        g = f_vit.permute(0, 3, 1, 2)
+        q = self.psi(self.relu(self.W_x(x) + self.W_g(g)))
+        alpha = self.sigmoid(q)
+        return (x * alpha).permute(0, 2, 3, 1)
 
 
 class CrossBranchAttention(nn.Module):
-    """CBA block: Grassmann-weighted ViT/CNN expansion + BUSSAM MLP adapter.
+    """CBA block: CKA + attention-gated ViT/CNN expansion + MLP adapter.
 
     BUSSAM's MLPAdapter starts with ``x = f_vit + f_cnn``.  DSR-SAM2 replaces
-    that sum by, for every channel c (with G' = G_score / (pi/2) in [0, 1]),
+    that sum by, for every channel c (with C_weight in [0, 1]),
 
-        fused[..., c] = f_vit[..., c] + G'[c] * f_cnn[..., c]
+        f_gated_cnn[c] = AttentionGate(f_cnn, f_vit)
+        fused[..., c] = f_vit[..., c]
+                        + ((1 - C_weight[c]) * f_cnn[..., c]
+                           + f_gated_cnn[c]) / 2
 
     so the CNN branch expands the ViT representation instead of replacing it.
-    G_score[c] is the Grassmann self-distance ``G_cc`` between the same-index
-    channels of ``f_cnn`` and ``f_vit``.  The off-diagonal distances
-    ``G_ci`` (c != i) are not used.  The block then continues with BUSSAM's
-    SpatialAttention + Linear/GELU/Linear.  With ``skip_connect=False`` the
-    returned tensor is the adapter output (the owning ``Block`` applies the
-    residual, exactly like BUSSAM).
+    C_weight[c] is the per-channel linear CKA between the same-index channels
+    of ``f_cnn`` and ``f_vit``.  Other channel pairs are not used.  The block
+    then continues with BUSSAM's SpatialAttention + Linear/GELU/Linear.  With
+    ``skip_connect=False`` the returned tensor is the adapter output (the
+    owning ``Block`` applies the residual, exactly like BUSSAM).
 
-    ``grassmann_truncate_sigma = s > 0`` truncates the s smallest singular
-    values before the Grassmann score.  With
-    ``grassmann_truncate_reference_only`` the truncated copies are only the
-    reference used to compute G_score and the fused features stay original;
-    otherwise the truncated features are also the ones fused.
+    ``fusion`` selects the f_vit/f_cnn combination:
+      * ``True``  (default) -> CKA + attention-gated fusion above
+      * ``False`` (ablation) -> f_vit + f_cnn (gate bypassed)
 
-    ``fusion`` selects the f_vit/f_cnn combination (G' = G_cc / (pi/2)):
-      * ``'add'``   (default, DSR-SAM2) -> f_vit + G' * f_cnn
-      * ``'blend'`` (ablation)          -> (1 - G') * f_vit + G' * f_cnn
-      * ``'sum'``   (ablation)          -> f_vit + f_cnn (no Grassmann weight)
+    ``last_cka`` stores the ``(B, C)`` C_weight of the most recent forward so
+    the encoder can aggregate ``L_CKA`` across all CBA modules.
     """
-
-    _FUSIONS = ('add', 'blend', 'sum')
 
     def __init__(self, dim: int, mlp_ratio: float = 0.25,
                  act_layer: Type[nn.Module] = nn.GELU,
-                 skip_connect: bool = False, detach_g: bool = True,
-                 grassmann_truncate_sigma: int = 0,
-                 grassmann_truncate_reference_only: bool = False,
-                 fusion: str = 'add') -> None:
+                 skip_connect: bool = False,
+                 use_attention_gate: bool = True,
+                 attention_gate_channels: Optional[int] = None,
+                 fusion: bool = True) -> None:
         super().__init__()
-        if fusion not in self._FUSIONS:
-            raise ValueError(f'fusion must be one of {self._FUSIONS}, got {fusion!r}')
+        if not isinstance(fusion, bool):
+            raise TypeError(f'fusion must be a bool, got {fusion!r}')
         self.fusion = fusion
         self.skip_connect = skip_connect
-        self.detach_g = detach_g
-        self.grassmann_truncate_sigma = max(
-            0, int(grassmann_truncate_sigma))
-        # grassmann_truncate_reference_only only matters when truncation is on.
-        self.grassmann_truncate_reference_only = bool(
-            grassmann_truncate_reference_only)
+        self.last_cka = None
+        if use_attention_gate and fusion:
+            self.attention_gate = AttentionGate(
+                dim, inter_channels=attention_gate_channels)
+        else:
+            # fusion=False bypasses the gate entirely; don't allocate it.
+            self.attention_gate = None
         hidden = int(dim * mlp_ratio)
         self.act = act_layer()
         self.D_fc1 = nn.Linear(dim, hidden)
         self.D_fc2 = nn.Linear(hidden, dim)
         self.spatial_attention = SpatialAttention()
 
-    def forward(self, f_vit: torch.Tensor, f_cnn: torch.Tensor,
-                detach_g: Optional[bool] = None) -> torch.Tensor:
-        detach_g = self.detach_g if detach_g is None else detach_g
-        n_trunc = self.grassmann_truncate_sigma
-        if n_trunc > 0:
-            # reference_only=True only needs a reference for G_score, so when
-            # G is detached we can drop those SVD graphs immediately.
-            src_vit, src_cnn = f_vit, f_cnn
-            if self.grassmann_truncate_reference_only and detach_g:
-                src_vit, src_cnn = f_vit.detach(), f_cnn.detach()
-            f_vit_ref = truncate_lowest_sigma(src_vit, n_trunc)
-            f_cnn_ref = truncate_lowest_sigma(src_cnn, n_trunc)
-        else:
-            f_vit_ref, f_cnn_ref = f_vit, f_cnn
-
-        # reference_only=False: the truncated features are fused as well.
-        if n_trunc > 0 and not self.grassmann_truncate_reference_only:
-            f_vit, f_cnn = f_vit_ref, f_cnn_ref
-
-        if self.fusion == 'sum':
-            # Ablation control: BUSSAM's plain f_vit + f_cnn, no G_cc.
-            fused = f_vit + f_cnn
-        else:
-            g = per_channel_grassmann_score(f_vit_ref, f_cnn_ref,
-                                            detach=detach_g)
-            w = g[:, None, None, :] * (2.0 / math.pi)   # (B, 1, 1, C)
-            if self.fusion == 'add':
-                # DSR-SAM2: the CNN branch expands the ViT representation.
-                fused = f_vit + w * f_cnn
-            else:
-                # Ablation: convex blend (the CNN branch replaces ViT channels).
-                fused = (1.0 - w) * f_vit + w * f_cnn
+    def forward(self, f_vit: torch.Tensor, f_cnn: torch.Tensor) -> torch.Tensor:
+        fused, c_weight = cka_fused_features(
+            f_vit, f_cnn, gate=self.attention_gate, use_weight=self.fusion,
+            return_weight=True)
+        # Keep the CKA term for the (optional) L_CKA loss.  Cleared by
+        # ImageEncoderViT.cka_loss() after the scalar loss is built.
+        self.last_cka = c_weight
         xs = self.spatial_attention(fused.permute(0, 3, 1, 2))
         xs = xs.permute(0, 2, 3, 1)
         xs = self.D_fc2(self.act(self.D_fc1(xs)))
@@ -517,19 +559,20 @@ class CrossBranchAttention(nn.Module):
 
 
 class ImageEncoderViT(nn.Module):
-    """SAM ViT encoder (unchanged) + ResNet18 CNN branch + 8 CBA blocks.
+    """SAM ViT encoder + ResNet18 CNN branch + CBA-enabled last ViT blocks.
 
     Input goes through both branches in parallel:
 
       * ViT branch: the original SAM encoder (patch embed, 12 blocks, neck).
       * CNN branch: ResNet18 ImageNet1k-v1 through layer3 (16x16x256), then
-        ResBlock layer4 (16x16x768) and ResBlocks layer5-8 (16x16x768).
-      * Last ``cba_last_n`` ViT blocks (8, 9, 10, 11 for vit_b) each own two
-        CBA blocks.  Block 8 pairs with layer5, 9 with layer6, 10 with layer7,
-        11 with layer8: layer before -> CBA after norm1, layer after -> CBA
-        after norm2.  Total = 8 CBA blocks.
-      * Before the SAM decoder the branches are added as in BUSSAM:
-        ``x = x + 0.5 * cnn_final`` followed by the frozen SAM neck.
+        ResBlock layer4 (16x16x768).  The fixed base is 7 ResBlocks.
+      * ``cba_last_n = n`` adds ``n`` extra 768->768 ResBlocks (layer5 ...
+        layer(4+n)) and enables two CBA blocks in each of the last ``n`` ViT
+        blocks.  ViT block ``depth-n+r`` pairs with extra layer ``5+r``:
+        layer before -> CBA after norm1, layer after -> CBA after norm2.
+        Total = 2*n CBA blocks.
+      * Before the SAM neck the branches are fused by plain addition:
+        ``x = x + cnn_final`` (no CKA, no gate).
 
     ``cnn_branch=False`` disables the whole dual-branch path (no ResNet18,
     no CBA, no final CNN fusion): the model is plain SAM + LoRA.  It is used
@@ -544,20 +587,28 @@ class ImageEncoderViT(nn.Module):
                  rel_pos_zero_init: bool = True, window_size: int = 0,
                  global_attn_indexes: Tuple[int, ...] = (),
                  cnn_pretrained: bool = True, cba_last_n: int = 4,
-                 cnn_branch: bool = True, grassmann_fusion: str = 'add',
-                 grassmann_detach: bool = True,
-                 grassmann_truncate_sigma: int = 0,
-                 grassmann_truncate_reference_only: bool = False) -> None:
+                 cnn_branch: bool = True, cka_fusion: bool = True,
+                 use_attention_gate: bool = True,
+                 use_attention_gate_cba: bool = True,
+                 attention_gate_channels: Optional[int] = None) -> None:
         super().__init__()
         self.img_size = img_size
         self.cnn_branch = bool(cnn_branch)
-        if self.cnn_branch:
-            self.cnn_encoder = ResNet18Branch(pretrained=cnn_pretrained,
-                                              out_chans=embed_dim)
-        else:
+        if not self.cnn_branch:
             # Ablation: plain SAM + LoRA; the CNN path (and CBA) is absent.
-            self.cnn_encoder = None
             cba_last_n = 0
+        if isinstance(cba_last_n, bool) or int(cba_last_n) != cba_last_n:
+            raise TypeError(f'cba_last_n must be an int, got {cba_last_n!r}')
+        cba_last_n = int(cba_last_n)
+        if cba_last_n < 0 or cba_last_n > depth:
+            raise ValueError(f'cba_last_n must be in [0, {depth}], got {cba_last_n}')
+        self.cba_last_n = cba_last_n
+        if self.cnn_branch:
+            self.cnn_encoder = ResNet18Branch(
+                pretrained=cnn_pretrained, out_chans=embed_dim,
+                num_extra_blocks=self.cba_last_n)
+        else:
+            self.cnn_encoder = None
         self.patch_embed = PatchEmbed(kernel_size=(patch_size, patch_size),
                                       stride=(patch_size, patch_size),
                                       in_chans=in_chans, embed_dim=embed_dim)
@@ -566,11 +617,10 @@ class ImageEncoderViT(nn.Module):
             self.pos_embed = nn.Parameter(
                 torch.zeros(1, img_size // patch_size, img_size // patch_size, embed_dim)
             )
-        if cba_last_n > 4:
-            raise ValueError('cba_last_n must be <= 4: only CNN layers 5-8 '
-                             'provide before/after CBA features')
-        self.cba_last_n = max(0, min(cba_last_n, depth))
-        self.grassmann_detach = grassmann_detach
+        self.use_attention_gate = bool(use_attention_gate)
+        self.use_attention_gate_cba = bool(use_attention_gate_cba)
+        self.attention_gate_channels = attention_gate_channels
+        cba_gate = self.use_attention_gate and self.use_attention_gate_cba
         self.blocks = nn.ModuleList()
         for i in range(depth):
             use_cba = i >= depth - self.cba_last_n
@@ -579,10 +629,10 @@ class ImageEncoderViT(nn.Module):
                           use_rel_pos=use_rel_pos, rel_pos_zero_init=rel_pos_zero_init,
                           window_size=window_size if i not in global_attn_indexes else 0,
                           input_size=(img_size // patch_size, img_size // patch_size),
-                          use_cba=use_cba, detach_g=grassmann_detach,
-                          grassmann_truncate_sigma=grassmann_truncate_sigma,
-                          grassmann_truncate_reference_only=grassmann_truncate_reference_only,
-                          grassmann_fusion=grassmann_fusion)
+                          use_cba=use_cba,
+                          use_attention_gate=cba_gate,
+                          attention_gate_channels=self.attention_gate_channels,
+                          cka_fusion=cka_fusion)
             self.blocks.append(block)
         self.neck = nn.Sequential(
             nn.Conv2d(embed_dim, out_chans, kernel_size=1, bias=False),
@@ -593,7 +643,7 @@ class ImageEncoderViT(nn.Module):
 
     def forward(self, x: torch.Tensor, ema: bool = False) -> torch.Tensor:
         if self.cnn_branch:
-            # CNN branch: (before, after) for layers 5-8 plus layer8 output.
+            # CNN branch: n (before, after) pairs plus the last extra output.
             cnn_pairs, cnn_final = self.cnn_encoder(x)
         x = self.patch_embed(x)
         if self.pos_embed is not None:
@@ -608,10 +658,44 @@ class ImageEncoderViT(nn.Module):
             else:
                 x = blk(x, ema=ema)
         if self.cnn_branch:
-            # BUSSAM final fusion: x = x + 0.5 * cnnx (then the SAM neck).
-            x = x + 0.5 * cnn_final.permute(0, 2, 3, 1)
+            # Plain final ViT/CNN fusion (no CKA, no attention gate).
+            x = x + cnn_final.permute(0, 2, 3, 1)
         x = self.neck(x.permute(0, 3, 1, 2))
         return x
+
+    def cka_loss(self, clear: bool = True) -> torch.Tensor:
+        """Aggregate the normalized ``L_CKA`` from the last forward.
+
+        With ``n = cba_last_n`` CBA-enabled blocks there are ``2n`` CBA
+        modules, each producing a ``(B, C)`` C_weight.  The CBA part is
+        normalized exactly as
+
+            (1 / (B * 2n * ((2n) * C))) * sum(C_weight over all CBAs)
+
+        i.e. the literal ``batch_size * total_CBA_in_model *
+        total_channels_in_all_CBA`` denominator (the CBA count is applied
+        twice).
+
+        Returns a scalar; returns zero when the model has no CBA modules.
+        The stored tensors are cleared afterwards so their graphs are not
+        retained across iterations.
+        """
+        cb_as = [m for m in self.modules() if isinstance(m, CrossBranchAttention)]
+        n_cba = len(cb_as)
+        device = self.neck[0].weight.device
+        if n_cba == 0:
+            return torch.zeros((), device=device)
+
+        terms = [m.last_cka for m in cb_as if m.last_cka is not None]
+        if clear:
+            for m in cb_as:
+                m.last_cka = None
+        if not terms:
+            return torch.zeros((), device=device)
+
+        batch = terms[0].shape[0]
+        channels = terms[0].shape[1]
+        return sum(t.sum() for t in terms) / (batch * n_cba * (n_cba * channels))
 
 
 # ============================================================
@@ -916,20 +1000,16 @@ class MaskDecoder(nn.Module):
 # DSR-SAM modules (repo sam_lora_image_encoder.py)
 # ============================================================
 
-class _LoRAtruncation_qkv(nn.Module):
-    """qkv linear with LoRA increments on q and v plus EMA copies and
-    SVD-based subspace truncation of the base weight (repo)."""
+class _LoRA_qkv(nn.Module):
+    """qkv linear with LoRA increments on q and v plus optional EMA copies."""
 
-    def __init__(self, qkv: nn.Module, linear_a_q: nn.Module, linear_b_q: nn.Module,
-                 linear_a_v: nn.Module, linear_b_v: nn.Module,
+    def __init__(self, qkv: nn.Module, linear_a_q: nn.Module,
+                 linear_b_q: nn.Module, linear_a_v: nn.Module,
+                 linear_b_v: nn.Module,
                  ema_linear_a_q: Optional[nn.Module] = None,
                  ema_linear_b_q: Optional[nn.Module] = None,
                  ema_linear_a_v: Optional[nn.Module] = None,
-                 ema_linear_b_v: Optional[nn.Module] = None,
-                 index: int = 8,
-                 top_s_change_rates: Optional[int] = None,
-                 d_delta: bool = False,
-                 alpha: float = 0.1) -> None:
+                 ema_linear_b_v: Optional[nn.Module] = None) -> None:
         super().__init__()
         self.qkv = qkv
         self.linear_a_q = linear_a_q
@@ -937,33 +1017,11 @@ class _LoRAtruncation_qkv(nn.Module):
         self.linear_a_v = linear_a_v
         self.linear_b_v = linear_b_v
         self.dim = qkv.in_features
-        self.eps = 1e-8
         if ema_linear_a_q is not None:
             self.ema_linear_a_q = ema_linear_a_q
             self.ema_linear_b_q = ema_linear_b_q
             self.ema_linear_a_v = ema_linear_a_v
             self.ema_linear_b_v = ema_linear_b_v
-        self.index = index
-        # Number of top change rates that contribute to L_tsd. Set by the
-        # `top_s_change_rates` config; defaults to `index` (truncation_size)
-        # when not provided.
-        self.top_s_change_rates = index if top_s_change_rates is None else top_s_change_rates
-        # `d_delta` (config): when True, L_tsd's numerator keeps only the
-        # change rates that increased since the previous iteration
-        # (change_rate_t - change_rate_{t-1} > 0). The previous iteration's
-        # LoRA (A, B) weights are cached in `_prev_lora_{q,v}`, re-projected
-        # onto the current base-weight SVD on the next step, then released.
-        # When False, L_tsd stays the unconditional mean over the top-s rates.
-        self.d_delta = d_delta
-        # `alpha` (config): coefficient of the logarithmic L_tsd loss
-        # `log(1 + alpha * change_rate)` used by `compute_l_tsd` in place of
-        # the divide-by-max normalization.
-        self.alpha = alpha
-        self._prev_lora_q = None
-        self._prev_lora_v = None
-        self._cached_svd_q = None
-        self._cached_svd_v = None
-        self._svd_cache_valid = False
 
     def _use_ema(self, ema: bool) -> bool:
         """Whether to use the EMA LoRA branch.
@@ -977,214 +1035,6 @@ class _LoRAtruncation_qkv(nn.Module):
                 and getattr(self, 'ema_linear_b_q', None) is not None
                 and getattr(self, 'ema_linear_a_v', None) is not None
                 and getattr(self, 'ema_linear_b_v', None) is not None)
-
-    def calculate_change_rate(self, a, bb, r):
-        # Paper Eq. 2: delta_i = u_i^T delta_W v_i / (sigma_i + eps).
-        change_rate = torch.abs(bb) / (torch.abs(a) + self.eps)
-        # Check that change_rate is 1D
-        if change_rate.dim() != 1:
-            raise ValueError(f"Expected change_rate to be 1D, got shape {change_rate.shape}")
-        _, top_r_indices = torch.topk(change_rate, r)
-        return change_rate, top_r_indices
-
-    def calculate_l_tsd_rate(self, a, bb, r):
-        # L_tsd rate that enters the loss (no absolute value; `a` is the
-        # base-weight singular value sigma, so the denominator carries no
-        # deltaW term):
-        #     change_rate = ( bb / (a + eps) ) ** 2
-        change_rate = (bb / (a + self.eps)) ** 2
-        # Check that change_rate is 1D
-        if change_rate.dim() != 1:
-            raise ValueError(f"Expected change_rate to be 1D, got shape {change_rate.shape}")
-        _, top_r_indices = torch.topk(change_rate, r)
-        return change_rate, top_r_indices
-
-    def _project_change_rate(self, a_weight, b_weight, weight_sigma, weight_u, weight_vt):
-        """Project a LoRA delta (delta_W = B @ A) onto a cached base SVD.
-
-        Returns the 1D per-singular-direction change rates, matching the
-        current-iteration rates in ``compute_l_tsd`` (same base-weight basis).
-        """
-        delta_W = b_weight @ a_weight
-        delta_sigma = torch.diag(torch.matmul(torch.matmul(weight_u.T, delta_W), weight_vt.T))
-        return torch.abs(delta_sigma) / (torch.abs(weight_sigma) + self.eps)
-
-    def _select_change_rates(self, change_rate, top_idx, prev_lora,
-                             weight_sigma, weight_u, weight_vt):
-        """Indices (into ``change_rate``) that contribute to L_tsd.
-
-        Without ``d_delta`` -- or before the first cached iteration -- this is
-        the full top-s index set (plain unconditional L_tsd numerator). With
-        ``d_delta`` and a cached previous LoRA, only the top-s directions whose
-        change rate increased (change_rate_t - change_rate_{t-1} > 0) are kept.
-        """
-        if not self.d_delta or prev_lora is None:
-            return top_idx
-        with torch.no_grad():
-            prev_rate = self._project_change_rate(
-                prev_lora[0], prev_lora[1], weight_sigma, weight_u, weight_vt)
-            keep = (change_rate.detach() - prev_rate) > 0
-        return top_idx[keep[top_idx]]
-
-    def cache_base_weight_svd(self, force=False):
-        """Cache SVD of base weights (q and v projections) for L_tsd computation.
-
-        The SVD depends only on the frozen base weight, which is modified sole-
-        ly by ``update_base_weight`` (which invalidates this cache). A valid
-        cache therefore always matches the current base weight, so recomputing
-        would return identical tensors and can be skipped. ``force=True``
-        recomputes unconditionally.
-        """
-        if self._svd_cache_valid and not force:
-            return
-        device = self.qkv.weight.device
-        base_W_q = self.qkv.weight[:self.dim, :]
-        weight_u_q, weight_sigma_q, weight_vt_q = torch.linalg.svd(base_W_q, full_matrices=False)
-        self._cached_svd_q = (weight_u_q, weight_sigma_q, weight_vt_q)
-        base_W_v = self.qkv.weight[-self.dim:, :]
-        weight_u_v, weight_sigma_v, weight_vt_v = torch.linalg.svd(base_W_v, full_matrices=False)
-        self._cached_svd_v = (weight_u_v, weight_sigma_v, weight_vt_v)
-        self._svd_cache_valid = True
-
-    def compute_l_tsd(self, ema=False):
-        """Compute L_tsd: the log-squashed rate without deltaW in the denominator.
-
-        Per branch (q, v):
-
-            * the top-s directions are selected with the ORIGINAL change rate,
-              ``|bb| / (|a| + eps)`` (including the d_delta growth filter);
-            * the value that enters the loss is the rate
-              ``(bb / (a + eps)) ** 2`` (no absolute values), where ``a`` is the
-              base-weight singular value sigma (``deltaW`` is NOT in the
-              denominator; the base SVD terms stay frozen).
-
-        The kept rates are squashed with the logarithm:
-            L_tsd = mean(log(1 + alpha * change_rate))
-        where ``alpha`` is the config coefficient (`self.alpha`, default 0.1).
-
-        With `d_delta=True`, only top-s directions that grew since the previous
-        iteration are kept. With `d_delta=False` the full top-s set is used.
-        """
-        device = self.qkv.weight.device
-        total_l_tsd = torch.tensor(0.0, device=device)
-        count = 0
-        use_ema = self._use_ema(ema)
-
-        # Compute for q
-        if use_ema:
-            a_q = self.ema_linear_a_q.weight
-            b_q = self.ema_linear_b_q.weight
-        else:
-            a_q = self.linear_a_q.weight
-            b_q = self.linear_b_q.weight
-        delta_W_q = b_q @ a_q
-
-        if not self._svd_cache_valid:
-            self.cache_base_weight_svd()
-        weight_u_q, weight_sigma_q, weight_vt_q = self._cached_svd_q
-        delta_sigma_q = torch.diag(torch.matmul(torch.matmul(weight_u_q.T, delta_W_q), weight_vt_q.T))
-        # Top-s selection still uses the ORIGINAL change rate.
-        change_rate_q, top_q = self.calculate_change_rate(
-            weight_sigma_q, delta_sigma_q, self.top_s_change_rates)
-        # L_tsd rate (without deltaW) supplies the value that enters the loss.
-        l_tsd_rate_q, _ = self.calculate_l_tsd_rate(
-            weight_sigma_q, delta_sigma_q, self.top_s_change_rates)
-        selected_q = self._select_change_rates(
-            change_rate_q, top_q, self._prev_lora_q,
-            weight_sigma_q, weight_u_q, weight_vt_q)
-        if selected_q.numel() > 0:
-            # No divide-by-max: squash the kept rates with
-            # log(1 + alpha * rate).
-            l_tsd_q = torch.log1p(self.alpha * l_tsd_rate_q[selected_q]).mean()
-        else:
-            l_tsd_q = torch.tensor(0.0, device=device)
-        if self.d_delta:
-            self._prev_lora_q = (a_q.detach().clone(), b_q.detach().clone())
-        if not torch.isfinite(l_tsd_q):
-            l_tsd_q = torch.tensor(0.0, device=device)
-        total_l_tsd = total_l_tsd + l_tsd_q
-        count += 1
-
-        # Compute for v
-        if use_ema:
-            a_v = self.ema_linear_a_v.weight
-            b_v = self.ema_linear_b_v.weight
-        else:
-            a_v = self.linear_a_v.weight
-            b_v = self.linear_b_v.weight
-        delta_W_v = b_v @ a_v
-
-        if not self._svd_cache_valid:
-            self.cache_base_weight_svd()
-        weight_u_v, weight_sigma_v, weight_vt_v = self._cached_svd_v
-        delta_sigma_v = torch.diag(torch.matmul(torch.matmul(weight_u_v.T, delta_W_v), weight_vt_v.T))
-        # Top-s selection still uses the ORIGINAL change rate.
-        change_rate_v, top_v = self.calculate_change_rate(
-            weight_sigma_v, delta_sigma_v, self.top_s_change_rates)
-        # L_tsd rate (without deltaW) supplies the value that enters the loss.
-        l_tsd_rate_v, _ = self.calculate_l_tsd_rate(
-            weight_sigma_v, delta_sigma_v, self.top_s_change_rates)
-        selected_v = self._select_change_rates(
-            change_rate_v, top_v, self._prev_lora_v,
-            weight_sigma_v, weight_u_v, weight_vt_v)
-        if selected_v.numel() > 0:
-            # No divide-by-max: squash the kept rates with
-            # log(1 + alpha * rate).
-            l_tsd_v = torch.log1p(self.alpha * l_tsd_rate_v[selected_v]).mean()
-        else:
-            l_tsd_v = torch.tensor(0.0, device=device)
-        if self.d_delta:
-            self._prev_lora_v = (a_v.detach().clone(), b_v.detach().clone())
-        if not torch.isfinite(l_tsd_v):
-            l_tsd_v = torch.tensor(0.0, device=device)
-        total_l_tsd = total_l_tsd + l_tsd_v
-        count += 1
-
-        result = total_l_tsd / count if count > 0 else torch.tensor(0.0, device=device)
-        if not torch.isfinite(result):
-            result = torch.tensor(0.0, device=device)
-        return result
-
-    def update_base_weight(self, ema=False):
-        """Identify the top-`index` TSDs and truncate them from W (paper Eq. 3).
-
-        ema=True uses the EMA LoRA delta; with ema_mode=False (no EMA
-        copies) this falls back to the student LoRA delta.
-        """
-        device = self.qkv.weight.device
-        use_ema = self._use_ema(ema)
-        # Reuse the cached SVD of the base weight when still valid. The base
-        # weight is modified only here (which invalidates the cache below), so
-        # a valid cache is bit-identical to recomputing torch.linalg.svd.
-        if not self._svd_cache_valid:
-            self.cache_base_weight_svd()
-        if use_ema:
-            delta_W_q = self.ema_linear_b_q.weight @ self.ema_linear_a_q.weight
-        else:
-            delta_W_q = self.linear_b_q.weight @ self.linear_a_q.weight
-        weight_u_q, weight_sigma_q, weight_vt_q = self._cached_svd_q
-        delta_sigma_q = torch.diag(torch.matmul(torch.matmul(weight_u_q.T, delta_W_q), weight_vt_q.T))
-        _, top_index_q = self.calculate_change_rate(weight_sigma_q, delta_sigma_q, self.index)
-        remain_index_q = torch.tensor([idx for idx in range(weight_u_q.shape[1])
-                                       if idx not in top_index_q], device=device)
-        new_base_W_q = (weight_u_q[:, remain_index_q] @ torch.diag(weight_sigma_q[remain_index_q])
-                        @ weight_vt_q[remain_index_q, :])
-        self.qkv.weight[:self.dim, :] = new_base_W_q.clone()
-
-        if use_ema:
-            delta_W_v = self.ema_linear_b_v.weight @ self.ema_linear_a_v.weight
-        else:
-            delta_W_v = self.linear_b_v.weight @ self.linear_a_v.weight
-        weight_u_v, weight_sigma_v, weight_vt_v = self._cached_svd_v
-        delta_sigma_v = torch.diag(torch.matmul(torch.matmul(weight_u_v.T, delta_W_v), weight_vt_v.T))
-        _, top_index_v = self.calculate_change_rate(weight_sigma_v, delta_sigma_v, self.index)
-        remain_index_v = torch.tensor([idx for idx in range(weight_u_v.shape[1])
-                                       if idx not in top_index_v], device=device)
-        new_base_W_v = (weight_u_v[:, remain_index_v] @ torch.diag(weight_sigma_v[remain_index_v])
-                        @ weight_vt_v[remain_index_v, :])
-        self.qkv.weight[-self.dim:, :] = new_base_W_v.clone()
-        self._svd_cache_valid = False
-        return top_index_q, top_index_v
 
     def forward(self, x: torch.Tensor, ema: bool = False) -> torch.Tensor:
         qkv = self.qkv(x)
@@ -1226,19 +1076,12 @@ def ema_update(model, rate):
 
 
 class LoRA_Sam(nn.Module):
-    """Applies LoRA adaptation with EMA copies and subspace truncation to
-    the SAM image encoder (repo LoRA_Sam)."""
+    """Applies LoRA adaptation with optional EMA copies to the SAM image
+    encoder (repo LoRA_Sam)."""
 
-    def __init__(self, sam_model, r: int, lora_layer=None, ema_mode=True,
-                 Dash_index=8, top_s_change_rates=None, d_delta=False,
-                 alpha: float = 0.1) -> None:
+    def __init__(self, sam_model, r: int, lora_layer=None, ema_mode=True) -> None:
         super(LoRA_Sam, self).__init__()
         self.ema_mode = ema_mode
-        self.top_s_change_rates = top_s_change_rates
-        self.d_delta = d_delta
-        # `alpha` (config): coefficient of the logarithmic L_tsd loss
-        # `log(1 + alpha * change_rate)` (see `_LoRAtruncation_qkv.compute_l_tsd`).
-        self.alpha = alpha
 
         assert r > 0
         if lora_layer:
@@ -1252,10 +1095,12 @@ class LoRA_Sam(nn.Module):
         for param in sam_model.image_encoder.parameters():
             param.requires_grad = False
         # DSR-SAM2: the whole CNN branch (ResNet18 layers 1-3 pretrained,
-        # layers 4-8 from scratch) and the 8 CBA blocks are trained jointly
-        # with the LoRA increments. Everything else in the ViT stays frozen.
+        # layer4 and the extra ResBlocks from scratch), the 2*n CBA blocks
+        # and every AttentionGate are trained jointly with the LoRA
+        # increments. Everything else in the ViT stays frozen.
         for name, param in sam_model.image_encoder.named_parameters():
-            if name.startswith('cnn_encoder.') or '.cba' in name:
+            if (name.startswith('cnn_encoder.') or '.cba' in name
+                    or 'attention_gate' in name):
                 param.requires_grad = True
 
         # Here, we do the surgery.
@@ -1285,15 +1130,11 @@ class LoRA_Sam(nn.Module):
             else:
                 ema_w_a_linear_q = ema_w_b_linear_q = ema_w_a_linear_v = ema_w_b_linear_v = None
 
-            self.index = Dash_index
-            blk.attn.qkv = _LoRAtruncation_qkv(
+            blk.attn.qkv = _LoRA_qkv(
                 w_qkv_linear,
                 w_a_linear_q, w_b_linear_q, w_a_linear_v, w_b_linear_v,
-                ema_w_a_linear_q, ema_w_b_linear_q, ema_w_a_linear_v, ema_w_b_linear_v,
-                index=self.index,
-                top_s_change_rates=self.top_s_change_rates,
-                d_delta=self.d_delta,
-                alpha=self.alpha,
+                ema_w_a_linear_q, ema_w_b_linear_q,
+                ema_w_a_linear_v, ema_w_b_linear_v,
             )
         self.sam = sam_model
 
@@ -1308,40 +1149,9 @@ class LoRA_Sam(nn.Module):
 
         Returns True only if the caller asks for EMA AND the model was
         built with ema_mode=True. With ema_mode=False every caller
-        (train/val/test/truncation) is forced onto the student LoRA.
+        (train/val/test) is forced onto the student LoRA.
         """
         return bool(ema) and bool(getattr(self, 'ema_mode', False))
-
-    def compute_l_tsd(self, ema=False):
-        """Compute total L_tsd (log-squashed rate without deltaW denominator).
-
-        Aggregates `_LoRAtruncation_qkv.compute_l_tsd`, which selects the
-        top-s directions with the original change rate but uses
-        ``mean(log(1 + alpha * change_rate))`` as the loss value, where the
-        rate is ``(bb / (a + eps)) ** 2`` (NO deltaW term in the
-        denominator; ``a`` is the base-weight singular value sigma) and
-        ``alpha`` comes from config (`self.alpha`, default 0.1).
-
-        Convention: uses the student LoRA (ema=False); an `ema=True` request is
-        honored only when the model owns EMA copies.
-        """
-        ema = self.resolve_ema(ema)
-        total_l_tsd = torch.tensor(0.0, device=self.sam.device)
-        count = 0
-        for blk in self.sam.image_encoder.blocks:
-            qkv = blk.attn.qkv
-            if hasattr(qkv, 'compute_l_tsd'):
-                l_tsd = qkv.compute_l_tsd(ema=ema)
-                total_l_tsd = total_l_tsd + l_tsd
-                count += 1
-        return total_l_tsd / count if count > 0 else torch.tensor(0.0, device=self.sam.device)
-
-    def cache_all_svd(self):
-        """Cache SVD of base weights for all LoRA qkv modules (call once per epoch)."""
-        for blk in self.sam.image_encoder.blocks:
-            qkv = blk.attn.qkv
-            if hasattr(qkv, 'cache_base_weight_svd'):
-                qkv.cache_base_weight_svd()
 
     def forward(self, batched_input, multimask_output, image_size,
                 bbox_input=None, ema=False):
@@ -1397,6 +1207,9 @@ class Sam(nn.Module):
             'masks': masks,
             'iou_predictions': iou_predictions,
             'low_res_logits': low_res_masks,
+            # Scalar L_CKA from this (student) forward; see
+            # ImageEncoderViT.cka_loss.  Always present, zero without CBAs.
+            'cka_loss': self.image_encoder.cka_loss(),
         }
         return outputs
 
@@ -1468,9 +1281,10 @@ def _load_from(sam, state_dict, image_size, vit_patch_size, encoder_global_attn_
 
 def _build_sam(image_size, num_classes, checkpoint=None, model_type='vit_h',
                cnn_pretrained=True, cba_last_n=4,
-               cnn_branch=True, grassmann_fusion='add',
-               grassmann_detach=True,
-               grassmann_truncate_sigma=0, grassmann_truncate_reference_only=False):
+               cnn_branch=True, cka_fusion=True,
+               use_attention_gate=True,
+               use_attention_gate_cba=True,
+               attention_gate_channels=None):
     prompt_embed_dim = 256
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
@@ -1485,10 +1299,10 @@ def _build_sam(image_size, num_classes, checkpoint=None, model_type='vit_h',
             global_attn_indexes=cfg['encoder_global_attn_indexes'],
             window_size=14, out_chans=prompt_embed_dim,
             cnn_pretrained=cnn_pretrained, cba_last_n=cba_last_n,
-            cnn_branch=cnn_branch, grassmann_fusion=grassmann_fusion,
-            grassmann_detach=grassmann_detach,
-            grassmann_truncate_sigma=grassmann_truncate_sigma,
-            grassmann_truncate_reference_only=grassmann_truncate_reference_only,
+            cnn_branch=cnn_branch, cka_fusion=cka_fusion,
+            use_attention_gate=use_attention_gate,
+            use_attention_gate_cba=use_attention_gate_cba,
+            attention_gate_channels=attention_gate_channels,
         ),
         prompt_encoder=PromptEncoder(
             embed_dim=prompt_embed_dim,
@@ -1518,46 +1332,45 @@ def _build_sam(image_size, num_classes, checkpoint=None, model_type='vit_h',
 
 
 def build_dsr_sam2(checkpoint=None, model_type='vit_b', image_size=256,
-                 num_classes=1, rank=64, ema_mode=True, truncation_size=96,
-                 top_s_change_rates=None, d_delta=False, alpha=0.1,
+                 num_classes=1, rank=64, ema_mode=True,
                  cnn_pretrained=True, cba_last_n=4,
-                 cnn_branch=True, grassmann_fusion='add',
-                 grassmann_detach=True,
-                 grassmann_truncate_sigma=0, grassmann_truncate_reference_only=False):
-    """Build DSR-SAM2: SAM ViT + ResNet18 CNN branch + 8 CBA blocks, wrapped
-    by the DSR-SAM LoRA/EMA/subspace-truncation wrapper.
+                 cnn_branch=True, cka_fusion=True,
+                 use_attention_gate=True,
+                 use_attention_gate_cba=True,
+                 attention_gate_channels=None):
+    """Build DSR-SAM2: SAM ViT + ResNet18 CNN branch + 2*n CBA blocks, wrapped
+    by the DSR-SAM LoRA/EMA wrapper.
 
     ``cnn_branch``: True builds the dual-branch model. False removes the
     ResNet18 branch, the CBA blocks and the final CNN fusion, i.e. plain
     SAM + LoRA (ablation control).
 
-    ``grassmann_fusion``: CBA combination rule. ``'add'`` (default) is
-    ``f_vit + G_cc/(pi/2) * f_cnn``; ``'blend'`` is the convex
-    ``(1 - G')*f_vit + G'*f_cnn``; ``'sum'`` is the unweighted
-    ``f_vit + f_cnn``.  The last two are ablation controls only.
+    ``cka_fusion``: CBA combination rule. ``True`` (default) uses
+    ``f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2``; ``False`` is the
+    unweighted ``f_vit + f_cnn`` and bypasses the gate.
 
-    ``grassmann_detach``: True detaches G_score (fixed gate); the entry-point
-    config exposes the inverse switch ``grassmann_enable_grad`` (default False).
+    ``use_attention_gate``: master switch for the CBA AttentionGate
+    (Oktay et al. 2018); ``use_attention_gate_cba`` selects the 2n CBA gates.
+    ``attention_gate_channels`` is the gate's intermediate width ``F_int``
+    (None -> C, 768 for vit_b).  The final ViT/CNN fusion is plain
+    ``x = x + cnn_final`` (no CKA, no gate).
 
-    ``grassmann_truncate_sigma``: 0 keeps the usual DSR-SAM2 path.
-    When > 0, the s smallest singular values/vectors of each branch feature
-    are removed before G_score is computed. With
-    ``grassmann_truncate_reference_only=True`` those truncated features are
-    only the G_score reference and the fused features stay untouched;
-    otherwise the truncated features are fused.
+    ``cba_last_n = n`` adds ``n`` extra CNN ResBlocks and enables CBA in the
+    last ``n`` ViT blocks (one additional ResBlock per CBA-enabled block).
+
+    Every forward also exposes the scalar ``L_CKA`` in ``outputs['cka_loss']``:
+    the sum of all ``2n`` CBA ``C_weight`` terms normalized by
+    ``batch * (2n) * ((2n) * C)``.  Training adds
+    ``cka_loss_weight * L_CKA`` to the segmentation loss.
     """
     assert model_type in VIT_CONFIGS
     sam, _ = _build_sam(image_size=image_size, num_classes=num_classes,
                         checkpoint=checkpoint, model_type=model_type,
                         cnn_pretrained=cnn_pretrained, cba_last_n=cba_last_n,
                         cnn_branch=cnn_branch,
-                        grassmann_fusion=grassmann_fusion,
-                        grassmann_detach=grassmann_detach,
-                        grassmann_truncate_sigma=grassmann_truncate_sigma,
-                        grassmann_truncate_reference_only=grassmann_truncate_reference_only)
-    net = LoRA_Sam(sam, r=rank, ema_mode=ema_mode,
-                   Dash_index=truncation_size,
-                   top_s_change_rates=top_s_change_rates,
-                   d_delta=d_delta,
-                   alpha=alpha)
+                        cka_fusion=cka_fusion,
+                        use_attention_gate=use_attention_gate,
+                        use_attention_gate_cba=use_attention_gate_cba,
+                        attention_gate_channels=attention_gate_channels)
+    net = LoRA_Sam(sam, r=rank, ema_mode=ema_mode)
     return net

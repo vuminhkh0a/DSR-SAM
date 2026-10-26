@@ -1,0 +1,440 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\setlength{\LTcapwidth}{\textwidth}
+
+\begin{document}
+
+\section{SOTA}
+\label{sec:sota}
+
+{\small
+\begin{longtable}{lrrrrr}
+\caption{SOTA comparison with source domain OTU. Best value per metric per target is \textbf{bold}.}
+\label{tab:sota_otu}\\
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 73.30 & 60.97 & 78.91 & 73.76 & 43.40 \\
+DN & 80.99 & 71.45 & 93.15 & 75.33 & 30.47 \\
+MI-SegNet & 85.07 & 77.62 & 89.15 & 85.22 & 24.81 \\
+MaxStyle & 80.64 & 70.65 & 87.53 & 78.51 & 38.77 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 86.18 & 77.26 & 91.74 & 83.53 & 26.93 \\
+SR-SAM & 94.17 & 89.09 & 96.89 & 91.81 & 9.84 \\
+SAMed & 83.76 & 74.90 & 89.15 & 81.56 & 51.08 \\
+SAMUS & 91.29 & 85.26 & 94.86 & 89.65 & 15.31 \\
+CoSAM & 77.51 & 65.20 & 79.78 & 80.82 & 39.00 \\
+MedSA & 89.47 & 82.30 & 93.81 & 87.78 & 18.78 \\
+BusSAM & 86.92 & 78.98 & 90.16 & 87.90 & 23.28 \\
+TransSAM & 91.00 & 84.89 & 95.09 & 88.55 & 15.10 \\
+NORA & 90.67 & 84.43 & 94.61 & 88.99 & 16.99 \\
+MASA & 94.91 & 90.42 & 97.90 & 92.25 & 9.85 \\
+DAP-SAM & 90.35 & 83.89 & 94.92 & 87.55 & 17.69 \\
+DSR-SAM & 94.87 & 90.35 & 97.42 & 92.62 & 9.14 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & \textbf{95.13} & \textbf{90.80} & 96.40 & \textbf{94.07} & \textbf{8.25} \\
+SAM-Med2D & 66.89 & 53.45 & 92.62 & 55.54 & 38.27 \\
+UltraSAM & 94.39 & 89.50 & \textbf{98.46} & 90.83 & 9.62 \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: USOVA}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 43.46 & 29.82 & 77.25 & 32.88 & 73.96 \\
+DN & 42.04 & 29.54 & 86.77 & 30.64 & 86.64 \\
+MI-SegNet & 56.53 & 44.39 & 80.47 & 50.26 & 93.68 \\
+MaxStyle & 43.03 & 29.44 & 77.83 & 31.62 & 75.62 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 59.18 & 44.40 & 80.43 & 53.34 & 65.96 \\
+SR-SAM & 85.36 & 75.38 & 86.04 & 86.30 & \textbf{26.61} \\
+SAMed & 50.97 & 37.26 & 78.08 & 43.59 & 161.15 \\
+SAMUS & 65.03 & 51.12 & 82.44 & 62.95 & 65.58 \\
+CoSAM & 42.23 & 29.79 & 84.33 & 30.74 & 93.34 \\
+MedSA & 60.17 & 45.18 & 87.69 & 51.77 & 67.84 \\
+BusSAM & 63.43 & 49.26 & 80.15 & 62.23 & 63.96 \\
+TransSAM & 58.27 & 45.06 & 82.14 & 53.18 & 77.04 \\
+NORA & 53.73 & 40.73 & 81.37 & 44.18 & 83.36 \\
+MASA & 83.17 & 72.61 & \textbf{94.01} & 75.74 & 31.32 \\
+DAP-SAM & 53.03 & 40.00 & 83.72 & 43.49 & 78.27 \\
+DSR-SAM & 83.88 & 73.25 & 86.98 & 82.89 & 31.63 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & \textbf{85.67} & \textbf{75.91} & 83.27 & \textbf{90.00} & 28.08 \\
+SAM-Med2D & 79.54 & 67.01 & 86.07 & 75.26 & 45.64 \\
+UltraSAM & 79.35 & 67.62 & 90.71 & 71.80 & 35.34 \\
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{lrrrrr}
+\caption{SOTA comparison with source domain OVATUS. Best value per metric per target is \textbf{bold}.}
+\label{tab:sota_ovatus}\\
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OTU}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 66.19 & 55.10 & 63.88 & 81.26 & 48.76 \\
+DN & 71.68 & 61.25 & 67.92 & 86.25 & 44.03 \\
+MI-SegNet & 70.44 & 61.60 & 71.70 & 81.30 & 43.75 \\
+MaxStyle & 70.81 & 60.26 & 69.56 & 81.81 & 41.86 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 68.33 & 56.81 & 61.98 & 89.89 & 41.53 \\
+SR-SAM & 91.45 & 85.09 & 90.62 & 93.07 & 11.54 \\
+SAMed & 68.09 & 58.00 & 71.56 & 74.22 & 79.62 \\
+SAMUS & 79.86 & 70.84 & 76.29 & 92.29 & 25.51 \\
+CoSAM & 59.75 & 47.52 & 56.24 & 81.68 & 49.28 \\
+MedSA & 73.30 & 63.73 & 70.07 & 89.33 & 33.11 \\
+BusSAM & 79.04 & 69.06 & 74.42 & 92.61 & 25.84 \\
+TransSAM & 78.18 & 69.95 & 77.77 & 85.67 & 25.23 \\
+NORA & 75.29 & 66.85 & 74.80 & 86.50 & 33.70 \\
+MASA & 90.29 & 83.77 & 90.94 & 90.96 & 11.24 \\
+DAP-SAM & 75.94 & 66.82 & 72.18 & 89.16 & 30.81 \\
+DSR-SAM & 91.58 & 85.23 & 89.93 & \textbf{94.03} & 9.52 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & 91.29 & 84.59 & 93.68 & 89.79 & 9.80 \\
+SAM-Med2D & 75.41 & 63.76 & 90.82 & 67.85 & 24.44 \\
+UltraSAM & \textbf{93.81} & \textbf{88.68} & \textbf{94.24} & 93.87 & \textbf{7.68} \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: USOVA}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 44.21 & 29.49 & 78.32 & 34.15 & 79.48 \\
+DN & 50.91 & 35.67 & 81.53 & 41.77 & 68.59 \\
+MI-SegNet & 50.87 & 38.37 & 67.33 & 47.75 & 93.27 \\
+MaxStyle & 41.64 & 27.31 & 75.98 & 31.88 & 76.37 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 65.42 & 50.77 & 69.54 & 70.64 & 63.15 \\
+SR-SAM & 83.15 & 72.81 & 86.54 & 81.22 & 31.98 \\
+SAMed & 30.50 & 20.77 & 84.91 & 27.13 & 262.86 \\
+SAMUS & 67.48 & 54.78 & 64.26 & 87.25 & 66.53 \\
+CoSAM & 58.57 & 43.25 & 78.80 & 53.73 & 65.26 \\
+MedSA & 68.64 & 55.25 & 68.77 & 78.64 & 58.46 \\
+BusSAM & 70.11 & 56.70 & 70.29 & 82.39 & 55.36 \\
+TransSAM & 70.32 & 58.51 & 68.55 & 86.66 & 58.77 \\
+NORA & 60.67 & 47.63 & 79.34 & 57.87 & 77.88 \\
+MASA & 79.47 & 68.69 & \textbf{92.13} & 71.57 & 31.29 \\
+DAP-SAM & 66.45 & 53.29 & 77.75 & 68.15 & 63.01 \\
+DSR-SAM & 83.55 & 73.06 & 87.48 & 81.29 & 31.44 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & \textbf{85.67} & \textbf{75.91} & 83.27 & \textbf{90.00} & \textbf{28.08} \\
+SAM-Med2D & 79.54 & 67.01 & 86.07 & 75.26 & 45.64 \\
+UltraSAM & 79.35 & 67.62 & 90.71 & 71.80 & 35.34 \\
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{lrrrrr}
+\caption{SOTA comparison with source domain USOVA. Best value per metric per target is \textbf{bold}.}
+\label{tab:sota_usova}\\
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OTU}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 27.08 & 18.37 & 39.65 & 30.79 & 98.93 \\
+DN & 37.25 & 26.85 & 43.25 & 44.78 & 79.74 \\
+MI-SegNet & 23.09 & 16.48 & 54.43 & 35.63 & 176.31 \\
+MaxStyle & 36.81 & 24.94 & 40.71 & 45.42 & 72.57 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 43.67 & 31.99 & 37.89 & 63.73 & 79.99 \\
+SR-SAM & 86.61 & 77.03 & 80.91 & 94.33 & 15.54 \\
+SAMed & 23.97 & 17.77 & 70.18 & 26.60 & 361.91 \\
+SAMUS & 46.80 & 34.31 & 60.60 & 57.10 & 58.69 \\
+CoSAM & 43.56 & 30.73 & 32.12 & \textbf{94.88} & 81.87 \\
+MedSA & 51.54 & 37.75 & 42.76 & 90.39 & 59.44 \\
+BusSAM & 48.29 & 35.02 & 52.06 & 65.10 & 55.34 \\
+TransSAM & 56.46 & 43.90 & 46.56 & 92.99 & 53.74 \\
+NORA & 46.62 & 35.12 & 52.85 & 65.16 & 80.64 \\
+MASA & 81.78 & 70.78 & 89.16 & 78.29 & 16.33 \\
+DAP-SAM & 55.46 & 42.53 & 50.41 & 81.89 & 56.77 \\
+DSR-SAM & 85.02 & 74.65 & 78.25 & 94.23 & 16.26 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & 91.29 & 84.59 & 93.68 & 89.79 & 9.80 \\
+SAM-Med2D & 75.41 & 63.76 & 90.82 & 67.85 & 24.44 \\
+UltraSAM & \textbf{93.81} & \textbf{88.68} & \textbf{94.24} & 93.87 & \textbf{7.68} \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 53.26 & 39.73 & 60.42 & 55.07 & 55.27 \\
+DN & 48.05 & 34.21 & 42.01 & 63.73 & 76.98 \\
+MI-SegNet & 36.84 & 25.45 & 33.79 & 57.35 & 92.54 \\
+MaxStyle & 56.68 & 41.55 & 52.49 & 68.14 & 55.53 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 58.35 & 43.18 & 49.09 & 79.35 & 64.05 \\
+SR-SAM & 91.48 & 84.47 & 88.13 & 95.44 & 14.25 \\
+SAMed & 30.70 & 23.39 & 79.47 & 28.14 & 318.41 \\
+SAMUS & 51.77 & 36.87 & 49.33 & 73.32 & 78.21 \\
+CoSAM & 67.01 & 52.53 & 58.75 & 91.52 & 54.52 \\
+MedSA & 67.92 & 53.42 & 60.08 & 89.47 & 47.99 \\
+BusSAM & 53.10 & 37.89 & 45.27 & 79.30 & 71.10 \\
+TransSAM & 78.58 & 66.86 & 74.58 & 89.07 & 30.76 \\
+NORA & 64.24 & 52.21 & 69.71 & 74.22 & 54.14 \\
+MASA & 87.84 & 78.86 & 93.48 & 84.26 & 16.78 \\
+DAP-SAM & 69.74 & 58.18 & 72.64 & 80.03 & 50.71 \\
+DSR-SAM & 90.60 & 82.97 & 86.49 & \textbf{95.51} & 14.62 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & \textbf{95.13} & \textbf{90.80} & 96.40 & 94.07 & \textbf{8.25} \\
+SAM-Med2D & 66.89 & 53.45 & 92.62 & 55.54 & 38.27 \\
+UltraSAM & 94.39 & 89.50 & \textbf{98.46} & 90.83 & 9.62 \\
+\end{longtable}
+}
+
+\section{Ablation Study of DSR-SAM2}
+\label{sec:ablation}
+
+{\small
+\begin{longtable}{ccclrrrrr}
+\caption{DSR-SAM2 ablation with source domain OTU. Best value per metric per target is \textbf{bold}.}
+\label{tab:ablation_otu}\\
+\toprule
+CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{9}{l}{\textit{Target: OVATUS}} \\
+\midrule
+$\times$ & $\times$ & $\times$ & -- & 94.91 & 90.42 & \textbf{97.31} & 92.79 & \textbf{9.51} \\
+\checkmark & $\times$ & $\times$ & -- & 94.73 & 90.12 & 96.48 & 93.24 & 9.86 \\
+\checkmark & \checkmark & $\times$ & Sum & 94.81 & 90.23 & 97.12 & 92.79 & 10.20 \\
+\checkmark & \checkmark & \checkmark & Blend & \textbf{94.92} & \textbf{90.45} & 96.04 & \textbf{94.03} & 10.28 \\
+\checkmark & \checkmark & \checkmark & Add (full) & 94.86 & 90.34 & 96.90 & 93.09 & 9.80 \\
+\addlinespace[4pt]
+\multicolumn{9}{l}{\textit{Target: USOVA}} \\
+\midrule
+$\times$ & $\times$ & $\times$ & -- & 83.85 & 73.06 & 87.30 & 82.76 & 31.87 \\
+\checkmark & $\times$ & $\times$ & -- & 82.46 & 71.49 & 87.39 & 80.14 & 30.79 \\
+\checkmark & \checkmark & $\times$ & Sum & \textbf{84.52} & \textbf{74.41} & \textbf{88.00} & 83.19 & 29.33 \\
+\checkmark & \checkmark & \checkmark & Blend & 84.34 & 73.98 & 86.10 & \textbf{84.20} & \textbf{28.47} \\
+\checkmark & \checkmark & \checkmark & Add (full) & 84.06 & 73.66 & 87.10 & 83.01 & 28.48 \\
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{ccclrrrrr}
+\caption{DSR-SAM2 ablation with source domain OVATUS. Best value per metric per target is \textbf{bold}.}
+\label{tab:ablation_ovatus}\\
+\toprule
+CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{9}{l}{\textit{Target: OTU}} \\
+\midrule
+$\times$ & $\times$ & $\times$ & -- & 90.94 & 84.44 & 90.82 & 91.84 & \textbf{10.86} \\
+\checkmark & $\times$ & $\times$ & -- & 91.13 & 84.70 & \textbf{91.10} & 91.92 & 12.25 \\
+\checkmark & \checkmark & $\times$ & Sum & 89.75 & 83.30 & 90.61 & 90.56 & 12.07 \\
+\checkmark & \checkmark & \checkmark & Blend & 90.75 & 84.10 & 89.69 & \textbf{92.62} & 14.38 \\
+\checkmark & \checkmark & \checkmark & Add (full) & \textbf{91.29} & \textbf{84.84} & 90.73 & 92.59 & 11.38 \\
+\addlinespace[4pt]
+\multicolumn{9}{l}{\textit{Target: USOVA}} \\
+\midrule
+$\times$ & $\times$ & $\times$ & -- & \textbf{83.78} & \textbf{73.87} & 86.40 & \textbf{82.16} & \textbf{28.54} \\
+\checkmark & $\times$ & $\times$ & -- & 80.88 & 69.21 & \textbf{87.81} & 76.19 & 35.86 \\
+\checkmark & \checkmark & $\times$ & Sum & 82.32 & 71.31 & 84.31 & 81.75 & 38.48 \\
+\checkmark & \checkmark & \checkmark & Blend & 81.42 & 69.95 & 83.69 & 80.84 & 38.60 \\
+\checkmark & \checkmark & \checkmark & Add (full) & 82.09 & 70.92 & 84.13 & 81.23 & 37.70 \\
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{ccclrrrrr}
+\caption{DSR-SAM2 ablation with source domain USOVA. Best value per metric per target is \textbf{bold}.}
+\label{tab:ablation_usova}\\
+\toprule
+CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{9}{l}{\textit{Target: OTU}} \\
+\midrule
+$\times$ & $\times$ & $\times$ & -- & 84.79 & 74.48 & 80.69 & \textbf{90.49} & 16.77 \\
+\checkmark & $\times$ & $\times$ & -- & 84.33 & 73.92 & 84.76 & 85.17 & 16.95 \\
+\checkmark & \checkmark & $\times$ & Sum & 84.64 & 74.33 & \textbf{87.91} & 82.97 & 15.87 \\
+\checkmark & \checkmark & \checkmark & Blend & 84.64 & 74.19 & 81.97 & 89.14 & 18.92 \\
+\checkmark & \checkmark & \checkmark & Add (full) & \textbf{86.42} & \textbf{76.97} & 86.61 & 87.30 & \textbf{14.18} \\
+\addlinespace[4pt]
+\multicolumn{9}{l}{\textit{Target: OVATUS}} \\
+\midrule
+$\times$ & $\times$ & $\times$ & -- & 90.57 & 82.91 & 88.45 & \textbf{93.24} & 14.43 \\
+\checkmark & $\times$ & $\times$ & -- & 89.27 & 80.81 & 90.22 & 88.77 & 17.37 \\
+\checkmark & \checkmark & $\times$ & Sum & 89.88 & 81.89 & \textbf{91.55} & 88.98 & 16.17 \\
+\checkmark & \checkmark & \checkmark & Blend & 90.11 & 82.16 & 88.37 & 92.38 & 16.32 \\
+\checkmark & \checkmark & \checkmark & Add (full) & \textbf{90.82} & \textbf{83.39} & 91.03 & 91.12 & \textbf{14.26} \\
+\end{longtable}
+}
+
+\section{Hyperparameter Analysis}
+\label{sec:hyperparameter}
+
+{\small
+\begin{longtable}{rrrrrr}
+\caption{Hyperparameter analysis on the number of CBA-enabled ViT blocks $n$ with source domain OTU. Best value per metric per target is \textbf{bold}.}
+\label{tab:hparam_otu}\\
+\toprule
+$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\midrule
+2 & 94.01 & 88.86 & \textbf{98.07} & 90.47 & 10.51 \\
+4 & 94.82 & 90.27 & 97.53 & 92.40 & \textbf{9.32} \\
+6 & 94.25 & 89.27 & 97.59 & 91.34 & 10.82 \\
+8 & \textbf{95.00} & \textbf{90.56} & 97.06 & \textbf{93.18} & 9.73 \\
+10 & 94.82 & 90.27 & 97.10 & 92.82 & 9.69 \\
+12 & 94.45 & 89.61 & 96.27 & 92.89 & 10.69 \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: USOVA}} \\
+\midrule
+2 & 84.85 & 74.84 & \textbf{86.94} & 83.93 & 27.41 \\
+4 & 84.73 & 74.81 & 86.92 & 84.09 & \textbf{26.74} \\
+6 & 83.64 & 72.91 & 86.70 & 82.58 & 32.11 \\
+8 & 83.34 & 72.63 & 84.79 & 83.72 & 32.01 \\
+10 & 83.70 & 72.92 & 85.06 & 84.16 & 31.95 \\
+12 & \textbf{84.89} & \textbf{75.00} & 85.75 & \textbf{85.07} & 27.96 \\
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{rrrrrr}
+\caption{Hyperparameter analysis on the number of CBA-enabled ViT blocks $n$ with source domain OVATUS. Best value per metric per target is \textbf{bold}.}
+\label{tab:hparam_ovatus}\\
+\toprule
+$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OTU}} \\
+\midrule
+2 & 91.34 & 84.81 & 89.53 & 93.86 & \textbf{9.66} \\
+4 & \textbf{91.41} & \textbf{84.87} & 90.29 & 93.28 & 11.20 \\
+6 & 90.63 & 84.01 & 90.49 & 91.99 & 10.84 \\
+8 & 90.58 & 84.02 & 90.59 & 91.56 & 11.80 \\
+10 & 90.94 & 84.15 & 87.80 & \textbf{95.11} & 11.10 \\
+12 & 90.89 & 84.29 & \textbf{91.14} & 91.49 & 11.24 \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: USOVA}} \\
+\midrule
+2 & 78.69 & 66.22 & \textbf{88.10} & 73.51 & 38.12 \\
+4 & 81.36 & 69.82 & 86.83 & 78.06 & 37.23 \\
+6 & 80.13 & 68.65 & 87.20 & 75.98 & 35.77 \\
+8 & 80.29 & 68.85 & 84.07 & 78.62 & 35.24 \\
+10 & \textbf{82.52} & \textbf{71.45} & 85.07 & \textbf{82.46} & \textbf{34.87} \\
+12 & 80.70 & 69.30 & 83.29 & 79.60 & 34.97 \\
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{rrrrrr}
+\caption{Hyperparameter analysis on the number of CBA-enabled ViT blocks $n$ with source domain USOVA. Best value per metric per target is \textbf{bold}.}
+\label{tab:hparam_usova}\\
+\toprule
+$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OTU}} \\
+\midrule
+2 & 84.99 & 74.86 & 84.11 & 87.37 & 16.08 \\
+4 & 85.45 & 75.30 & 83.08 & \textbf{89.06} & 16.01 \\
+6 & 85.52 & 75.66 & 83.75 & 88.88 & 16.63 \\
+8 & \textbf{85.66} & \textbf{75.91} & 85.12 & 87.70 & \textbf{15.61} \\
+10 & 80.93 & 69.70 & \textbf{86.45} & 78.27 & 19.23 \\
+12 & 83.83 & 73.17 & 85.22 & 83.73 & 17.91 \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\midrule
+2 & 89.48 & 81.28 & 91.38 & 88.43 & 17.06 \\
+4 & 89.99 & 81.97 & 89.77 & 90.61 & 16.23 \\
+6 & 90.32 & 82.54 & \textbf{91.85} & 89.29 & 15.38 \\
+8 & \textbf{90.89} & \textbf{83.47} & 88.88 & \textbf{93.32} & \textbf{14.20} \\
+10 & 88.13 & 79.07 & 91.32 & 85.61 & 18.48 \\
+12 & 89.49 & 81.17 & 90.45 & 88.94 & 16.47 \\
+\end{longtable}
+}
+\end{document}

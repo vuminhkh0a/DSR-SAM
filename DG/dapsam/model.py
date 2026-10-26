@@ -37,12 +37,16 @@ from utils.seed import deterministic_warn_only
 class ChannelAttention(nn.Module):
     def __init__(self, channel, reduction=16):
         super().__init__()
-        self.maxpool = nn.AdaptiveMaxPool2d(1)
         self.avgpool = nn.AdaptiveAvgPool2d(1)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        return self.sigmoid(self.maxpool(x) + self.avgpool(x))
+        # Global max pooling. `nn.AdaptiveMaxPool2d` has no deterministic CUDA
+        # backward kernel (it trips strict torch.use_deterministic_algorithms);
+        # max_pool2d over the full spatial extent is equivalent here and is
+        # deterministic on CUDA.
+        pooled_max = F.max_pool2d(x, kernel_size=x.shape[-2:])
+        return self.sigmoid(pooled_max + self.avgpool(x))
 
 
 class ChannelFilter(nn.Module):
