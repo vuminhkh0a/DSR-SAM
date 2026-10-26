@@ -25,7 +25,7 @@ Usage (from ``y_DG/`` with khoa-env active):
     # train on a single source (tests both held-out targets):
     python3 -m DG.sota.run_sota --datasets OTU
     # DSR-SAM2 CKA ablation, then SR-SAM:
-    python3 -m DG.sota.run_sota --methods dsr_sam2_cka_ab_full,sr_sam
+    python3 -m DG.sota.run_sota --methods dsr_sam2_ab_full,sr_sam
 
 ``run.sh`` launches it detached, with every line streamed to ``log.txt``:
     nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
@@ -104,8 +104,8 @@ def reset_log(tag='sota'):
 # ---------------------------------------------------------------------------
 # Method registry. Short name -> module + optional CONFIG overrides.
 # Every benchmark method is listed. The DSR-SAM2 ablation study
-# (L_CKA / AttentionGate / CKA channel fusion) is registered at the end of
-# the list; the remaining hyper-parameter studies stay in
+# (CNN branch / CBA / AttentionGate / CKA fusion / L_CKA) is registered at
+# the end of the list; the remaining hyper-parameter studies stay in
 # DG.dsr_sam.main_a / main_h and DG.dsr_sam2.main_a / main_h.
 #
 # Trainable methods expose CONFIG + run_single_source() and are driven over
@@ -114,32 +114,33 @@ def reset_log(tag='sota'):
 # once on every benchmark domain.
 # ---------------------------------------------------------------------------
 
-# ---- DSR-SAM2 ablation study: L_CKA / AttentionGate / CKA channel fusion ----
-# Full 2^3 factorial, CBA-side switches only.  Fixed for every variant:
-#   cba_last_n=8                  (n_last_cba = 8)
-#   final fusion x + cnn_final    (no CKA, no gate)
-#   use_attention_gate=True       (master switch)
-#   attention_gate_channels=768   (C for vit_b)
+# ---- DSR-SAM2 ablation study: CNN / CBA / AttentionGate / CKA fusion / L_CKA
+# Unique cases only (duplicate combinations pruned).  Full/on CBA uses
+# cba_last_n=8; CBA-off and no-CNN cases use cba_last_n=0.
+# Fixed for every variant:
+#   cnn_pretrained=True
+#   attention_gate_channels=768
 #   cka_loss_weight=0.1
-# CKA and all gate parameters are always differentiable (no cka_grad flag).
+# CKA and gate parameters are always differentiable.
+# Fusion behavior:
+#   gate=True : f_vit + ((1-C_weight)*f_cnn + f_gated_cnn) / 2
+#   gate=False: f_vit + (1-C_weight)*f_cnn
+#   cka_fusion=False: f_vit + f_cnn (gate bypassed)
 # All variants share weight_name_tag='dsr_sam2_cka_ablation' to save disk;
 # result_name_tag stays distinct.
-# Note: cka_fusion=False bypasses the CBA gate, so the gate on/off variants
-# with cka_fusion=False are behaviorally identical (kept for completeness).
 DSR_SAM2_ABLATIONS = (
-    ('full', True, True, True),
-    ('no_lcka', False, True, True),
-    ('no_gate', True, False, True),
-    ('no_cka_channel_fusion', True, True, False),
-    ('no_lcka_no_gate', False, False, True),
-    ('no_lcka_no_cka_channel_fusion', False, True, False),
-    ('no_gate_no_cka_channel_fusion', True, False, False),
-    ('no_lcka_no_gate_no_cka_channel_fusion', False, False, False),
+    # tag, cnn_branch, cba_last_n, gate, cka_fusion, lcka
+    ('no_cnn', False, 0, False, False, False),
+    ('no_cba', True, 0, False, False, False),
+    ('full', True, 8, True, True, True),
+    ('no_lcka', True, 8, True, True, False),
+    ('no_gate', True, 8, False, True, True),
+    ('no_lcka_no_gate', True, 8, False, True, False),
+    ('no_cka_channel_fusion', True, 8, False, False, True),
+    ('no_lcka_no_cka_channel_fusion', True, 8, False, False, False),
 )
 DSR_SAM2_ABLATION_FIXED = {
-    'cnn_branch': True,
-    'cba_last_n': 8,
-    'use_attention_gate': True,
+    'cnn_pretrained': True,
     'attention_gate_channels': 768,
     'cka_loss_weight': 0.1,
     'weight_name_tag': 'dsr_sam2_cka_ablation',
@@ -167,14 +168,17 @@ METHOD_SPECS = [
     # ('sammed2d',         'DG.sammed2d.main',         {}),
     # ('ultrasam',         'DG.ultrasam.main',         {}),
 ] + [
-    (f'dsr_sam2_cka_ab_{tag}', 'DG.dsr_sam2.main', {
+    (f'dsr_sam2_ab_{tag}', 'DG.dsr_sam2.main', {
         **DSR_SAM2_ABLATION_FIXED,
+        'cnn_branch': cnn_branch,
+        'cba_last_n': cba_last_n,
+        'use_attention_gate': gate,
         'use_attention_gate_cba': gate,
-        'cka_fusion': fusion,
+        'cka_fusion': cka_fusion,
         'compute_cka_loss': lcka,
-        'result_name_tag': f'dsr_sam2_cka_ab_{tag}',
+        'result_name_tag': f'dsr_sam2_ab_{tag}',
     })
-    for tag, lcka, gate, fusion in DSR_SAM2_ABLATIONS
+    for tag, cnn_branch, cba_last_n, gate, cka_fusion, lcka in DSR_SAM2_ABLATIONS
 ]
 
 LOOKUP = {name: (module, overrides)

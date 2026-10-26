@@ -284,7 +284,7 @@ class SpatialAttention(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        max_out, _ = torch.max(x, dim=1, keepdim=True)
+        max_out = torch.amax(x, dim=1, keepdim=True)
         avg_out = torch.mean(x, dim=1, keepdim=True)
         out = torch.cat([max_out, avg_out], dim=1)
         out = self.sigmoid(self.conv(out))
