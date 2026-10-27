@@ -41,7 +41,8 @@ from DG.dsr_sam2.model import build_dsr_sam2
 from DG.dsr_sam2.train2 import train_dsr_sam2, OVERWRITE_DIR, shared_best
 from DG.dsr_sam2.test import test_dsr_sam2_on_target
 
-set_seed()
+ENV_SEED = int(os.environ.get('SEED', 42))
+set_seed(ENV_SEED)
 
 ALL_DATASETS = ['OTU', 'OVATUS', 'USOVA']
 SOURCE_RUNS = [
@@ -63,7 +64,7 @@ def get_base_config():
         'pin_memory': True,
         'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-        'seed': 42,              # RNG seed (reset per case for reproducibility)
+        'seed': ENV_SEED,        # RNG seed from .env (default 42), reset per case
 
         'n_epochs': 100,
         'base_lr': 0.0005,
@@ -135,7 +136,7 @@ def run_one_case(case_idx, flags, source, targets, base_config, runner):
     })
     # Phase 2 (reproducibility): reseed per case so each case is independent
     # of the RNG consumed by previously run cases.
-    set_seed(cfg.get('seed', 42))
+    set_seed(cfg.get('seed', ENV_SEED))
     tag = case_tag(*flags)
     model_type = cfg['model_type']
     best_path = shared_best(model_type, OVERWRITE_NAME)

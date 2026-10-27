@@ -228,213 +228,95 @@ UltraSAM & 94.39 & 89.50 & \textbf{98.46} & 90.83 & 9.62 \\
 \end{longtable}
 }
 
-\section{Ablation Study of DSR-SAM2}
+
+\section{Ablation Study}
 \label{sec:ablation}
 
-{\small
-\begin{longtable}{ccclrrrrr}
-\caption{DSR-SAM2 ablation with source domain OTU. Best value per metric per target is \textbf{bold}.}
-\label{tab:ablation_otu}\\
+{\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{longtable}{lccccc rrrrr}
+\caption{Ablation study of DSR-SAM2 with CBA $n=8$ and gate width $C=768$. Values are mean $\pm$ sample std over seeds 42, 0, 100. $\checkmark$/$\times$ denote enabled/disabled switches; the gate is inactive when CKA fusion is disabled. Best mean per metric per source$\rightarrow$target group is \textbf{bold}.}
+\label{tab:ablation_dsr_sam2}\\
 \toprule
-CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+& \multicolumn{5}{c}{Configuration} & \multicolumn{5}{c}{Metrics} \\
+\cmidrule(lr){2-6}\cmidrule(lr){7-11}
+Variant & CNN & CBA & Gate & CKA & $L_{\mathrm{CKA}}$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
 \midrule
 \endfirsthead
 \toprule
-CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+Variant & CNN & CBA & Gate & CKA & $L_{\mathrm{CKA}}$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
 \midrule
 \endhead
 \endfoot
 \bottomrule
 \endlastfoot
-\multicolumn{9}{l}{\textit{Target: OVATUS}} \\
+\multicolumn{11}{l}{\textit{Source: OTU $\rightarrow$ Target: OVATUS}} \\
 \midrule
-$\times$ & $\times$ & $\times$ & -- & 94.91 & 90.42 & \textbf{97.31} & 92.79 & \textbf{9.51} \\
-\checkmark & $\times$ & $\times$ & -- & 94.73 & 90.12 & 96.48 & 93.24 & 9.86 \\
-\checkmark & \checkmark & $\times$ & Sum & 94.81 & 90.23 & 97.12 & 92.79 & 10.20 \\
-\checkmark & \checkmark & \checkmark & Blend & \textbf{94.92} & \textbf{90.45} & 96.04 & \textbf{94.03} & 10.28 \\
-\checkmark & \checkmark & \checkmark & Add (full) & 94.86 & 90.34 & 96.90 & 93.09 & 9.80 \\
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 95.05 $\pm$ 0.11 & 90.66 $\pm$ 0.20 & 96.55 $\pm$ 0.03 & 93.74 $\pm$ 0.20 & 9.56 $\pm$ 0.22 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 95.12 $\pm$ 0.11 & 90.79 $\pm$ 0.20 & 96.12 $\pm$ 0.59 & \textbf{94.30 $\pm$ 0.57} & 9.62 $\pm$ 0.08 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 94.89 $\pm$ 0.19 & 90.38 $\pm$ 0.34 & 96.64 $\pm$ 0.45 & 93.36 $\pm$ 0.65 & 10.09 $\pm$ 0.74 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 94.90 $\pm$ 0.21 & 90.40 $\pm$ 0.37 & 95.91 $\pm$ 0.50 & 94.11 $\pm$ 0.83 & 10.15 $\pm$ 0.25 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 94.82 $\pm$ 0.24 & 90.26 $\pm$ 0.44 & 97.01 $\pm$ 0.26 & 92.90 $\pm$ 0.58 & 9.61 $\pm$ 0.35 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & \textbf{95.17 $\pm$ 0.09} & \textbf{90.87 $\pm$ 0.16} & 96.26 $\pm$ 0.56 & 94.26 $\pm$ 0.60 & \textbf{9.50 $\pm$ 0.43} \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 94.68 $\pm$ 0.17 & 90.01 $\pm$ 0.28 & 96.98 $\pm$ 0.29 & 92.66 $\pm$ 0.11 & 10.43 $\pm$ 0.81 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & 94.65 $\pm$ 0.23 & 89.97 $\pm$ 0.39 & \textbf{97.21 $\pm$ 0.25} & 92.42 $\pm$ 0.42 & 10.07 $\pm$ 0.50 \\
 \addlinespace[4pt]
-\multicolumn{9}{l}{\textit{Target: USOVA}} \\
+\multicolumn{11}{l}{\textit{Source: OTU $\rightarrow$ Target: USOVA}} \\
 \midrule
-$\times$ & $\times$ & $\times$ & -- & 83.85 & 73.06 & 87.30 & 82.76 & 31.87 \\
-\checkmark & $\times$ & $\times$ & -- & 82.46 & 71.49 & 87.39 & 80.14 & 30.79 \\
-\checkmark & \checkmark & $\times$ & Sum & \textbf{84.52} & \textbf{74.41} & \textbf{88.00} & 83.19 & 29.33 \\
-\checkmark & \checkmark & \checkmark & Blend & 84.34 & 73.98 & 86.10 & \textbf{84.20} & \textbf{28.47} \\
-\checkmark & \checkmark & \checkmark & Add (full) & 84.06 & 73.66 & 87.10 & 83.01 & 28.48 \\
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 84.58 $\pm$ 0.26 & 74.46 $\pm$ 0.44 & 85.53 $\pm$ 1.03 & 85.27 $\pm$ 1.87 & \textbf{28.60 $\pm$ 1.26} \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 83.94 $\pm$ 0.55 & 73.45 $\pm$ 0.95 & 82.99 $\pm$ 4.24 & \textbf{87.07 $\pm$ 4.82} & 31.40 $\pm$ 2.34 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 83.39 $\pm$ 1.64 & 72.71 $\pm$ 2.33 & 85.50 $\pm$ 1.46 & 83.77 $\pm$ 3.25 & 32.67 $\pm$ 2.14 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 83.32 $\pm$ 1.33 & 72.55 $\pm$ 1.93 & 82.77 $\pm$ 1.48 & 85.87 $\pm$ 3.56 & 31.61 $\pm$ 2.04 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & \textbf{84.69 $\pm$ 0.42} & \textbf{74.65 $\pm$ 0.55} & 84.11 $\pm$ 1.34 & 86.91 $\pm$ 1.21 & 29.17 $\pm$ 1.22 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 83.81 $\pm$ 0.71 & 73.30 $\pm$ 1.05 & 83.63 $\pm$ 2.54 & 85.91 $\pm$ 3.36 & 31.76 $\pm$ 1.58 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 83.44 $\pm$ 0.46 & 72.75 $\pm$ 0.65 & 85.10 $\pm$ 0.59 & 83.70 $\pm$ 0.45 & 32.17 $\pm$ 2.55 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & 83.85 $\pm$ 0.68 & 73.28 $\pm$ 1.11 & \textbf{85.94 $\pm$ 1.18} & 83.76 $\pm$ 1.45 & 30.11 $\pm$ 2.88 \\
+\addlinespace[4pt]
+\multicolumn{11}{l}{\textit{Source: OVATUS $\rightarrow$ Target: OTU}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 90.68 $\pm$ 0.34 & 84.04 $\pm$ 0.44 & 89.88 $\pm$ 0.82 & 92.42 $\pm$ 0.30 & 12.93 $\pm$ 1.03 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 89.60 $\pm$ 1.51 & 82.87 $\pm$ 1.63 & 88.95 $\pm$ 2.19 & 91.83 $\pm$ 0.75 & 14.48 $\pm$ 6.56 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 90.30 $\pm$ 0.85 & 83.56 $\pm$ 1.11 & 89.69 $\pm$ 1.33 & 92.05 $\pm$ 1.72 & 13.45 $\pm$ 1.76 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 90.35 $\pm$ 0.68 & 83.71 $\pm$ 0.79 & 89.96 $\pm$ 1.35 & 91.96 $\pm$ 0.62 & 13.20 $\pm$ 2.23 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 90.62 $\pm$ 0.15 & 83.90 $\pm$ 0.28 & 90.52 $\pm$ 1.18 & 91.79 $\pm$ 1.51 & 11.99 $\pm$ 0.68 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 90.42 $\pm$ 0.15 & 83.77 $\pm$ 0.15 & \textbf{90.69 $\pm$ 1.25} & 91.26 $\pm$ 1.20 & 13.37 $\pm$ 3.63 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{91.12 $\pm$ 0.36} & 84.55 $\pm$ 0.48 & 89.57 $\pm$ 1.47 & \textbf{93.55 $\pm$ 2.16} & 11.57 $\pm$ 0.72 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & 91.06 $\pm$ 0.58 & \textbf{84.56 $\pm$ 0.73} & 89.87 $\pm$ 1.11 & 93.10 $\pm$ 1.12 & \textbf{11.45 $\pm$ 1.00} \\
+\addlinespace[4pt]
+\multicolumn{11}{l}{\textit{Source: OVATUS $\rightarrow$ Target: USOVA}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 81.87 $\pm$ 0.93 & 70.86 $\pm$ 1.36 & 85.07 $\pm$ 1.00 & 80.42 $\pm$ 2.25 & 35.90 $\pm$ 1.39 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 80.72 $\pm$ 1.89 & 69.32 $\pm$ 2.58 & 85.70 $\pm$ 1.33 & 77.82 $\pm$ 4.14 & 35.17 $\pm$ 2.74 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 79.76 $\pm$ 2.79 & 67.91 $\pm$ 3.53 & 86.45 $\pm$ 1.34 & 75.75 $\pm$ 5.51 & 37.35 $\pm$ 2.57 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 81.68 $\pm$ 1.80 & 70.57 $\pm$ 2.46 & 84.14 $\pm$ 1.02 & 80.78 $\pm$ 4.51 & 33.57 $\pm$ 0.30 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 79.17 $\pm$ 5.09 & 67.27 $\pm$ 6.65 & \textbf{86.59 $\pm$ 2.06} & 74.92 $\pm$ 9.28 & 39.02 $\pm$ 8.37 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 79.47 $\pm$ 1.87 & 67.66 $\pm$ 2.46 & 86.20 $\pm$ 2.78 & 75.61 $\pm$ 5.00 & 37.31 $\pm$ 3.59 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 81.47 $\pm$ 1.54 & 70.22 $\pm$ 1.94 & 84.79 $\pm$ 3.38 & 80.13 $\pm$ 5.40 & 35.50 $\pm$ 0.31 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{83.41 $\pm$ 1.28} & \textbf{73.13 $\pm$ 1.88} & 85.87 $\pm$ 0.71 & \textbf{82.30 $\pm$ 1.60} & \textbf{31.76 $\pm$ 6.21} \\
+\addlinespace[4pt]
+\multicolumn{11}{l}{\textit{Source: USOVA $\rightarrow$ Target: OTU}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 84.40 $\pm$ 1.44 & 73.97 $\pm$ 1.94 & 85.68 $\pm$ 2.25 & 84.45 $\pm$ 0.20 & 17.07 $\pm$ 0.88 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 83.28 $\pm$ 1.73 & 72.62 $\pm$ 2.04 & 84.51 $\pm$ 0.92 & 83.94 $\pm$ 2.81 & 17.78 $\pm$ 1.38 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 80.77 $\pm$ 2.21 & 70.01 $\pm$ 1.80 & 82.45 $\pm$ 3.41 & 81.57 $\pm$ 3.68 & 24.07 $\pm$ 7.86 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 82.58 $\pm$ 1.46 & 71.60 $\pm$ 1.96 & 85.43 $\pm$ 0.68 & 81.63 $\pm$ 3.37 & 19.99 $\pm$ 2.25 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 82.28 $\pm$ 3.71 & 71.46 $\pm$ 4.69 & 85.02 $\pm$ 0.71 & 81.68 $\pm$ 6.31 & 18.90 $\pm$ 2.86 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 82.54 $\pm$ 2.17 & 71.69 $\pm$ 2.60 & 82.34 $\pm$ 1.67 & 84.93 $\pm$ 5.17 & 20.82 $\pm$ 2.64 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 84.62 $\pm$ 0.33 & 74.46 $\pm$ 0.49 & \textbf{86.20 $\pm$ 1.40} & 84.55 $\pm$ 1.72 & 16.71 $\pm$ 1.07 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{85.79 $\pm$ 0.99} & \textbf{75.90 $\pm$ 1.40} & 82.38 $\pm$ 1.70 & \textbf{90.74 $\pm$ 0.25} & \textbf{15.71 $\pm$ 1.05} \\
+\addlinespace[4pt]
+\multicolumn{11}{l}{\textit{Source: USOVA $\rightarrow$ Target: OVATUS}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 89.76 $\pm$ 0.52 & 81.63 $\pm$ 0.83 & 91.50 $\pm$ 1.62 & 88.59 $\pm$ 2.22 & 17.02 $\pm$ 1.44 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 88.32 $\pm$ 1.11 & 79.34 $\pm$ 1.73 & 90.83 $\pm$ 4.16 & 86.88 $\pm$ 6.12 & 18.57 $\pm$ 1.39 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 89.72 $\pm$ 0.75 & 81.59 $\pm$ 1.25 & 90.46 $\pm$ 0.50 & 89.44 $\pm$ 1.20 & 17.59 $\pm$ 0.41 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 88.04 $\pm$ 0.82 & 78.95 $\pm$ 1.20 & 91.20 $\pm$ 0.18 & 85.66 $\pm$ 1.61 & 20.49 $\pm$ 1.13 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 88.11 $\pm$ 3.51 & 79.26 $\pm$ 5.20 & 91.17 $\pm$ 1.23 & 86.11 $\pm$ 7.27 & 19.62 $\pm$ 4.98 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 88.85 $\pm$ 0.78 & 80.21 $\pm$ 1.17 & 89.18 $\pm$ 1.69 & 89.09 $\pm$ 2.68 & 18.15 $\pm$ 1.09 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 89.63 $\pm$ 0.98 & 81.45 $\pm$ 1.55 & \textbf{93.19 $\pm$ 0.99} & 86.83 $\pm$ 2.65 & 16.51 $\pm$ 1.21 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{90.78 $\pm$ 0.27} & \textbf{83.28 $\pm$ 0.44} & 89.53 $\pm$ 1.00 & \textbf{92.50 $\pm$ 0.95} & \textbf{14.19 $\pm$ 0.25} \\
+\addlinespace[4pt]
 \end{longtable}
 }
 
-{\small
-\begin{longtable}{ccclrrrrr}
-\caption{DSR-SAM2 ablation with source domain OVATUS. Best value per metric per target is \textbf{bold}.}
-\label{tab:ablation_ovatus}\\
-\toprule
-CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endfirsthead
-\toprule
-CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endhead
-\endfoot
-\bottomrule
-\endlastfoot
-\multicolumn{9}{l}{\textit{Target: OTU}} \\
-\midrule
-$\times$ & $\times$ & $\times$ & -- & 90.94 & 84.44 & 90.82 & 91.84 & \textbf{10.86} \\
-\checkmark & $\times$ & $\times$ & -- & 91.13 & 84.70 & \textbf{91.10} & 91.92 & 12.25 \\
-\checkmark & \checkmark & $\times$ & Sum & 89.75 & 83.30 & 90.61 & 90.56 & 12.07 \\
-\checkmark & \checkmark & \checkmark & Blend & 90.75 & 84.10 & 89.69 & \textbf{92.62} & 14.38 \\
-\checkmark & \checkmark & \checkmark & Add (full) & \textbf{91.29} & \textbf{84.84} & 90.73 & 92.59 & 11.38 \\
-\addlinespace[4pt]
-\multicolumn{9}{l}{\textit{Target: USOVA}} \\
-\midrule
-$\times$ & $\times$ & $\times$ & -- & \textbf{83.78} & \textbf{73.87} & 86.40 & \textbf{82.16} & \textbf{28.54} \\
-\checkmark & $\times$ & $\times$ & -- & 80.88 & 69.21 & \textbf{87.81} & 76.19 & 35.86 \\
-\checkmark & \checkmark & $\times$ & Sum & 82.32 & 71.31 & 84.31 & 81.75 & 38.48 \\
-\checkmark & \checkmark & \checkmark & Blend & 81.42 & 69.95 & 83.69 & 80.84 & 38.60 \\
-\checkmark & \checkmark & \checkmark & Add (full) & 82.09 & 70.92 & 84.13 & 81.23 & 37.70 \\
-\end{longtable}
-}
-
-{\small
-\begin{longtable}{ccclrrrrr}
-\caption{DSR-SAM2 ablation with source domain USOVA. Best value per metric per target is \textbf{bold}.}
-\label{tab:ablation_usova}\\
-\toprule
-CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endfirsthead
-\toprule
-CNN branch & CBA & $G_{cc}$ & Fusion & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endhead
-\endfoot
-\bottomrule
-\endlastfoot
-\multicolumn{9}{l}{\textit{Target: OTU}} \\
-\midrule
-$\times$ & $\times$ & $\times$ & -- & 84.79 & 74.48 & 80.69 & \textbf{90.49} & 16.77 \\
-\checkmark & $\times$ & $\times$ & -- & 84.33 & 73.92 & 84.76 & 85.17 & 16.95 \\
-\checkmark & \checkmark & $\times$ & Sum & 84.64 & 74.33 & \textbf{87.91} & 82.97 & 15.87 \\
-\checkmark & \checkmark & \checkmark & Blend & 84.64 & 74.19 & 81.97 & 89.14 & 18.92 \\
-\checkmark & \checkmark & \checkmark & Add (full) & \textbf{86.42} & \textbf{76.97} & 86.61 & 87.30 & \textbf{14.18} \\
-\addlinespace[4pt]
-\multicolumn{9}{l}{\textit{Target: OVATUS}} \\
-\midrule
-$\times$ & $\times$ & $\times$ & -- & 90.57 & 82.91 & 88.45 & \textbf{93.24} & 14.43 \\
-\checkmark & $\times$ & $\times$ & -- & 89.27 & 80.81 & 90.22 & 88.77 & 17.37 \\
-\checkmark & \checkmark & $\times$ & Sum & 89.88 & 81.89 & \textbf{91.55} & 88.98 & 16.17 \\
-\checkmark & \checkmark & \checkmark & Blend & 90.11 & 82.16 & 88.37 & 92.38 & 16.32 \\
-\checkmark & \checkmark & \checkmark & Add (full) & \textbf{90.82} & \textbf{83.39} & 91.03 & 91.12 & \textbf{14.26} \\
-\end{longtable}
-}
-
-\section{Hyperparameter Analysis}
-\label{sec:hyperparameter}
-
-{\small
-\begin{longtable}{rrrrrr}
-\caption{Hyperparameter analysis on the number of CBA-enabled ViT blocks $n$ with source domain OTU. Best value per metric per target is \textbf{bold}.}
-\label{tab:hparam_otu}\\
-\toprule
-$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endfirsthead
-\toprule
-$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endhead
-\endfoot
-\bottomrule
-\endlastfoot
-\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
-\midrule
-2 & 94.01 & 88.86 & \textbf{98.07} & 90.47 & 10.51 \\
-4 & 94.82 & 90.27 & 97.53 & 92.40 & \textbf{9.32} \\
-6 & 94.25 & 89.27 & 97.59 & 91.34 & 10.82 \\
-8 & \textbf{95.00} & \textbf{90.56} & 97.06 & \textbf{93.18} & 9.73 \\
-10 & 94.82 & 90.27 & 97.10 & 92.82 & 9.69 \\
-12 & 94.45 & 89.61 & 96.27 & 92.89 & 10.69 \\
-\addlinespace[4pt]
-\multicolumn{6}{l}{\textit{Target: USOVA}} \\
-\midrule
-2 & 84.85 & 74.84 & \textbf{86.94} & 83.93 & 27.41 \\
-4 & 84.73 & 74.81 & 86.92 & 84.09 & \textbf{26.74} \\
-6 & 83.64 & 72.91 & 86.70 & 82.58 & 32.11 \\
-8 & 83.34 & 72.63 & 84.79 & 83.72 & 32.01 \\
-10 & 83.70 & 72.92 & 85.06 & 84.16 & 31.95 \\
-12 & \textbf{84.89} & \textbf{75.00} & 85.75 & \textbf{85.07} & 27.96 \\
-\end{longtable}
-}
-
-{\small
-\begin{longtable}{rrrrrr}
-\caption{Hyperparameter analysis on the number of CBA-enabled ViT blocks $n$ with source domain OVATUS. Best value per metric per target is \textbf{bold}.}
-\label{tab:hparam_ovatus}\\
-\toprule
-$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endfirsthead
-\toprule
-$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endhead
-\endfoot
-\bottomrule
-\endlastfoot
-\multicolumn{6}{l}{\textit{Target: OTU}} \\
-\midrule
-2 & 91.34 & 84.81 & 89.53 & 93.86 & \textbf{9.66} \\
-4 & \textbf{91.41} & \textbf{84.87} & 90.29 & 93.28 & 11.20 \\
-6 & 90.63 & 84.01 & 90.49 & 91.99 & 10.84 \\
-8 & 90.58 & 84.02 & 90.59 & 91.56 & 11.80 \\
-10 & 90.94 & 84.15 & 87.80 & \textbf{95.11} & 11.10 \\
-12 & 90.89 & 84.29 & \textbf{91.14} & 91.49 & 11.24 \\
-\addlinespace[4pt]
-\multicolumn{6}{l}{\textit{Target: USOVA}} \\
-\midrule
-2 & 78.69 & 66.22 & \textbf{88.10} & 73.51 & 38.12 \\
-4 & 81.36 & 69.82 & 86.83 & 78.06 & 37.23 \\
-6 & 80.13 & 68.65 & 87.20 & 75.98 & 35.77 \\
-8 & 80.29 & 68.85 & 84.07 & 78.62 & 35.24 \\
-10 & \textbf{82.52} & \textbf{71.45} & 85.07 & \textbf{82.46} & \textbf{34.87} \\
-12 & 80.70 & 69.30 & 83.29 & 79.60 & 34.97 \\
-\end{longtable}
-}
-
-{\small
-\begin{longtable}{rrrrrr}
-\caption{Hyperparameter analysis on the number of CBA-enabled ViT blocks $n$ with source domain USOVA. Best value per metric per target is \textbf{bold}.}
-\label{tab:hparam_usova}\\
-\toprule
-$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endfirsthead
-\toprule
-$n$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
-\midrule
-\endhead
-\endfoot
-\bottomrule
-\endlastfoot
-\multicolumn{6}{l}{\textit{Target: OTU}} \\
-\midrule
-2 & 84.99 & 74.86 & 84.11 & 87.37 & 16.08 \\
-4 & 85.45 & 75.30 & 83.08 & \textbf{89.06} & 16.01 \\
-6 & 85.52 & 75.66 & 83.75 & 88.88 & 16.63 \\
-8 & \textbf{85.66} & \textbf{75.91} & 85.12 & 87.70 & \textbf{15.61} \\
-10 & 80.93 & 69.70 & \textbf{86.45} & 78.27 & 19.23 \\
-12 & 83.83 & 73.17 & 85.22 & 83.73 & 17.91 \\
-\addlinespace[4pt]
-\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
-\midrule
-2 & 89.48 & 81.28 & 91.38 & 88.43 & 17.06 \\
-4 & 89.99 & 81.97 & 89.77 & 90.61 & 16.23 \\
-6 & 90.32 & 82.54 & \textbf{91.85} & 89.29 & 15.38 \\
-8 & \textbf{90.89} & \textbf{83.47} & 88.88 & \textbf{93.32} & \textbf{14.20} \\
-10 & 88.13 & 79.07 & 91.32 & 85.61 & 18.48 \\
-12 & 89.49 & 81.17 & 90.45 & 88.94 & 16.47 \\
-\end{longtable}
-}
 \end{document}

@@ -30,7 +30,8 @@ from DG.dsr_sam2.model import build_dsr_sam2
 from DG.dsr_sam2.train import train_dsr_sam2
 from DG.dsr_sam2.test import test_dsr_sam2_on_target
 
-set_seed()
+ENV_SEED = int(os.environ.get('SEED', 42))
+set_seed(ENV_SEED)
 
 
 
@@ -38,7 +39,7 @@ def run_single_source(source, targets, cfg, runner):
     cfg = dict(cfg)
     # Phase 2 (reproducibility): reseed per source so a source's run no longer
     # depends on RNG consumed by previously run sources/cases.
-    set_seed(cfg.get('seed', 42))
+    set_seed(cfg.get('seed', ENV_SEED))
     cfg['model_dir'] = 'weights/dsr_sam2/'
     # `weight_name_tag` lets variants save to distinct weights; ablations pass
     # the same tag so their checkpoints overwrite one set of files.
@@ -125,7 +126,7 @@ CONFIG = {
     'pin_memory': True,
     'device': get_device(),  # CUDA_DEVICE from y_DG/.env
 
-    'seed': 42,                 # RNG seed (reset per source for reproducibility)
+    'seed': ENV_SEED,           # RNG seed from .env (default 42), reset per source
 
     'n_epochs': 100,
     'base_lr': 0.0005,          # paper Sec. 3 (initial learning rate)

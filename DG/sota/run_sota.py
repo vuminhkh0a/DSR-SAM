@@ -25,7 +25,7 @@ Usage (from ``y_DG/`` with khoa-env active):
     # train on a single source (tests both held-out targets):
     python3 -m DG.sota.run_sota --datasets OTU
     # DSR-SAM2 CKA ablation, then SR-SAM:
-    python3 -m DG.sota.run_sota --methods dsr_sam2_ab_full,sr_sam
+    python3 -m DG.sota.run_sota --methods dsr_sam2_ab_full_seed42,sr_sam
 
 ``run.sh`` launches it detached, with every line streamed to ``log.txt``:
     nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
@@ -127,7 +127,8 @@ def reset_log(tag='sota'):
 #   gate=False: f_vit + (1-C_weight)*f_cnn
 #   cka_fusion=False: f_vit + f_cnn (gate bypassed)
 # All variants share weight_name_tag='dsr_sam2_cka_ablation' to save disk;
-# result_name_tag stays distinct.
+# each seed keeps its own result_name_tag.  Every variant runs with seeds
+# 42 (default), 0 and 100.
 DSR_SAM2_ABLATIONS = (
     # tag, cnn_branch, cba_last_n, gate, cka_fusion, lcka
     ('no_cnn', False, 0, False, False, False),
@@ -139,6 +140,7 @@ DSR_SAM2_ABLATIONS = (
     ('no_cka_channel_fusion', True, 8, False, False, True),
     ('no_lcka_no_cka_channel_fusion', True, 8, False, False, False),
 )
+DSR_SAM2_ABLATION_SEEDS = (0, 100)
 DSR_SAM2_ABLATION_FIXED = {
     'cnn_pretrained': True,
     'attention_gate_channels': 768,
@@ -168,17 +170,19 @@ METHOD_SPECS = [
     # ('sammed2d',         'DG.sammed2d.main',         {}),
     # ('ultrasam',         'DG.ultrasam.main',         {}),
 ] + [
-    (f'dsr_sam2_ab_{tag}', 'DG.dsr_sam2.main', {
+    (f'dsr_sam2_ab_{tag}_seed{seed}', 'DG.dsr_sam2.main', {
         **DSR_SAM2_ABLATION_FIXED,
+        'seed': seed,
         'cnn_branch': cnn_branch,
         'cba_last_n': cba_last_n,
         'use_attention_gate': gate,
         'use_attention_gate_cba': gate,
         'cka_fusion': cka_fusion,
         'compute_cka_loss': lcka,
-        'result_name_tag': f'dsr_sam2_ab_{tag}',
+        'result_name_tag': f'dsr_sam2_ab_{tag}_seed{seed}',
     })
     for tag, cnn_branch, cba_last_n, gate, cka_fusion, lcka in DSR_SAM2_ABLATIONS
+    for seed in DSR_SAM2_ABLATION_SEEDS
 ]
 
 LOOKUP = {name: (module, overrides)
@@ -286,11 +290,11 @@ def run_method(name, datasets):
     cfg = dict(module.CONFIG)
     cfg.update(overrides)
 
-    set_seed(cfg.get('seed', 42))
+    set_seed(cfg.get('seed', int(os.environ.get('SEED', 42))))
     device = torch.device(cfg.get('device') or 'cpu')
     runner = SequentialDomainRunner(
         device=device,
-        generator=get_generator(cfg.get('seed', 42)),
+        generator=get_generator(cfg.get('seed', int(os.environ.get('SEED', 42)))),
         worker_init_fn=worker_init_fn,
     )
 
