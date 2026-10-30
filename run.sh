@@ -80,8 +80,11 @@ export PYTHONHASHSEED=42
 # ========== DG UltraSAM (official checkpoint, test-only) ==========
 # nohup python3 -m DG.ultrasam.main > "$LOG_FILE" 2>&1 &
 
+# ========== DG DSR-SAM L_tsd alpha -> d_delta study (run_sota, rank=8 fixed, 3 seeds, OVATUS+USOVA) ==========
+nohup python3 -u -m DG.sota.run_sota --methods dsr_sam_study > "$LOG_FILE" 2>&1 &
+
 # ========== DG SOTA (all methods consecutively, fresh log each run) ==========
-nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
+# nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
 
 echo "Tailing $LOG_FILE"
 tail -f "$LOG_FILE"

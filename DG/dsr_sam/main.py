@@ -11,11 +11,13 @@ held-out domains (leave-one-out benchmark, one source per run).
 """
 import os
 import sys
+import numpy as np
 import torch
 
 from utils.seed import set_seed
 from utils.env import get_device
 from utils.sequential_training import SequentialDomainRunner, cleanup_resources
+from utils.metrics import save_results
 from DG.dsr_sam.data import get_dsr_sam_loaders
 from DG.dsr_sam.model import build_dsr_sam
 from DG.dsr_sam.train import train_dsr_sam
@@ -24,15 +26,32 @@ from DG.dsr_sam.test import test_dsr_sam_on_target
 set_seed()
 
 
+def plain_result_name(model_type, result_tag, source, target, weight_tag):
+    """results.json name used when `cfg['plain_result_name']` is set.
+
+    Mirrors the study in DG/sota/run_sota.py so names stay readable, e.g.
+    ``vit_b_dsr_sam_rank8_ltsdOFF_deltaOFF_seed42_s_OTU_t_OVATUS_best``.
+    """
+    return f'{model_type}_{result_tag or "dsr_sam"}_s_{source}_t_{target}_{weight_tag}'
+
 
 def run_single_source(source, targets, cfg, runner):
     cfg = dict(cfg)
     # Phase 2 (reproducibility): reseed per source so a source's run no longer
     # depends on RNG consumed by previously run sources/cases.
     set_seed(cfg.get('seed', 42))
-    cfg['model_dir'] = 'weights/dsr_sam/'
-    # `run_name` lets variants (e.g. dsr_sam_noLtsd) save to distinct weights.
-    cfg['prefix'] = f'{cfg["model_type"]}_{cfg.get("run_name", "dsr_sam")}_s_{source}'
+    # `overwrite_name` (used by the run_sota rank/L_tsd/delta study) sends every
+    # variant and seed of one source to ONE shared checkpoint under
+    # weights/dsr_sam/analysis/, so only the newest weight is kept per source.
+    overwrite_name = cfg.get('overwrite_name')
+    if overwrite_name:
+        cfg['model_dir'] = cfg.get('overwrite_dir') or os.path.join(
+            'weights', 'dsr_sam', 'analysis')
+        cfg['prefix'] = f'{cfg["model_type"]}_{overwrite_name}_s_{source}'
+    else:
+        cfg['model_dir'] = 'weights/dsr_sam/'
+        # `run_name` lets variants (e.g. dsr_sam_noLtsd) save to distinct weights.
+        cfg['prefix'] = f'{cfg["model_type"]}_{cfg.get("run_name", "dsr_sam")}_s_{source}'
     cfg['source'] = source
 
     print(f'\n{"="*70}')
@@ -77,6 +96,11 @@ def run_single_source(source, targets, cfg, runner):
         best_path = os.path.join(cfg['model_dir'], f'{cfg["prefix"]}_best.pth')
         last_path = os.path.join(cfg['model_dir'], f'{cfg["prefix"]}_last.pth')
 
+        # Studies (run_sota) ask for the readable name scheme (no ``_sam_``
+        # infix) and persist results here; normal runs keep test.py's naming.
+        plain_name = cfg.get('plain_result_name', False)
+        result_tag = cfg.get('result_tag')
+
         def evaluate(weight_path, weight_tag):
             if not os.path.exists(weight_path):
                 print(f'\nNo {weight_tag} checkpoint found at {weight_path}')
@@ -90,14 +114,24 @@ def run_single_source(source, targets, cfg, runner):
                 print(f'Source: {source}')
                 print(f'Target: {target}')
                 print(f'Weight: {weight_tag}')
-                test_dsr_sam_on_target(
+                metrics = test_dsr_sam_on_target(
                     model, target, device,
                     image_size=cfg['image_size'], batch_size=cfg['batch_size'],
                     num_workers=cfg['num_workers'], pin_memory=cfg['pin_memory'],
                     source_name=source, model_type=cfg['model_type'],
-                    write_results=True, weight_tag=weight_tag,
-                    result_tag=cfg.get('result_tag'),
+                    write_results=not plain_name, weight_tag=weight_tag,
+                    result_tag=result_tag,
                 )
+                if plain_name:
+                    name = plain_result_name(cfg['model_type'], result_tag,
+                                             source, target, weight_tag)
+                    save_results(name, {
+                        'dice': float(np.round(metrics[0], 2)),
+                        'iou': float(np.round(metrics[1], 2)),
+                        'precision': float(np.round(metrics[2], 2)),
+                        'recall': float(np.round(metrics[3], 2)),
+                        'hd95': float(np.round(metrics[4], 2)),
+                    })
             print(f'{"="*70}')
 
         evaluate(best_path, 'best')
@@ -120,7 +154,7 @@ CONFIG = {
     'patience': 20,              # early stopping on val loss (0 = disabled)
 
     'num_classes': 1,
-    'rank': 64,                 # paper Sec. 3 (LoRA rank)
+    'rank': 8,                 # paper Sec. 3 (LoRA rank)
     'ema_mode': False,
     'ema_rate': 0.999,          # paper Sec. 2.3 (EMA rate alpha)
     'kd_weight': 1e-7,          # paper Sec. 3 (lambda, polyp) / repo --kd_weight
@@ -131,7 +165,7 @@ CONFIG = {
     'truncation_period': 4,     # paper Sec. 3 (every 4 epochs)
     'dash_warm': 300,           # repo run_CVC-ClinicDB.sh --Dash_warm 300
     'compute_l_tsd': True,      # whether to compute L_tsd loss
-    'alpha': 0.1,              # coefficient of the L_tsd log-squash term
+    'alpha': 0.01,              # coefficient of the L_tsd log-squash term
     'd_delta': False,           # L_tsd numerator: keep only change rates that
                                 # grew since the previous iteration (dDelta)
 

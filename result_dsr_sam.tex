@@ -1,0 +1,117 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\setlength{\LTcapwidth}{\textwidth}
+
+\begin{document}
+
+{\small
+\begin{longtable}{lccccc}
+\caption{DSR-SAM rank sweep with $L_{\mathrm{tsd}}$ and $\Delta$ disabled (source OTU; mean $\pm$ std over seeds 42, 0, 100).}
+\label{tab:dsr_sam_rank}\\
+\toprule
+Rank & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+Rank & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\midrule
+8 & 94.68 $\pm$ 0.25 & 90.02 $\pm$ 0.43 & 97.04 $\pm$ 0.18 & 92.64 $\pm$ 0.61 & 10.09 $\pm$ 0.69 \\
+16 & 94.43 $\pm$ 0.65 & 89.61 $\pm$ 1.11 & 96.49 $\pm$ 1.57 & 92.74 $\pm$ 2.46 & 10.53 $\pm$ 1.02 \\
+32 & \textbf{94.98 $\pm$ 0.23} & \textbf{90.55 $\pm$ 0.39} & 96.47 $\pm$ 0.58 & \textbf{93.72 $\pm$ 0.97} & \textbf{9.84 $\pm$ 0.45} \\
+64 & 94.65 $\pm$ 0.23 & 89.97 $\pm$ 0.39 & \textbf{97.21 $\pm$ 0.25} & 92.42 $\pm$ 0.42 & 10.07 $\pm$ 0.50 \\
+128 & 94.57 $\pm$ 0.07 & 89.85 $\pm$ 0.12 & 97.00 $\pm$ 0.10 & 92.49 $\pm$ 0.09 & 10.32 $\pm$ 0.41 \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: USOVA}} \\
+\midrule
+8 & \textbf{85.10 $\pm$ 0.84} & \textbf{75.28 $\pm$ 1.12} & \textbf{87.48 $\pm$ 3.39} & 84.47 $\pm$ 4.74 & \textbf{26.05 $\pm$ 1.19} \\
+16 & 84.19 $\pm$ 0.62 & 73.87 $\pm$ 0.80 & 85.12 $\pm$ 2.54 & 85.37 $\pm$ 3.70 & 29.36 $\pm$ 3.16 \\
+32 & 83.89 $\pm$ 1.53 & 73.50 $\pm$ 2.32 & 84.97 $\pm$ 2.97 & 84.74 $\pm$ 5.12 & 30.89 $\pm$ 3.08 \\
+64 & 83.85 $\pm$ 0.68 & 73.28 $\pm$ 1.11 & 85.94 $\pm$ 1.18 & 83.76 $\pm$ 1.45 & 30.11 $\pm$ 2.88 \\
+128 & 84.97 $\pm$ 0.55 & 75.25 $\pm$ 0.93 & 84.47 $\pm$ 1.11 & \textbf{87.15 $\pm$ 1.11} & 27.45 $\pm$ 1.03 \\
+\addlinespace[4pt]
+\end{longtable}
+}
+
+\vspace{1em}
+
+{\small
+\begin{longtable}{lccccc}
+\caption{DSR-SAM $L_{\mathrm{tsd}}$ coefficient $\alpha$ sweep at rank 8 with $\Delta$ disabled (source OTU; mean $\pm$ std over seeds 42, 0, 100).}
+\label{tab:dsr_sam_alpha}\\
+\toprule
+$\alpha$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+$\alpha$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\midrule
+$10^{-4}$ & 94.62 $\pm$ 0.53 & 89.92 $\pm$ 0.91 & 96.40 $\pm$ 1.12 & 93.15 $\pm$ 2.00 & 10.32 $\pm$ 0.81 \\
+$10^{-3}$ & 94.56 $\pm$ 0.37 & 89.82 $\pm$ 0.64 & \textbf{96.82 $\pm$ 0.74} & 92.64 $\pm$ 1.35 & 10.06 $\pm$ 0.55 \\
+$10^{-2}$ & 94.81 $\pm$ 0.33 & 90.26 $\pm$ 0.56 & 96.63 $\pm$ 0.52 & 93.28 $\pm$ 1.10 & 9.77 $\pm$ 0.71 \\
+$10^{-1}$ & \textbf{94.89 $\pm$ 0.14} & \textbf{90.39 $\pm$ 0.24} & 96.38 $\pm$ 0.39 & \textbf{93.66 $\pm$ 0.62} & \textbf{9.61 $\pm$ 0.35} \\
+$1$ & 94.78 $\pm$ 0.37 & 90.20 $\pm$ 0.64 & 96.23 $\pm$ 0.59 & 93.61 $\pm$ 1.24 & 9.90 $\pm$ 0.54 \\
+$2$ & 94.71 $\pm$ 0.14 & 90.06 $\pm$ 0.24 & 96.49 $\pm$ 1.01 & 93.22 $\pm$ 1.23 & 10.15 $\pm$ 0.28 \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: USOVA}} \\
+\midrule
+$10^{-4}$ & 85.00 $\pm$ 0.57 & 75.12 $\pm$ 0.80 & \textbf{86.43 $\pm$ 2.08} & 85.45 $\pm$ 2.80 & 26.95 $\pm$ 1.69 \\
+$10^{-3}$ & 84.58 $\pm$ 0.40 & 74.61 $\pm$ 0.61 & 85.59 $\pm$ 1.69 & 85.06 $\pm$ 2.58 & 27.41 $\pm$ 2.14 \\
+$10^{-2}$ & 85.34 $\pm$ 0.27 & 75.47 $\pm$ 0.38 & 85.87 $\pm$ 2.29 & 86.62 $\pm$ 2.65 & \textbf{26.05 $\pm$ 0.87} \\
+$10^{-1}$ & 85.06 $\pm$ 0.57 & 75.16 $\pm$ 0.86 & 84.65 $\pm$ 2.93 & 87.07 $\pm$ 4.34 & 27.61 $\pm$ 0.51 \\
+$1$ & \textbf{85.34 $\pm$ 0.23} & \textbf{75.67 $\pm$ 0.22} & 83.93 $\pm$ 0.80 & \textbf{88.60 $\pm$ 0.99} & 26.60 $\pm$ 1.39 \\
+$2$ & 85.15 $\pm$ 0.17 & 75.35 $\pm$ 0.21 & 85.09 $\pm$ 1.40 & 86.80 $\pm$ 1.60 & 26.81 $\pm$ 2.02 \\
+\addlinespace[4pt]
+\end{longtable}
+}
+
+\vspace{1em}
+
+{\small
+\begin{longtable}{lccccc}
+\caption{DSR-SAM effect of $\Delta$ at rank 8 and $\alpha=10^{-2}$ (source OTU; mean $\pm$ std over seeds 42, 0, 100).}
+\label{tab:dsr_sam_delta}\\
+\toprule
+$\Delta$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+$\Delta$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\midrule
+$\Delta$ off & \textbf{94.81 $\pm$ 0.33} & \textbf{90.26 $\pm$ 0.56} & \textbf{96.63 $\pm$ 0.52} & 93.28 $\pm$ 1.10 & 9.77 $\pm$ 0.71 \\
+$\Delta$ on & 94.80 $\pm$ 0.22 & 90.24 $\pm$ 0.38 & 96.48 $\pm$ 0.24 & \textbf{93.39 $\pm$ 0.64} & \textbf{9.71 $\pm$ 0.62} \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: USOVA}} \\
+\midrule
+$\Delta$ off & \textbf{85.34 $\pm$ 0.27} & \textbf{75.47 $\pm$ 0.38} & \textbf{85.87 $\pm$ 2.29} & 86.62 $\pm$ 2.65 & \textbf{26.05 $\pm$ 0.87} \\
+$\Delta$ on & 85.08 $\pm$ 0.59 & 75.12 $\pm$ 1.02 & 84.03 $\pm$ 1.15 & \textbf{87.84 $\pm$ 0.55} & 27.16 $\pm$ 2.34 \\
+\addlinespace[4pt]
+\end{longtable}
+}
+
+\end{document}
