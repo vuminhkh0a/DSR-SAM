@@ -3,8 +3,9 @@ MA-SAM data loading: single-source leave-one-out benchmark.
 
 The shared y_DG protocol trains on ONE source domain and tests on the
 remaining two (leave-one-out). Images/masks are read with utils.data_io
-(same as every other DG method), and bounding-box prompts come from the
-standard y_DG/box_coords.json.
+(same as every other DG method). Prompts come from box_coords.json
+(prompt_method='gt', default) or box_coords_yolov8_<size>.json
+(prompt_method='yolov8').
 
 The random augmentation is a faithful 2D port of the repo's
 datasets/dataset_bbox.py RandomGenerator (rot90/flip, random rotation,
@@ -13,8 +14,6 @@ translate, posterize, contrast, brightness, sharpness). Bounding boxes
 are transformed together with the rot/flip/rotate operations exactly like
 the repo (transform_bounding_box / rotate_bounding_box).
 """
-import json
-import os
 import random
 
 import cv2
@@ -28,35 +27,7 @@ from torch.utils.data import Dataset
 
 from utils.data import _make_loader, get_datasets
 from utils.data_io import read_image_mask
-
-BOX_COORDS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-                               'box_coords.json')
-
-
-def _load_box_map():
-    """Map image path -> first bounding box [x_min, y_min, x_max, y_max] (256-space)."""
-    with open(BOX_COORDS_PATH, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    box_map = {}
-    for entries in data.values():
-        for e in entries:
-            box = e['boxes'][0] if e['boxes'] else None
-            box_map[e['image']] = box
-    return box_map
-
-
-BOX_MAP = _load_box_map()
-
-
-def _get_boxes(name, images):
-    boxes = []
-    for img in images:
-        box = BOX_MAP.get(img)
-        if box is None:
-            box = [0, 0, 256, 256]
-        boxes.append(list(box))
-    return boxes
-
+from utils.prompts import boxes_for_images
 
 # ============================================================
 # Bounding-box transforms (repo datasets/dataset_bbox.py)
@@ -307,31 +278,36 @@ class MASAMDataset(Dataset):
         return image, mask, bbox
 
 
-def _collect_source(name, image_size):
+def _collect_source(name, image_size, prompt_method='gt', yolo_size='m'):
     """Returns (images, masks, boxes) for the train split of one source."""
     train_ds, _, _ = get_datasets(name=name, image_size=image_size, transform=None)
-    boxes = _get_boxes(name, train_ds.images)
+    boxes = boxes_for_images(train_ds.images, prompt_method=prompt_method,
+                             yolo_size=yolo_size, source=name, target=name,
+                             image_size=image_size)
     return train_ds.images, train_ds.masks, boxes
 
 
-def _collect_val(name, image_size):
+def _collect_val(name, image_size, prompt_method='gt', yolo_size='m'):
     _, valid_ds, _ = get_datasets(name=name, image_size=image_size, transform=None)
-    boxes = _get_boxes(name, valid_ds.images)
+    boxes = boxes_for_images(valid_ds.images, prompt_method=prompt_method,
+                             yolo_size=yolo_size, source=name, target=name,
+                             image_size=image_size)
     return valid_ds.images, valid_ds.masks, boxes
 
 
 def get_masam_loaders(source_names, image_size, batch_size, num_workers,
-                      pin_memory, augment=True):
+                      pin_memory, augment=True, prompt_method='gt',
+                      yolo_size='m'):
     """Combine the source domain(s) for training; validation uses their val splits."""
     train_imgs, train_masks, train_boxes = [], [], []
     val_imgs, val_masks, val_boxes = [], [], []
     for name in source_names:
-        imgs, masks, boxes = _collect_source(name, image_size)
+        imgs, masks, boxes = _collect_source(name, image_size, prompt_method, yolo_size)
         print(f'Dataset: {name} | Source train: {len(imgs)}')
         train_imgs += imgs
         train_masks += masks
         train_boxes += boxes
-        imgs, masks, boxes = _collect_val(name, image_size)
+        imgs, masks, boxes = _collect_val(name, image_size, prompt_method, yolo_size)
         print(f'Dataset: {name} | Source val: {len(imgs)}')
         val_imgs += imgs
         val_masks += masks
@@ -351,10 +327,14 @@ def get_masam_loaders(source_names, image_size, batch_size, num_workers,
 
 
 def get_masam_target_loader(target_name, image_size, batch_size, num_workers,
-                            pin_memory, split='test'):
+                            pin_memory, split='test', prompt_method='gt',
+                            yolo_size='m', source_name=None):
     """Target loader with box prompts (split='test' by default)."""
     _, _, test_ds = get_datasets(name=target_name, image_size=image_size, transform=None)
-    boxes = _get_boxes(target_name, test_ds.images)
+    boxes = boxes_for_images(test_ds.images, prompt_method=prompt_method,
+                             yolo_size=yolo_size,
+                             source=source_name if source_name is not None else target_name,
+                             target=target_name, image_size=image_size)
     dataset = MASAMDataset(test_ds.images, test_ds.masks, boxes,
                            image_size=image_size, augment=False)
     loader = _make_loader(dataset, batch_size=batch_size, shuffle=False,

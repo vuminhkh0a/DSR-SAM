@@ -63,6 +63,8 @@ def run_single_source(source, targets, cfg, runner):
                 source, image_size=cfg['image_size'],
                 batch_size=cfg['batch_size'], num_workers=cfg['num_workers'],
                 pin_memory=cfg['pin_memory'],
+                prompt_method=cfg['prompt_method'],
+                yolo_size=cfg['prompt_yolo_size'],
             )
             runner.register_loaders(train_loader)
             runner.register_loaders(val_loader)
@@ -92,6 +94,8 @@ def run_single_source(source, targets, cfg, runner):
                     image_size=cfg['image_size'], batch_size=cfg['batch_size'],
                     num_workers=cfg['num_workers'], pin_memory=cfg['pin_memory'],
                     source_name=source, model_type=cfg['model_type'],
+                    prompt_method=cfg['prompt_method'],
+                    yolo_size=cfg['prompt_yolo_size'],
                     write_results=True, weight_tag=weight_tag,
                 )
             print(f'{"="*70}')
@@ -124,6 +128,10 @@ CONFIG = {
     'truncation_period': 4,     # paper Sec. 3 (every 4 epochs)
     'dash_warm': 300,           # repo run_CVC-ClinicDB.sh --Dash_warm 300
 
+    # Prompt boxes: 'gt' -> box_coords.json (usual benchmark);
+    # 'yolov8' -> box_coords_yolov8_<prompt_yolo_size>.json
+    'prompt_method': os.environ.get('PROMPT_METHOD', 'gt'),
+    'prompt_yolo_size': os.environ.get('PROMPT_YOLO_SIZE', 'm'),      # m / l / x (used only when prompt_method='yolov8')
     'phase': 'train',
 
     'save_last_epoch': False,  # turned off: keep best checkpoint only

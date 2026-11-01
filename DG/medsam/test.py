@@ -19,10 +19,13 @@ from utils.metrics import metric_dice_iou_prec_rec_hd95, save_results
 def test_medsam_on_target(model, target_name, device, image_size, native_size,
                           batch_size, num_workers, pin_memory,
                           model_type='vit_b', write_results=True,
-                          weight_tag='testonly'):
+                          weight_tag='testonly', prompt_method='gt', yolo_size='m',
+                          source_name=None):
     model.eval()
     loader = get_medsam_target_loader(target_name, image_size, batch_size,
-                                      num_workers, pin_memory, split='test')
+                                      num_workers, pin_memory, split='test',
+                                      prompt_method=prompt_method, yolo_size=yolo_size,
+                                      source_name=source_name)
     scale = native_size / image_size
 
     running_dice = 0.0

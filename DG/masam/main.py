@@ -66,6 +66,8 @@ def run_single_source(source, targets, cfg, runner):
                 sources, image_size=cfg['image_size'],
                 batch_size=cfg['batch_size'], num_workers=cfg['num_workers'],
                 pin_memory=cfg['pin_memory'],
+                prompt_method=cfg['prompt_method'],
+                yolo_size=cfg['prompt_yolo_size'],
             )
             runner.register_loaders(train_loader)
             runner.register_loaders(val_loader)
@@ -96,6 +98,9 @@ def run_single_source(source, targets, cfg, runner):
                     num_workers=cfg['num_workers'], pin_memory=cfg['pin_memory'],
                     source_names=sources, write_results=cfg['write_results'],
                     model_type=cfg['model_type'], weight_tag=weight_tag,
+                    prompt_method=cfg['prompt_method'],
+                    yolo_size=cfg['prompt_yolo_size'],
+                    source_name=(sources[0] if len(sources) == 1 else None),
                 )
             print(f'{"="*70}')
 
@@ -126,6 +131,10 @@ CONFIG = {
     'use_amp': True,
     'save_last_epoch': False,    # keep the last-epoch snapshot besides best
     'write_results': True,       # False during smoke runs
+    # Prompt boxes: 'gt' -> box_coords.json; 'yolov8' ->
+    # box_coords_yolov8_<prompt_yolo_size>.json
+    'prompt_method': os.environ.get('PROMPT_METHOD', 'gt'),
+    'prompt_yolo_size': os.environ.get('PROMPT_YOLO_SIZE', 'm'),
     'phase': 'train',
 
     'model_type': 'vit_b',

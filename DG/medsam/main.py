@@ -62,6 +62,8 @@ def run_testonly(targets, cfg, runner):
                 batch_size=cfg['batch_size'],
                 num_workers=cfg['num_workers'], pin_memory=cfg['pin_memory'],
                 model_type=cfg['model_type'],
+                prompt_method=cfg['prompt_method'],
+                yolo_size=cfg['prompt_yolo_size'],
                 write_results=True, weight_tag='testonly',
             )
         print(f'{"="*70}')
@@ -78,6 +80,11 @@ CONFIG = {
 
     'test_checkpoint': 'weights/sam/medsam_vit_b.pth',
 
+    # Prompt boxes: 'gt' -> box_coords.json; 'yolov8' ->
+    # box_coords_yolov8_<prompt_yolo_size>.json (source_name=None ->
+    # the target's own YOLO section for test-only methods).
+    'prompt_method': os.environ.get('PROMPT_METHOD', 'gt'),
+    'prompt_yolo_size': os.environ.get('PROMPT_YOLO_SIZE', 'm'),
     'model_type': 'vit_b',
 }
 

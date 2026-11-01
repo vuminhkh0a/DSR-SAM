@@ -1,0 +1,4 @@
+source: https://github.com/autogyro/yolo-V8
+commit: cc3c774bde86ffce694d202b7383da6cc1721c1b
+version: 8.0.8
+copied: 2026-10-31

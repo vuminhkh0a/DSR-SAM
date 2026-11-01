@@ -1,0 +1,2297 @@
+[
+  {
+    "name": "yolov8n_seed42_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 92.31,
+      "map50_95": 65.88,
+      "precision": 88.88,
+      "recall": 89.03,
+      "box_iou": 79.95
+    }
+  },
+  {
+    "name": "yolov8n_seed42_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.12,
+      "map50_95": 81.88,
+      "precision": 96.44,
+      "recall": 95.08,
+      "box_iou": 85.05
+    }
+  },
+  {
+    "name": "yolov8n_seed42_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 42,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 40.0,
+      "map50_95": 14.45,
+      "precision": 42.13,
+      "recall": 44.58,
+      "box_iou": 39.47
+    }
+  },
+  {
+    "name": "yolov8n_seed42_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 81.31,
+      "map50_95": 53.82,
+      "precision": 83.09,
+      "recall": 75.84,
+      "box_iou": 65.91
+    }
+  },
+  {
+    "name": "yolov8n_seed42_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.24,
+      "map50_95": 88.47,
+      "precision": 98.95,
+      "recall": 97.37,
+      "box_iou": 90.8
+    }
+  },
+  {
+    "name": "yolov8n_seed42_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 52.3,
+      "map50_95": 19.07,
+      "precision": 64.15,
+      "recall": 39.35,
+      "box_iou": 14.48
+    }
+  },
+  {
+    "name": "yolov8n_seed42_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 9.41,
+      "map50_95": 2.29,
+      "precision": 30.51,
+      "recall": 10.29,
+      "box_iou": 8.67
+    }
+  },
+  {
+    "name": "yolov8n_seed42_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 29.18,
+      "map50_95": 8.62,
+      "precision": 57.26,
+      "recall": 27.03,
+      "box_iou": 20.14
+    }
+  },
+  {
+    "name": "yolov8n_seed42_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 82.65,
+      "map50_95": 45.07,
+      "precision": 87.0,
+      "recall": 75.3,
+      "box_iou": 59.76
+    }
+  },
+  {
+    "name": "yolov8n_seed0_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 93.62,
+      "map50_95": 66.89,
+      "precision": 90.77,
+      "recall": 86.55,
+      "box_iou": 79.23
+    }
+  },
+  {
+    "name": "yolov8n_seed0_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.31,
+      "map50_95": 80.61,
+      "precision": 97.82,
+      "recall": 94.74,
+      "box_iou": 85.78
+    }
+  },
+  {
+    "name": "yolov8n_seed0_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 0,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 42.53,
+      "map50_95": 15.46,
+      "precision": 42.89,
+      "recall": 47.59,
+      "box_iou": 42.59
+    }
+  },
+  {
+    "name": "yolov8n_seed0_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 79.78,
+      "map50_95": 53.0,
+      "precision": 75.8,
+      "recall": 77.94,
+      "box_iou": 67.78
+    }
+  },
+  {
+    "name": "yolov8n_seed0_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 97.81,
+      "map50_95": 88.56,
+      "precision": 99.09,
+      "recall": 95.58,
+      "box_iou": 91.25
+    }
+  },
+  {
+    "name": "yolov8n_seed0_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 56.95,
+      "map50_95": 24.69,
+      "precision": 69.4,
+      "recall": 57.39,
+      "box_iou": 38.52
+    }
+  },
+  {
+    "name": "yolov8n_seed0_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 7.35,
+      "map50_95": 1.81,
+      "precision": 29.83,
+      "recall": 10.71,
+      "box_iou": 7.97
+    }
+  },
+  {
+    "name": "yolov8n_seed0_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 28.06,
+      "map50_95": 8.44,
+      "precision": 55.14,
+      "recall": 24.56,
+      "box_iou": 19.21
+    }
+  },
+  {
+    "name": "yolov8n_seed0_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 78.68,
+      "map50_95": 42.26,
+      "precision": 95.35,
+      "recall": 68.07,
+      "box_iou": 60.51
+    }
+  },
+  {
+    "name": "yolov8n_seed100_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 91.82,
+      "map50_95": 65.16,
+      "precision": 87.76,
+      "recall": 88.87,
+      "box_iou": 78.42
+    }
+  },
+  {
+    "name": "yolov8n_seed100_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.01,
+      "map50_95": 80.42,
+      "precision": 97.26,
+      "recall": 92.98,
+      "box_iou": 85.2
+    }
+  },
+  {
+    "name": "yolov8n_seed100_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 100,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 31.51,
+      "map50_95": 10.1,
+      "precision": 36.78,
+      "recall": 40.36,
+      "box_iou": 33.51
+    }
+  },
+  {
+    "name": "yolov8n_seed100_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 80.51,
+      "map50_95": 53.6,
+      "precision": 86.9,
+      "recall": 73.53,
+      "box_iou": 67.3
+    }
+  },
+  {
+    "name": "yolov8n_seed100_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.42,
+      "map50_95": 88.99,
+      "precision": 98.45,
+      "recall": 96.49,
+      "box_iou": 90.84
+    }
+  },
+  {
+    "name": "yolov8n_seed100_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 50.85,
+      "map50_95": 15.42,
+      "precision": 56.57,
+      "recall": 40.36,
+      "box_iou": 26.48
+    }
+  },
+  {
+    "name": "yolov8n_seed100_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 8.45,
+      "map50_95": 2.47,
+      "precision": 25.14,
+      "recall": 10.08,
+      "box_iou": 9.32
+    }
+  },
+  {
+    "name": "yolov8n_seed100_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 25.97,
+      "map50_95": 7.83,
+      "precision": 45.56,
+      "recall": 25.44,
+      "box_iou": 13.37
+    }
+  },
+  {
+    "name": "yolov8n_seed100_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "n",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 86.64,
+      "map50_95": 43.04,
+      "precision": 94.37,
+      "recall": 80.76,
+      "box_iou": 65.86
+    }
+  },
+  {
+    "name": "yolov8s_seed42_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 93.19,
+      "map50_95": 68.16,
+      "precision": 88.36,
+      "recall": 89.34,
+      "box_iou": 78.98
+    }
+  },
+  {
+    "name": "yolov8s_seed42_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.29,
+      "map50_95": 83.54,
+      "precision": 97.06,
+      "recall": 94.74,
+      "box_iou": 87.39
+    }
+  },
+  {
+    "name": "yolov8s_seed42_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 42,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 32.65,
+      "map50_95": 10.55,
+      "precision": 48.58,
+      "recall": 31.33,
+      "box_iou": 18.97
+    }
+  },
+  {
+    "name": "yolov8s_seed42_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 82.99,
+      "map50_95": 56.66,
+      "precision": 82.37,
+      "recall": 77.52,
+      "box_iou": 68.51
+    }
+  },
+  {
+    "name": "yolov8s_seed42_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.05,
+      "map50_95": 90.21,
+      "precision": 99.04,
+      "recall": 97.37,
+      "box_iou": 92.07
+    }
+  },
+  {
+    "name": "yolov8s_seed42_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 39.59,
+      "map50_95": 12.46,
+      "precision": 48.14,
+      "recall": 36.35,
+      "box_iou": 33.11
+    }
+  },
+  {
+    "name": "yolov8s_seed42_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 12.59,
+      "map50_95": 3.1,
+      "precision": 39.85,
+      "recall": 10.44,
+      "box_iou": 8.38
+    }
+  },
+  {
+    "name": "yolov8s_seed42_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 26.39,
+      "map50_95": 6.88,
+      "precision": 41.22,
+      "recall": 24.56,
+      "box_iou": 19.93
+    }
+  },
+  {
+    "name": "yolov8s_seed42_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 86.29,
+      "map50_95": 49.89,
+      "precision": 93.79,
+      "recall": 77.31,
+      "box_iou": 60.09
+    }
+  },
+  {
+    "name": "yolov8s_seed0_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 92.51,
+      "map50_95": 68.7,
+      "precision": 90.9,
+      "recall": 88.24,
+      "box_iou": 79.28
+    }
+  },
+  {
+    "name": "yolov8s_seed0_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 97.99,
+      "map50_95": 82.34,
+      "precision": 94.75,
+      "recall": 94.95,
+      "box_iou": 83.16
+    }
+  },
+  {
+    "name": "yolov8s_seed0_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 0,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 36.25,
+      "map50_95": 12.95,
+      "precision": 55.62,
+      "recall": 39.26,
+      "box_iou": 42.93
+    }
+  },
+  {
+    "name": "yolov8s_seed0_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 80.7,
+      "map50_95": 53.79,
+      "precision": 80.67,
+      "recall": 74.37,
+      "box_iou": 65.85
+    }
+  },
+  {
+    "name": "yolov8s_seed0_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.26,
+      "map50_95": 90.88,
+      "precision": 98.99,
+      "recall": 96.49,
+      "box_iou": 91.04
+    }
+  },
+  {
+    "name": "yolov8s_seed0_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 48.93,
+      "map50_95": 17.8,
+      "precision": 63.51,
+      "recall": 58.18,
+      "box_iou": 47.0
+    }
+  },
+  {
+    "name": "yolov8s_seed0_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 13.97,
+      "map50_95": 3.58,
+      "precision": 35.03,
+      "recall": 23.74,
+      "box_iou": 23.75
+    }
+  },
+  {
+    "name": "yolov8s_seed0_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 33.52,
+      "map50_95": 11.97,
+      "precision": 54.78,
+      "recall": 40.35,
+      "box_iou": 37.0
+    }
+  },
+  {
+    "name": "yolov8s_seed0_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 85.18,
+      "map50_95": 43.47,
+      "precision": 87.21,
+      "recall": 80.07,
+      "box_iou": 68.12
+    }
+  },
+  {
+    "name": "yolov8s_seed100_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 93.14,
+      "map50_95": 69.1,
+      "precision": 89.53,
+      "recall": 88.03,
+      "box_iou": 79.28
+    }
+  },
+  {
+    "name": "yolov8s_seed100_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 97.86,
+      "map50_95": 83.2,
+      "precision": 98.06,
+      "recall": 92.98,
+      "box_iou": 86.7
+    }
+  },
+  {
+    "name": "yolov8s_seed100_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 100,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 39.43,
+      "map50_95": 11.85,
+      "precision": 44.46,
+      "recall": 35.84,
+      "box_iou": 37.86
+    }
+  },
+  {
+    "name": "yolov8s_seed100_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 82.79,
+      "map50_95": 56.3,
+      "precision": 82.62,
+      "recall": 76.05,
+      "box_iou": 68.75
+    }
+  },
+  {
+    "name": "yolov8s_seed100_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.14,
+      "map50_95": 90.25,
+      "precision": 98.21,
+      "recall": 97.37,
+      "box_iou": 91.6
+    }
+  },
+  {
+    "name": "yolov8s_seed100_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 53.05,
+      "map50_95": 21.9,
+      "precision": 65.86,
+      "recall": 65.66,
+      "box_iou": 56.91
+    }
+  },
+  {
+    "name": "yolov8s_seed100_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 25.24,
+      "map50_95": 8.08,
+      "precision": 47.03,
+      "recall": 23.11,
+      "box_iou": 21.43
+    }
+  },
+  {
+    "name": "yolov8s_seed100_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 59.63,
+      "map50_95": 28.35,
+      "precision": 78.83,
+      "recall": 43.86,
+      "box_iou": 38.44
+    }
+  },
+  {
+    "name": "yolov8s_seed100_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "s",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 81.24,
+      "map50_95": 44.32,
+      "precision": 90.55,
+      "recall": 77.11,
+      "box_iou": 66.05
+    }
+  },
+  {
+    "name": "yolov8m_seed42_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 93.14,
+      "map50_95": 68.51,
+      "precision": 89.89,
+      "recall": 87.39,
+      "box_iou": 78.79
+    }
+  },
+  {
+    "name": "yolov8m_seed42_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.6,
+      "map50_95": 84.21,
+      "precision": 99.88,
+      "recall": 96.49,
+      "box_iou": 89.51
+    }
+  },
+  {
+    "name": "yolov8m_seed42_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 42,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 47.21,
+      "map50_95": 20.15,
+      "precision": 55.54,
+      "recall": 50.6,
+      "box_iou": 21.0
+    }
+  },
+  {
+    "name": "yolov8m_seed42_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 83.77,
+      "map50_95": 56.68,
+      "precision": 86.67,
+      "recall": 73.76,
+      "box_iou": 70.0
+    }
+  },
+  {
+    "name": "yolov8m_seed42_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.19,
+      "map50_95": 90.85,
+      "precision": 98.99,
+      "recall": 96.49,
+      "box_iou": 91.8
+    }
+  },
+  {
+    "name": "yolov8m_seed42_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 55.52,
+      "map50_95": 20.99,
+      "precision": 37.88,
+      "recall": 74.4,
+      "box_iou": 26.16
+    }
+  },
+  {
+    "name": "yolov8m_seed42_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 7.1,
+      "map50_95": 1.54,
+      "precision": 24.25,
+      "recall": 11.97,
+      "box_iou": 9.69
+    }
+  },
+  {
+    "name": "yolov8m_seed42_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 25.42,
+      "map50_95": 8.66,
+      "precision": 40.66,
+      "recall": 30.7,
+      "box_iou": 21.49
+    }
+  },
+  {
+    "name": "yolov8m_seed42_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 84.76,
+      "map50_95": 47.92,
+      "precision": 89.48,
+      "recall": 79.42,
+      "box_iou": 62.4
+    }
+  },
+  {
+    "name": "yolov8m_seed0_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 93.0,
+      "map50_95": 69.43,
+      "precision": 89.07,
+      "recall": 89.03,
+      "box_iou": 79.83
+    }
+  },
+  {
+    "name": "yolov8m_seed0_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.61,
+      "map50_95": 85.13,
+      "precision": 96.54,
+      "recall": 97.76,
+      "box_iou": 89.19
+    }
+  },
+  {
+    "name": "yolov8m_seed0_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 0,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 30.57,
+      "map50_95": 14.28,
+      "precision": 40.79,
+      "recall": 45.48,
+      "box_iou": 18.45
+    }
+  },
+  {
+    "name": "yolov8m_seed0_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 80.66,
+      "map50_95": 54.46,
+      "precision": 86.48,
+      "recall": 69.33,
+      "box_iou": 68.01
+    }
+  },
+  {
+    "name": "yolov8m_seed0_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 96.89,
+      "map50_95": 87.69,
+      "precision": 99.09,
+      "recall": 95.86,
+      "box_iou": 91.06
+    }
+  },
+  {
+    "name": "yolov8m_seed0_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 53.32,
+      "map50_95": 24.97,
+      "precision": 66.89,
+      "recall": 56.59,
+      "box_iou": 26.96
+    }
+  },
+  {
+    "name": "yolov8m_seed0_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 17.36,
+      "map50_95": 4.21,
+      "precision": 39.78,
+      "recall": 23.32,
+      "box_iou": 23.61
+    }
+  },
+  {
+    "name": "yolov8m_seed0_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 51.37,
+      "map50_95": 19.28,
+      "precision": 57.88,
+      "recall": 50.64,
+      "box_iou": 43.11
+    }
+  },
+  {
+    "name": "yolov8m_seed0_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 80.34,
+      "map50_95": 40.11,
+      "precision": 90.31,
+      "recall": 73.49,
+      "box_iou": 63.05
+    }
+  },
+  {
+    "name": "yolov8m_seed100_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 93.7,
+      "map50_95": 68.83,
+      "precision": 90.72,
+      "recall": 86.25,
+      "box_iou": 79.82
+    }
+  },
+  {
+    "name": "yolov8m_seed100_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.46,
+      "map50_95": 84.25,
+      "precision": 97.25,
+      "recall": 97.37,
+      "box_iou": 89.79
+    }
+  },
+  {
+    "name": "yolov8m_seed100_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 100,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 18.7,
+      "map50_95": 6.42,
+      "precision": 31.42,
+      "recall": 30.72,
+      "box_iou": 11.62
+    }
+  },
+  {
+    "name": "yolov8m_seed100_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 80.56,
+      "map50_95": 54.69,
+      "precision": 80.44,
+      "recall": 71.85,
+      "box_iou": 67.05
+    }
+  },
+  {
+    "name": "yolov8m_seed100_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 97.85,
+      "map50_95": 90.02,
+      "precision": 99.09,
+      "recall": 96.02,
+      "box_iou": 90.46
+    }
+  },
+  {
+    "name": "yolov8m_seed100_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 49.71,
+      "map50_95": 17.17,
+      "precision": 51.87,
+      "recall": 48.8,
+      "box_iou": 53.33
+    }
+  },
+  {
+    "name": "yolov8m_seed100_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 5.94,
+      "map50_95": 1.57,
+      "precision": 17.32,
+      "recall": 9.87,
+      "box_iou": 13.94
+    }
+  },
+  {
+    "name": "yolov8m_seed100_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 23.19,
+      "map50_95": 9.77,
+      "precision": 40.4,
+      "recall": 27.94,
+      "box_iou": 30.18
+    }
+  },
+  {
+    "name": "yolov8m_seed100_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "m",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 85.79,
+      "map50_95": 54.02,
+      "precision": 90.21,
+      "recall": 77.11,
+      "box_iou": 60.54
+    }
+  },
+  {
+    "name": "yolov8l_seed42_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 91.7,
+      "map50_95": 68.66,
+      "precision": 86.86,
+      "recall": 87.48,
+      "box_iou": 79.11
+    }
+  },
+  {
+    "name": "yolov8l_seed42_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.04,
+      "map50_95": 84.36,
+      "precision": 97.88,
+      "recall": 95.61,
+      "box_iou": 89.79
+    }
+  },
+  {
+    "name": "yolov8l_seed42_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 42,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 19.2,
+      "map50_95": 8.42,
+      "precision": 30.3,
+      "recall": 36.14,
+      "box_iou": 31.85
+    }
+  },
+  {
+    "name": "yolov8l_seed42_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 83.29,
+      "map50_95": 56.76,
+      "precision": 83.08,
+      "recall": 75.31,
+      "box_iou": 68.46
+    }
+  },
+  {
+    "name": "yolov8l_seed42_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 97.98,
+      "map50_95": 90.23,
+      "precision": 97.37,
+      "recall": 97.32,
+      "box_iou": 91.81
+    }
+  },
+  {
+    "name": "yolov8l_seed42_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 38.62,
+      "map50_95": 16.52,
+      "precision": 49.93,
+      "recall": 31.33,
+      "box_iou": 28.7
+    }
+  },
+  {
+    "name": "yolov8l_seed42_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 8.96,
+      "map50_95": 2.26,
+      "precision": 17.5,
+      "recall": 14.5,
+      "box_iou": 13.3
+    }
+  },
+  {
+    "name": "yolov8l_seed42_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 28.06,
+      "map50_95": 10.74,
+      "precision": 45.55,
+      "recall": 28.07,
+      "box_iou": 34.07
+    }
+  },
+  {
+    "name": "yolov8l_seed42_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 81.53,
+      "map50_95": 47.27,
+      "precision": 90.04,
+      "recall": 74.4,
+      "box_iou": 65.87
+    }
+  },
+  {
+    "name": "yolov8l_seed0_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 92.77,
+      "map50_95": 70.1,
+      "precision": 88.52,
+      "recall": 87.44,
+      "box_iou": 80.15
+    }
+  },
+  {
+    "name": "yolov8l_seed0_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.76,
+      "map50_95": 86.19,
+      "precision": 98.11,
+      "recall": 97.37,
+      "box_iou": 88.75
+    }
+  },
+  {
+    "name": "yolov8l_seed0_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 0,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 39.78,
+      "map50_95": 15.51,
+      "precision": 44.9,
+      "recall": 41.57,
+      "box_iou": 35.98
+    }
+  },
+  {
+    "name": "yolov8l_seed0_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 82.71,
+      "map50_95": 55.46,
+      "precision": 84.63,
+      "recall": 75.17,
+      "box_iou": 68.75
+    }
+  },
+  {
+    "name": "yolov8l_seed0_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 97.98,
+      "map50_95": 90.39,
+      "precision": 98.13,
+      "recall": 97.37,
+      "box_iou": 92.3
+    }
+  },
+  {
+    "name": "yolov8l_seed0_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 24.27,
+      "map50_95": 8.5,
+      "precision": 27.17,
+      "recall": 38.55,
+      "box_iou": 16.26
+    }
+  },
+  {
+    "name": "yolov8l_seed0_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 11.77,
+      "map50_95": 3.32,
+      "precision": 27.9,
+      "recall": 18.49,
+      "box_iou": 26.84
+    }
+  },
+  {
+    "name": "yolov8l_seed0_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 35.21,
+      "map50_95": 9.78,
+      "precision": 51.68,
+      "recall": 39.47,
+      "box_iou": 45.12
+    }
+  },
+  {
+    "name": "yolov8l_seed0_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 80.64,
+      "map50_95": 39.71,
+      "precision": 83.51,
+      "recall": 79.52,
+      "box_iou": 68.97
+    }
+  },
+  {
+    "name": "yolov8l_seed100_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 93.91,
+      "map50_95": 69.38,
+      "precision": 92.01,
+      "recall": 87.82,
+      "box_iou": 79.79
+    }
+  },
+  {
+    "name": "yolov8l_seed100_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.46,
+      "map50_95": 83.73,
+      "precision": 98.83,
+      "recall": 95.61,
+      "box_iou": 88.66
+    }
+  },
+  {
+    "name": "yolov8l_seed100_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 100,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 36.25,
+      "map50_95": 10.39,
+      "precision": 65.54,
+      "recall": 28.31,
+      "box_iou": 5.52
+    }
+  },
+  {
+    "name": "yolov8l_seed100_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 82.8,
+      "map50_95": 56.87,
+      "precision": 83.88,
+      "recall": 75.41,
+      "box_iou": 67.98
+    }
+  },
+  {
+    "name": "yolov8l_seed100_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.9,
+      "map50_95": 91.85,
+      "precision": 98.24,
+      "recall": 98.16,
+      "box_iou": 92.4
+    }
+  },
+  {
+    "name": "yolov8l_seed100_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 26.64,
+      "map50_95": 11.11,
+      "precision": 24.36,
+      "recall": 51.51,
+      "box_iou": 20.09
+    }
+  },
+  {
+    "name": "yolov8l_seed100_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 14.11,
+      "map50_95": 3.67,
+      "precision": 26.57,
+      "recall": 22.9,
+      "box_iou": 34.06
+    }
+  },
+  {
+    "name": "yolov8l_seed100_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 41.28,
+      "map50_95": 14.88,
+      "precision": 58.44,
+      "recall": 41.23,
+      "box_iou": 48.93
+    }
+  },
+  {
+    "name": "yolov8l_seed100_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "l",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 79.54,
+      "map50_95": 42.23,
+      "precision": 85.48,
+      "recall": 73.8,
+      "box_iou": 65.87
+    }
+  },
+  {
+    "name": "yolov8x_seed42_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 92.37,
+      "map50_95": 67.73,
+      "precision": 91.8,
+      "recall": 87.05,
+      "box_iou": 79.62
+    }
+  },
+  {
+    "name": "yolov8x_seed42_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 42,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.42,
+      "map50_95": 85.22,
+      "precision": 99.03,
+      "recall": 96.49,
+      "box_iou": 89.36
+    }
+  },
+  {
+    "name": "yolov8x_seed42_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 42,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 53.34,
+      "map50_95": 26.55,
+      "precision": 68.18,
+      "recall": 35.54,
+      "box_iou": 27.1
+    }
+  },
+  {
+    "name": "yolov8x_seed42_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 84.99,
+      "map50_95": 58.34,
+      "precision": 85.74,
+      "recall": 75.8,
+      "box_iou": 70.87
+    }
+  },
+  {
+    "name": "yolov8x_seed42_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.8,
+      "map50_95": 90.83,
+      "precision": 98.06,
+      "recall": 98.25,
+      "box_iou": 91.59
+    }
+  },
+  {
+    "name": "yolov8x_seed42_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 42,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 45.71,
+      "map50_95": 13.72,
+      "precision": 65.91,
+      "recall": 34.35,
+      "box_iou": 50.84
+    }
+  },
+  {
+    "name": "yolov8x_seed42_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 3.57,
+      "map50_95": 1.08,
+      "precision": 9.79,
+      "recall": 10.12,
+      "box_iou": 13.66
+    }
+  },
+  {
+    "name": "yolov8x_seed42_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 20.82,
+      "map50_95": 7.78,
+      "precision": 34.05,
+      "recall": 23.68,
+      "box_iou": 32.18
+    }
+  },
+  {
+    "name": "yolov8x_seed42_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 42,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 82.14,
+      "map50_95": 45.4,
+      "precision": 86.29,
+      "recall": 72.59,
+      "box_iou": 57.03
+    }
+  },
+  {
+    "name": "yolov8x_seed0_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 92.7,
+      "map50_95": 69.87,
+      "precision": 88.62,
+      "recall": 89.95,
+      "box_iou": 79.99
+    }
+  },
+  {
+    "name": "yolov8x_seed0_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 0,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.53,
+      "map50_95": 85.3,
+      "precision": 96.86,
+      "recall": 95.61,
+      "box_iou": 89.26
+    }
+  },
+  {
+    "name": "yolov8x_seed0_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 0,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 42.29,
+      "map50_95": 16.04,
+      "precision": 57.01,
+      "recall": 31.16,
+      "box_iou": 13.82
+    }
+  },
+  {
+    "name": "yolov8x_seed0_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 84.73,
+      "map50_95": 58.14,
+      "precision": 85.37,
+      "recall": 78.15,
+      "box_iou": 69.24
+    }
+  },
+  {
+    "name": "yolov8x_seed0_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 97.93,
+      "map50_95": 90.96,
+      "precision": 98.21,
+      "recall": 96.48,
+      "box_iou": 91.39
+    }
+  },
+  {
+    "name": "yolov8x_seed0_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 0,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 32.58,
+      "map50_95": 12.48,
+      "precision": 43.09,
+      "recall": 27.41,
+      "box_iou": 58.62
+    }
+  },
+  {
+    "name": "yolov8x_seed0_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 11.61,
+      "map50_95": 2.87,
+      "precision": 21.33,
+      "recall": 23.11,
+      "box_iou": 32.12
+    }
+  },
+  {
+    "name": "yolov8x_seed0_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 34.31,
+      "map50_95": 12.78,
+      "precision": 37.87,
+      "recall": 47.58,
+      "box_iou": 50.54
+    }
+  },
+  {
+    "name": "yolov8x_seed0_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 0,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 84.13,
+      "map50_95": 46.18,
+      "precision": 88.64,
+      "recall": 77.41,
+      "box_iou": 66.64
+    }
+  },
+  {
+    "name": "yolov8x_seed100_s_OTU_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 93.66,
+      "map50_95": 69.89,
+      "precision": 91.73,
+      "recall": 88.57,
+      "box_iou": 80.33
+    }
+  },
+  {
+    "name": "yolov8x_seed100_s_OTU_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 100,
+    "source": "OTU",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 98.69,
+      "map50_95": 84.92,
+      "precision": 98.23,
+      "recall": 97.21,
+      "box_iou": 88.46
+    }
+  },
+  {
+    "name": "yolov8x_seed100_s_OTU_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 100,
+    "source": "OTU",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 28.93,
+      "map50_95": 10.35,
+      "precision": 22.26,
+      "recall": 71.08,
+      "box_iou": 29.07
+    }
+  },
+  {
+    "name": "yolov8x_seed100_s_OVATUS_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 82.83,
+      "map50_95": 56.31,
+      "precision": 84.23,
+      "recall": 75.17,
+      "box_iou": 68.1
+    }
+  },
+  {
+    "name": "yolov8x_seed100_s_OVATUS_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 97.96,
+      "map50_95": 90.78,
+      "precision": 98.21,
+      "recall": 96.43,
+      "box_iou": 91.24
+    }
+  },
+  {
+    "name": "yolov8x_seed100_s_OVATUS_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 100,
+    "source": "OVATUS",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 44.99,
+      "map50_95": 19.68,
+      "precision": 33.95,
+      "recall": 71.39,
+      "box_iou": 23.47
+    }
+  },
+  {
+    "name": "yolov8x_seed100_s_USOVA_t_OTU_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OTU",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 6.53,
+      "map50_95": 2.16,
+      "precision": 14.52,
+      "recall": 14.08,
+      "box_iou": 11.78
+    }
+  },
+  {
+    "name": "yolov8x_seed100_s_USOVA_t_OVATUS_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "OVATUS",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 40.05,
+      "map50_95": 18.78,
+      "precision": 71.75,
+      "recall": 33.42,
+      "box_iou": 36.29
+    }
+  },
+  {
+    "name": "yolov8x_seed100_s_USOVA_t_USOVA_best",
+    "yolo_version": "v8",
+    "size": "x",
+    "seed": 100,
+    "source": "USOVA",
+    "target": "USOVA",
+    "weight": "best",
+    "imgsz": 256,
+    "results": {
+      "map50": 88.62,
+      "map50_95": 50.03,
+      "precision": 87.99,
+      "recall": 81.67,
+      "box_iou": 68.39
+    }
+  }
+]

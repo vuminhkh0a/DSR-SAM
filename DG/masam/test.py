@@ -13,10 +13,13 @@ from utils.metrics import metric_dice_iou_prec_rec_hd95, save_results
 @torch.no_grad()
 def test_masam_on_target(model, target_name, device, image_size, batch_size,
                          num_workers, pin_memory, source_names, write_results=True,
-                         model_type='vit_b', weight_tag='best'):
+                         model_type='vit_b', weight_tag='best',
+                         prompt_method='gt', yolo_size='m', source_name=None):
     model.eval()
     loader = get_masam_target_loader(target_name, image_size, batch_size,
-                                     num_workers, pin_memory, split='test')
+                                     num_workers, pin_memory, split='test',
+                                     prompt_method=prompt_method, yolo_size=yolo_size,
+                                     source_name=source_name)
 
     running_dice = 0.0
     running_iou = 0.0

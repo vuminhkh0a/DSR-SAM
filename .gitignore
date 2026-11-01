@@ -3,3 +3,8 @@ log.txt
 plot.py
 demo.ipynb
 run.sh
+yolo/datasets/
+**/__pycache__/
+*.pyc
+log_yolo.txt
+log_yolo_smoke.txt

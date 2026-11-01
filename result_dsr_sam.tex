@@ -12,16 +12,19 @@
 
 \begin{document}
 
+\section{SOTA}
+\label{sec:sota}
+
 {\small
-\begin{longtable}{lccccc}
-\caption{DSR-SAM rank sweep with $L_{\mathrm{tsd}}$ and $\Delta$ disabled (source OTU; mean $\pm$ std over seeds 42, 0, 100).}
-\label{tab:dsr_sam_rank}\\
+\begin{longtable}{lrrrrr}
+\caption{SOTA comparison with source domain OTU. Best value per metric per target is \textbf{bold}.}
+\label{tab:sota_otu}\\
 \toprule
-Rank & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
 \midrule
 \endfirsthead
 \toprule
-Rank & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
 \midrule
 \endhead
 \endfoot
@@ -29,29 +32,213 @@ Rank & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
 \endlastfoot
 \multicolumn{6}{l}{\textit{Target: OVATUS}} \\
 \midrule
-8 & 94.68 $\pm$ 0.25 & 90.02 $\pm$ 0.43 & 97.04 $\pm$ 0.18 & 92.64 $\pm$ 0.61 & 10.09 $\pm$ 0.69 \\
-16 & 94.43 $\pm$ 0.65 & 89.61 $\pm$ 1.11 & 96.49 $\pm$ 1.57 & 92.74 $\pm$ 2.46 & 10.53 $\pm$ 1.02 \\
-32 & \textbf{94.98 $\pm$ 0.23} & \textbf{90.55 $\pm$ 0.39} & 96.47 $\pm$ 0.58 & \textbf{93.72 $\pm$ 0.97} & \textbf{9.84 $\pm$ 0.45} \\
-64 & 94.65 $\pm$ 0.23 & 89.97 $\pm$ 0.39 & \textbf{97.21 $\pm$ 0.25} & 92.42 $\pm$ 0.42 & 10.07 $\pm$ 0.50 \\
-128 & 94.57 $\pm$ 0.07 & 89.85 $\pm$ 0.12 & 97.00 $\pm$ 0.10 & 92.49 $\pm$ 0.09 & 10.32 $\pm$ 0.41 \\
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 73.30 & 60.97 & 78.91 & 73.76 & 43.40 \\
+DN & 80.99 & 71.45 & 93.15 & 75.33 & 30.47 \\
+MI-SegNet & 85.07 & 77.62 & 89.15 & 85.22 & 24.81 \\
+MaxStyle & 80.64 & 70.65 & 87.53 & 78.51 & 38.77 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 86.18 & 77.26 & 91.74 & 83.53 & 26.93 \\
+SR-SAM & 94.17 & 89.09 & 96.89 & 91.81 & 9.84 \\
+SAMed & 83.76 & 74.90 & 89.15 & 81.56 & 51.08 \\
+SAMUS & 91.29 & 85.26 & 94.86 & 89.65 & 15.31 \\
+CoSAM & 77.51 & 65.20 & 79.78 & 80.82 & 39.00 \\
+MedSA & 89.47 & 82.30 & 93.81 & 87.78 & 18.78 \\
+BusSAM & 86.92 & 78.98 & 90.16 & 87.90 & 23.28 \\
+TransSAM & 91.00 & 84.89 & 95.09 & 88.55 & 15.10 \\
+NORA & 90.67 & 84.43 & 94.61 & 88.99 & 16.99 \\
+MASAM & 94.91 & 90.42 & 97.90 & 92.25 & 9.85 \\
+DAP-SAM & 90.35 & 83.89 & 94.92 & 87.55 & 17.69 \\
+DSR-SAM & 94.81 $\pm$ 0.33 & 90.26 $\pm$ 0.56 & 96.63 $\pm$ 0.52 & 93.28 $\pm$ 1.10 & 9.77 $\pm$ 0.71 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & \textbf{95.13} & \textbf{90.80} & 96.40 & \textbf{94.07} & \textbf{8.25} \\
+SAM-Med2D & 66.89 & 53.45 & 92.62 & 55.54 & 38.27 \\
+UltraSAM & 94.39 & 89.50 & \textbf{98.46} & 90.83 & 9.62 \\
 \addlinespace[4pt]
 \multicolumn{6}{l}{\textit{Target: USOVA}} \\
 \midrule
-8 & \textbf{85.10 $\pm$ 0.84} & \textbf{75.28 $\pm$ 1.12} & \textbf{87.48 $\pm$ 3.39} & 84.47 $\pm$ 4.74 & \textbf{26.05 $\pm$ 1.19} \\
-16 & 84.19 $\pm$ 0.62 & 73.87 $\pm$ 0.80 & 85.12 $\pm$ 2.54 & 85.37 $\pm$ 3.70 & 29.36 $\pm$ 3.16 \\
-32 & 83.89 $\pm$ 1.53 & 73.50 $\pm$ 2.32 & 84.97 $\pm$ 2.97 & 84.74 $\pm$ 5.12 & 30.89 $\pm$ 3.08 \\
-64 & 83.85 $\pm$ 0.68 & 73.28 $\pm$ 1.11 & 85.94 $\pm$ 1.18 & 83.76 $\pm$ 1.45 & 30.11 $\pm$ 2.88 \\
-128 & 84.97 $\pm$ 0.55 & 75.25 $\pm$ 0.93 & 84.47 $\pm$ 1.11 & \textbf{87.15 $\pm$ 1.11} & 27.45 $\pm$ 1.03 \\
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 43.46 & 29.82 & 77.25 & 32.88 & 73.96 \\
+DN & 42.04 & 29.54 & 86.77 & 30.64 & 86.64 \\
+MI-SegNet & 56.53 & 44.39 & 80.47 & 50.26 & 93.68 \\
+MaxStyle & 43.03 & 29.44 & 77.83 & 31.62 & 75.62 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 59.18 & 44.40 & 80.43 & 53.34 & 65.96 \\
+SR-SAM & 85.36 & 75.38 & 86.04 & 86.30 & 26.61 \\
+SAMed & 50.97 & 37.26 & 78.08 & 43.59 & 161.15 \\
+SAMUS & 65.03 & 51.12 & 82.44 & 62.95 & 65.58 \\
+CoSAM & 42.23 & 29.79 & 84.33 & 30.74 & 93.34 \\
+MedSA & 60.17 & 45.18 & 87.69 & 51.77 & 67.84 \\
+BusSAM & 63.43 & 49.26 & 80.15 & 62.23 & 63.96 \\
+TransSAM & 58.27 & 45.06 & 82.14 & 53.18 & 77.04 \\
+NORA & 53.73 & 40.73 & 81.37 & 44.18 & 83.36 \\
+MASAM & 83.17 & 72.61 & \textbf{94.01} & 75.74 & 31.32 \\
+DAP-SAM & 53.03 & 40.00 & 83.72 & 43.49 & 78.27 \\
+DSR-SAM & 85.34 $\pm$ 0.27 & 75.47 $\pm$ 0.38 & 85.87 $\pm$ 2.29 & 86.62 $\pm$ 2.65 & \textbf{26.05 $\pm$ 0.87} \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & \textbf{85.67} & \textbf{75.91} & 83.27 & \textbf{90.00} & 28.08 \\
+SAM-Med2D & 79.54 & 67.01 & 86.07 & 75.26 & 45.64 \\
+UltraSAM & 79.35 & 67.62 & 90.71 & 71.80 & 35.34 \\
+\end{longtable}
+}
+\newpage
+{\small
+\begin{longtable}{lrrrrr}
+\caption{SOTA comparison with source domain OVATUS. Best value per metric per target is \textbf{bold}.}
+\label{tab:sota_ovatus}\\
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OTU}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 66.19 & 55.10 & 63.88 & 81.26 & 48.76 \\
+DN & 71.68 & 61.25 & 67.92 & 86.25 & 44.03 \\
+MI-SegNet & 70.44 & 61.60 & 71.70 & 81.30 & 43.75 \\
+MaxStyle & 70.81 & 60.26 & 69.56 & 81.81 & 41.86 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 68.33 & 56.81 & 61.98 & 89.89 & 41.53 \\
+SR-SAM & 91.45 & 85.09 & 90.62 & 93.07 & 11.54 \\
+SAMed & 68.09 & 58.00 & 71.56 & 74.22 & 79.62 \\
+SAMUS & 79.86 & 70.84 & 76.29 & 92.29 & 25.51 \\
+CoSAM & 59.75 & 47.52 & 56.24 & 81.68 & 49.28 \\
+MedSA & 73.30 & 63.73 & 70.07 & 89.33 & 33.11 \\
+BusSAM & 79.04 & 69.06 & 74.42 & 92.61 & 25.84 \\
+TransSAM & 78.18 & 69.95 & 77.77 & 85.67 & 25.23 \\
+NORA & 75.29 & 66.85 & 74.80 & 86.50 & 33.70 \\
+MASAM & 90.29 & 83.77 & 90.94 & 90.96 & 11.24 \\
+DAP-SAM & 75.94 & 66.82 & 72.18 & 89.16 & 30.81 \\
+DSR-SAM & 91.29 $\pm$ 0.31 & 84.87 $\pm$ 0.45 & 90.84 $\pm$ 1.03 & 92.66 $\pm$ 1.20 & 10.23 $\pm$ 1.17 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & 91.29 & 84.59 & 93.68 & 89.79 & 9.80 \\
+SAM-Med2D & 75.41 & 63.76 & 90.82 & 67.85 & 24.44 \\
+UltraSAM & \textbf{93.81} & \textbf{88.68} & \textbf{94.24} & \textbf{93.87} & \textbf{7.68} \\
 \addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: USOVA}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 44.21 & 29.49 & 78.32 & 34.15 & 79.48 \\
+DN & 50.91 & 35.67 & 81.53 & 41.77 & 68.59 \\
+MI-SegNet & 50.87 & 38.37 & 67.33 & 47.75 & 93.27 \\
+MaxStyle & 41.64 & 27.31 & 75.98 & 31.88 & 76.37 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 65.42 & 50.77 & 69.54 & 70.64 & 63.15 \\
+SR-SAM & 83.15 & 72.81 & 86.54 & 81.22 & 31.98 \\
+SAMed & 30.50 & 20.77 & 84.91 & 27.13 & 262.86 \\
+SAMUS & 67.48 & 54.78 & 64.26 & 87.25 & 66.53 \\
+CoSAM & 58.57 & 43.25 & 78.80 & 53.73 & 65.26 \\
+MedSA & 68.64 & 55.25 & 68.77 & 78.64 & 58.46 \\
+BusSAM & 70.11 & 56.70 & 70.29 & 82.39 & 55.36 \\
+TransSAM & 70.32 & 58.51 & 68.55 & 86.66 & 58.77 \\
+NORA & 60.67 & 47.63 & 79.34 & 57.87 & 77.88 \\
+MASAM & 79.47 & 68.69 & \textbf{92.13} & 71.57 & 31.29 \\
+DAP-SAM & 66.45 & 53.29 & 77.75 & 68.15 & 63.01 \\
+DSR-SAM & 83.90 $\pm$ 0.71 & 73.66 $\pm$ 0.95 & 86.58 $\pm$ 2.11 & 82.58 $\pm$ 3.11 & 29.09 $\pm$ 1.14 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & \textbf{85.67} & \textbf{75.91} & 83.27 & \textbf{90.00} & \textbf{28.08} \\
+SAM-Med2D & 79.54 & 67.01 & 86.07 & 75.26 & 45.64 \\
+UltraSAM & 79.35 & 67.62 & 90.71 & 71.80 & 35.34 \\
 \end{longtable}
 }
 
-\vspace{1em}
+\newpage
+
+{\small
+\begin{longtable}{lrrrrr}
+\caption{SOTA comparison with source domain USOVA. Best value per metric per target is \textbf{bold}.}
+\label{tab:sota_usova}\\
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+Method & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OTU}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 27.08 & 18.37 & 39.65 & 30.79 & 98.93 \\
+DN & 37.25 & 26.85 & 43.25 & 44.78 & 79.74 \\
+MI-SegNet & 23.09 & 16.48 & 54.43 & 35.63 & 176.31 \\
+MaxStyle & 36.81 & 24.94 & 40.71 & 45.42 & 72.57 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 43.67 & 31.99 & 37.89 & 63.73 & 79.99 \\
+SR-SAM & 86.61 & 77.03 & 80.91 & 94.33 & 15.54 \\
+SAMed & 23.97 & 17.77 & 70.18 & 26.60 & 361.91 \\
+SAMUS & 46.80 & 34.31 & 60.60 & 57.10 & 58.69 \\
+CoSAM & 43.56 & 30.73 & 32.12 & \textbf{94.88} & 81.87 \\
+MedSA & 51.54 & 37.75 & 42.76 & 90.39 & 59.44 \\
+BusSAM & 48.29 & 35.02 & 52.06 & 65.10 & 55.34 \\
+TransSAM & 56.46 & 43.90 & 46.56 & 92.99 & 53.74 \\
+NORA & 46.62 & 35.12 & 52.85 & 65.16 & 80.64 \\
+MASAM & 81.78 & 70.78 & 89.16 & 78.29 & 16.33 \\
+DAP-SAM & 55.46 & 42.53 & 50.41 & 81.89 & 56.77 \\
+DSR-SAM & 85.44 $\pm$ 0.32 & 75.34 $\pm$ 0.49 & 82.00 $\pm$ 3.69 & 90.90 $\pm$ 3.67 & 18.39 $\pm$ 4.51 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & 91.29 & 84.59 & 93.68 & 89.79 & 9.80 \\
+SAM-Med2D & 75.41 & 63.76 & 90.82 & 67.85 & 24.44 \\
+UltraSAM & \textbf{93.81} & \textbf{88.68} & \textbf{94.24} & 93.87 & \textbf{7.68} \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\midrule
+\multicolumn{6}{l}{\textit{CNN-based DG methods}} \\
+U-Net & 53.26 & 39.73 & 60.42 & 55.07 & 55.27 \\
+DN & 48.05 & 34.21 & 42.01 & 63.73 & 76.98 \\
+MI-SegNet & 36.84 & 25.45 & 33.79 & 57.35 & 92.54 \\
+MaxStyle & 56.68 & 41.55 & 52.49 & 68.14 & 55.53 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{SAM-based DG methods}} \\
+DeSAM & 58.35 & 43.18 & 49.09 & 79.35 & 64.05 \\
+SR-SAM & 91.48 & 84.47 & 88.13 & \textbf{95.44} & 14.25 \\
+SAMed & 30.70 & 23.39 & 79.47 & 28.14 & 318.41 \\
+SAMUS & 51.77 & 36.87 & 49.33 & 73.32 & 78.21 \\
+CoSAM & 67.01 & 52.53 & 58.75 & 91.52 & 54.52 \\
+MedSA & 67.92 & 53.42 & 60.08 & 89.47 & 47.99 \\
+BusSAM & 53.10 & 37.89 & 45.27 & 79.30 & 71.10 \\
+TransSAM & 78.58 & 66.86 & 74.58 & 89.07 & 30.76 \\
+NORA & 64.24 & 52.21 & 69.71 & 74.22 & 54.14 \\
+MASAM & 87.84 & 78.86 & 93.48 & 84.26 & 16.78 \\
+DAP-SAM & 69.74 & 58.18 & 72.64 & 80.03 & 50.71 \\
+DSR-SAM & 90.68 $\pm$ 0.74 & 83.12 $\pm$ 1.23 & 89.75 $\pm$ 2.48 & 92.13 $\pm$ 2.72 & 14.98 $\pm$ 1.77 \\
+\addlinespace[2pt]
+\multicolumn{6}{l}{\textit{Zero-shot foundation models}} \\
+MedSAM & \textbf{95.13} & \textbf{90.80} & 96.40 & 94.07 & \textbf{8.25} \\
+SAM-Med2D & 66.89 & 53.45 & 92.62 & 55.54 & 38.27 \\
+UltraSAM & 94.39 & 89.50 & \textbf{98.46} & 90.83 & 9.62 \\
+\end{longtable}
+}
+
+\newpage
+
+\section{$L_{\mathrm{tsd}}$ Sensitivity}
+\label{sec:ltsd_sensitivity}
 
 {\small
 \begin{longtable}{lccccc}
-\caption{DSR-SAM $L_{\mathrm{tsd}}$ coefficient $\alpha$ sweep at rank 8 with $\Delta$ disabled (source OTU; mean $\pm$ std over seeds 42, 0, 100).}
-\label{tab:dsr_sam_alpha}\\
+\caption{DSR-SAM $L_{\mathrm{tsd}}$ sensitivity on source OTU (rank 8, $L_{\mathrm{tsd}}$ on, $\Delta$ off; mean $\pm$ std over seeds 42, 0, 100).}
+\label{tab:ltsd_alpha_otu}\\
 \toprule
 $\alpha$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
 \midrule
@@ -84,32 +271,154 @@ $2$ & 85.15 $\pm$ 0.17 & 75.35 $\pm$ 0.21 & 85.09 $\pm$ 1.40 & 86.80 $\pm$ 1.60 
 \end{longtable}
 }
 
-\vspace{1em}
-
 {\small
 \begin{longtable}{lccccc}
-\caption{DSR-SAM effect of $\Delta$ at rank 8 and $\alpha=10^{-2}$ (source OTU; mean $\pm$ std over seeds 42, 0, 100).}
-\label{tab:dsr_sam_delta}\\
+\caption{DSR-SAM $L_{\mathrm{tsd}}$ sensitivity on source OVATUS (rank 8, $L_{\mathrm{tsd}}$ on, $\Delta$ off; mean $\pm$ std over seeds 42, 0, 100).}
+\label{tab:ltsd_alpha_ovatus}\\
 \toprule
-$\Delta$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+$\alpha$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
 \midrule
 \endfirsthead
 \toprule
-$\Delta$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+$\alpha$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
 \midrule
 \endhead
 \endfoot
 \bottomrule
 \endlastfoot
-\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\multicolumn{6}{l}{\textit{Target: OTU}} \\
 \midrule
-$\Delta$ off & \textbf{94.81 $\pm$ 0.33} & \textbf{90.26 $\pm$ 0.56} & \textbf{96.63 $\pm$ 0.52} & 93.28 $\pm$ 1.10 & 9.77 $\pm$ 0.71 \\
-$\Delta$ on & 94.80 $\pm$ 0.22 & 90.24 $\pm$ 0.38 & 96.48 $\pm$ 0.24 & \textbf{93.39 $\pm$ 0.64} & \textbf{9.71 $\pm$ 0.62} \\
+$10^{-4}$ & 91.19 $\pm$ 0.22 & 84.69 $\pm$ 0.25 & 89.53 $\pm$ 1.21 & \textbf{93.79 $\pm$ 1.31} & 11.04 $\pm$ 0.67 \\
+$10^{-3}$ & \textbf{91.36 $\pm$ 0.58} & \textbf{84.94 $\pm$ 0.76} & \textbf{91.61 $\pm$ 0.43} & 91.84 $\pm$ 0.59 & 10.23 $\pm$ 1.09 \\
+$10^{-2}$ & 91.29 $\pm$ 0.31 & 84.87 $\pm$ 0.45 & 90.84 $\pm$ 1.03 & 92.66 $\pm$ 1.20 & \textbf{10.23 $\pm$ 1.17} \\
+$10^{-1}$ & 90.03 $\pm$ 1.48 & 83.50 $\pm$ 1.38 & 90.58 $\pm$ 2.65 & 91.51 $\pm$ 3.16 & 12.68 $\pm$ 3.02 \\
+$1$ & 90.89 $\pm$ 0.18 & 84.27 $\pm$ 0.30 & 89.71 $\pm$ 0.22 & 93.01 $\pm$ 0.62 & 10.59 $\pm$ 0.16 \\
+$2$ & 91.07 $\pm$ 0.17 & 84.55 $\pm$ 0.26 & 90.35 $\pm$ 0.32 & 92.62 $\pm$ 0.36 & 10.30 $\pm$ 0.54 \\
 \addlinespace[4pt]
 \multicolumn{6}{l}{\textit{Target: USOVA}} \\
 \midrule
-$\Delta$ off & \textbf{85.34 $\pm$ 0.27} & \textbf{75.47 $\pm$ 0.38} & \textbf{85.87 $\pm$ 2.29} & 86.62 $\pm$ 2.65 & \textbf{26.05 $\pm$ 0.87} \\
-$\Delta$ on & 85.08 $\pm$ 0.59 & 75.12 $\pm$ 1.02 & 84.03 $\pm$ 1.15 & \textbf{87.84 $\pm$ 0.55} & 27.16 $\pm$ 2.34 \\
+$10^{-4}$ & 82.89 $\pm$ 0.77 & 72.06 $\pm$ 1.21 & 84.55 $\pm$ 3.66 & 83.01 $\pm$ 4.98 & 34.05 $\pm$ 3.38 \\
+$10^{-3}$ & 83.99 $\pm$ 0.14 & 73.74 $\pm$ 0.22 & 86.89 $\pm$ 0.24 & 82.35 $\pm$ 0.14 & 29.15 $\pm$ 1.02 \\
+$10^{-2}$ & 83.90 $\pm$ 0.71 & 73.66 $\pm$ 0.95 & 86.58 $\pm$ 2.11 & 82.58 $\pm$ 3.11 & 29.09 $\pm$ 1.14 \\
+$10^{-1}$ & 83.75 $\pm$ 0.30 & 73.28 $\pm$ 0.56 & 86.54 $\pm$ 1.24 & 82.34 $\pm$ 1.47 & 30.63 $\pm$ 3.86 \\
+$1$ & 83.64 $\pm$ 1.15 & 73.21 $\pm$ 1.72 & \textbf{86.92 $\pm$ 1.44} & 81.91 $\pm$ 3.23 & 30.36 $\pm$ 1.73 \\
+$2$ & \textbf{84.18 $\pm$ 1.06} & \textbf{73.98 $\pm$ 1.60} & 86.43 $\pm$ 1.25 & \textbf{83.22 $\pm$ 2.70} & \textbf{28.88 $\pm$ 2.19} \\
+\addlinespace[4pt]
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{lccccc}
+\caption{DSR-SAM $L_{\mathrm{tsd}}$ sensitivity on source USOVA (rank 8, $L_{\mathrm{tsd}}$ on, $\Delta$ off; mean $\pm$ std over seeds 42, 0, 100).}
+\label{tab:ltsd_alpha_usova}\\
+\toprule
+$\alpha$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+$\alpha$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{6}{l}{\textit{Target: OTU}} \\
+\midrule
+$10^{-4}$ & 84.81 $\pm$ 0.89 & 74.31 $\pm$ 1.30 & 78.95 $\pm$ 2.56 & 93.07 $\pm$ 1.56 & 17.84 $\pm$ 1.12 \\
+$10^{-3}$ & \textbf{85.75 $\pm$ 0.30} & \textbf{75.76 $\pm$ 0.44} & 81.45 $\pm$ 0.51 & 92.05 $\pm$ 0.95 & \textbf{16.74 $\pm$ 1.16} \\
+$10^{-2}$ & 85.44 $\pm$ 0.32 & 75.34 $\pm$ 0.49 & 82.00 $\pm$ 3.69 & 90.90 $\pm$ 3.67 & 18.39 $\pm$ 4.51 \\
+$10^{-1}$ & 85.72 $\pm$ 0.69 & 75.70 $\pm$ 1.05 & 80.81 $\pm$ 2.92 & 92.61 $\pm$ 2.30 & 17.34 $\pm$ 2.67 \\
+$1$ & 85.62 $\pm$ 0.69 & 75.59 $\pm$ 1.01 & \textbf{82.07 $\pm$ 2.86} & 91.13 $\pm$ 2.63 & 17.74 $\pm$ 3.73 \\
+$2$ & 84.50 $\pm$ 0.25 & 73.98 $\pm$ 0.32 & 77.50 $\pm$ 0.77 & \textbf{94.54 $\pm$ 1.06} & 19.77 $\pm$ 3.44 \\
+\addlinespace[4pt]
+\multicolumn{6}{l}{\textit{Target: OVATUS}} \\
+\midrule
+$10^{-4}$ & 89.91 $\pm$ 0.71 & 81.84 $\pm$ 1.15 & 85.76 $\pm$ 2.85 & \textbf{94.99 $\pm$ 2.13} & 15.43 $\pm$ 1.21 \\
+$10^{-3}$ & \textbf{90.83 $\pm$ 0.70} & \textbf{83.37 $\pm$ 1.14} & 88.47 $\pm$ 1.55 & 93.83 $\pm$ 1.64 & \textbf{14.69 $\pm$ 1.49} \\
+$10^{-2}$ & 90.68 $\pm$ 0.74 & 83.12 $\pm$ 1.23 & 89.75 $\pm$ 2.48 & 92.13 $\pm$ 2.72 & 14.98 $\pm$ 1.77 \\
+$10^{-1}$ & 90.63 $\pm$ 0.78 & 83.02 $\pm$ 1.31 & 88.31 $\pm$ 2.54 & 93.54 $\pm$ 2.87 & 14.91 $\pm$ 1.52 \\
+$1$ & 90.68 $\pm$ 0.86 & 83.13 $\pm$ 1.40 & \textbf{90.05 $\pm$ 2.59} & 91.89 $\pm$ 3.09 & 14.93 $\pm$ 1.39 \\
+$2$ & 90.19 $\pm$ 0.21 & 82.31 $\pm$ 0.32 & 86.60 $\pm$ 2.06 & 94.60 $\pm$ 2.78 & 16.00 $\pm$ 1.16 \\
+\addlinespace[4pt]
+\end{longtable}
+}
+
+\newpage
+
+\section{Ablation Study}
+\label{sec:ablation}
+
+{\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{longtable}{lcccc rrrrr}
+\caption{Ablation study of DSR-SAM2 with CBA $n=8$. Values are mean $\pm$ sample std over seeds 42, 0, 100. $\checkmark$/$\times$ denote enabled/disabled switches. Best mean per metric per source$\rightarrow$target group is \textbf{bold}.}
+\label{tab:ablation_dsr_sam2}\\
+\toprule
+& \multicolumn{4}{c}{Configuration} & \multicolumn{5}{c}{Metrics} \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-10}
+Variant & CNN & CBA & CKA & $L_{\mathrm{CKA}}$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+Variant & CNN & CBA & CKA & $L_{\mathrm{CKA}}$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{10}{l}{\textit{Source: OTU $\rightarrow$ Target: OVATUS}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 95.05 $\pm$ 0.11 & 90.66 $\pm$ 0.20 & 96.55 $\pm$ 0.03 & 93.74 $\pm$ 0.20 & 9.56 $\pm$ 0.22 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 95.12 $\pm$ 0.11 & 90.79 $\pm$ 0.20 & 96.12 $\pm$ 0.59 & \textbf{94.30 $\pm$ 0.57} & 9.62 $\pm$ 0.08 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & 94.82 $\pm$ 0.24 & 90.26 $\pm$ 0.44 & 97.01 $\pm$ 0.26 & 92.90 $\pm$ 0.58 & 9.61 $\pm$ 0.35 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & \textbf{95.17 $\pm$ 0.09} & \textbf{90.87 $\pm$ 0.16} & 96.26 $\pm$ 0.56 & 94.26 $\pm$ 0.60 & \textbf{9.50 $\pm$ 0.43} \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & 94.68 $\pm$ 0.17 & 90.01 $\pm$ 0.28 & 96.98 $\pm$ 0.29 & 92.66 $\pm$ 0.11 & 10.43 $\pm$ 0.81 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & 94.65 $\pm$ 0.23 & 89.97 $\pm$ 0.39 & \textbf{97.21 $\pm$ 0.25} & 92.42 $\pm$ 0.42 & 10.07 $\pm$ 0.50 \\
+\addlinespace[4pt]
+\multicolumn{10}{l}{\textit{Source: OTU $\rightarrow$ Target: USOVA}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 84.58 $\pm$ 0.26 & 74.46 $\pm$ 0.44 & 85.53 $\pm$ 1.03 & 85.27 $\pm$ 1.87 & \textbf{28.60 $\pm$ 1.26} \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 83.94 $\pm$ 0.55 & 73.45 $\pm$ 0.95 & 82.99 $\pm$ 4.24 & \textbf{87.07 $\pm$ 4.82} & 31.40 $\pm$ 2.34 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & \textbf{84.69 $\pm$ 0.42} & \textbf{74.65 $\pm$ 0.55} & 84.11 $\pm$ 1.34 & 86.91 $\pm$ 1.21 & 29.17 $\pm$ 1.22 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & 83.81 $\pm$ 0.71 & 73.30 $\pm$ 1.05 & 83.63 $\pm$ 2.54 & 85.91 $\pm$ 3.36 & 31.76 $\pm$ 1.58 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & 83.44 $\pm$ 0.46 & 72.75 $\pm$ 0.65 & 85.10 $\pm$ 0.59 & 83.70 $\pm$ 0.45 & 32.17 $\pm$ 2.55 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & 83.85 $\pm$ 0.68 & 73.28 $\pm$ 1.11 & \textbf{85.94 $\pm$ 1.18} & 83.76 $\pm$ 1.45 & 30.11 $\pm$ 2.88 \\
+\addlinespace[4pt]
+\multicolumn{10}{l}{\textit{Source: OVATUS $\rightarrow$ Target: OTU}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 90.68 $\pm$ 0.34 & 84.04 $\pm$ 0.44 & 89.88 $\pm$ 0.82 & 92.42 $\pm$ 0.30 & 12.93 $\pm$ 1.03 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 89.60 $\pm$ 1.51 & 82.87 $\pm$ 1.63 & 88.95 $\pm$ 2.19 & 91.83 $\pm$ 0.75 & 14.48 $\pm$ 6.56 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & 90.62 $\pm$ 0.15 & 83.90 $\pm$ 0.28 & 90.52 $\pm$ 1.18 & 91.79 $\pm$ 1.51 & 11.99 $\pm$ 0.68 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & 90.42 $\pm$ 0.15 & 83.77 $\pm$ 0.15 & \textbf{90.69 $\pm$ 1.25} & 91.26 $\pm$ 1.20 & 13.37 $\pm$ 3.63 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & \textbf{91.12 $\pm$ 0.36} & 84.55 $\pm$ 0.48 & 89.57 $\pm$ 1.47 & \textbf{93.55 $\pm$ 2.16} & 11.57 $\pm$ 0.72 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & 91.06 $\pm$ 0.58 & \textbf{84.56 $\pm$ 0.73} & 89.87 $\pm$ 1.11 & 93.10 $\pm$ 1.12 & \textbf{11.45 $\pm$ 1.00} \\
+\addlinespace[4pt]
+\multicolumn{10}{l}{\textit{Source: OVATUS $\rightarrow$ Target: USOVA}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 81.87 $\pm$ 0.93 & 70.86 $\pm$ 1.36 & 85.07 $\pm$ 1.00 & 80.42 $\pm$ 2.25 & 35.90 $\pm$ 1.39 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 80.72 $\pm$ 1.89 & 69.32 $\pm$ 2.58 & 85.70 $\pm$ 1.33 & 77.82 $\pm$ 4.14 & 35.17 $\pm$ 2.74 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & 79.17 $\pm$ 5.09 & 67.27 $\pm$ 6.65 & \textbf{86.59 $\pm$ 2.06} & 74.92 $\pm$ 9.28 & 39.02 $\pm$ 8.37 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & 79.47 $\pm$ 1.87 & 67.66 $\pm$ 2.46 & 86.20 $\pm$ 2.78 & 75.61 $\pm$ 5.00 & 37.31 $\pm$ 3.59 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & 81.47 $\pm$ 1.54 & 70.22 $\pm$ 1.94 & 84.79 $\pm$ 3.38 & 80.13 $\pm$ 5.40 & 35.50 $\pm$ 0.31 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{83.41 $\pm$ 1.28} & \textbf{73.13 $\pm$ 1.88} & 85.87 $\pm$ 0.71 & \textbf{82.30 $\pm$ 1.60} & \textbf{31.76 $\pm$ 6.21} \\
+\addlinespace[4pt]
+\multicolumn{10}{l}{\textit{Source: USOVA $\rightarrow$ Target: OTU}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 84.40 $\pm$ 1.44 & 73.97 $\pm$ 1.94 & 85.68 $\pm$ 2.25 & 84.45 $\pm$ 0.20 & 17.07 $\pm$ 0.88 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 83.28 $\pm$ 1.73 & 72.62 $\pm$ 2.04 & 84.51 $\pm$ 0.92 & 83.94 $\pm$ 2.81 & 17.78 $\pm$ 1.38 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & 82.28 $\pm$ 3.71 & 71.46 $\pm$ 4.69 & 85.02 $\pm$ 0.71 & 81.68 $\pm$ 6.31 & 18.90 $\pm$ 2.86 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & 82.54 $\pm$ 2.17 & 71.69 $\pm$ 2.60 & 82.34 $\pm$ 1.67 & 84.93 $\pm$ 5.17 & 20.82 $\pm$ 2.64 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & 84.62 $\pm$ 0.33 & 74.46 $\pm$ 0.49 & \textbf{86.20 $\pm$ 1.40} & 84.55 $\pm$ 1.72 & 16.71 $\pm$ 1.07 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{85.79 $\pm$ 0.99} & \textbf{75.90 $\pm$ 1.40} & 82.38 $\pm$ 1.70 & \textbf{90.74 $\pm$ 0.25} & \textbf{15.71 $\pm$ 1.05} \\
+\addlinespace[4pt]
+\multicolumn{10}{l}{\textit{Source: USOVA $\rightarrow$ Target: OVATUS}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 89.76 $\pm$ 0.52 & 81.63 $\pm$ 0.83 & 91.50 $\pm$ 1.62 & 88.59 $\pm$ 2.22 & 17.02 $\pm$ 1.44 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 88.32 $\pm$ 1.11 & 79.34 $\pm$ 1.73 & 90.83 $\pm$ 4.16 & 86.88 $\pm$ 6.12 & 18.57 $\pm$ 1.39 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & 88.11 $\pm$ 3.51 & 79.26 $\pm$ 5.20 & 91.17 $\pm$ 1.23 & 86.11 $\pm$ 7.27 & 19.62 $\pm$ 4.98 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & 88.85 $\pm$ 0.78 & 80.21 $\pm$ 1.17 & 89.18 $\pm$ 1.69 & 89.09 $\pm$ 2.68 & 18.15 $\pm$ 1.09 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & 89.63 $\pm$ 0.98 & 81.45 $\pm$ 1.55 & \textbf{93.19 $\pm$ 0.99} & 86.83 $\pm$ 2.65 & 16.51 $\pm$ 1.21 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{90.78 $\pm$ 0.27} & \textbf{83.28 $\pm$ 0.44} & 89.53 $\pm$ 1.00 & \textbf{92.50 $\pm$ 0.95} & \textbf{14.19 $\pm$ 0.25} \\
 \addlinespace[4pt]
 \end{longtable}
 }
