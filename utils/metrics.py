@@ -16,6 +16,10 @@ try:
 except ImportError:
     medpy_hd95 = None
 
+# Optional global suffix appended by DG.sota.run_sota, e.g.
+# '_yolov8x_seed42'.  Empty during normal per-method runs.
+RESULT_SUFFIX = ''
+
 def metric_dice_iou_prec_rec_hd95(y_pred, y_true, with_hd95=True, threshold=0.5, eps=1e-7):
     B, C, H, W = y_pred.shape
 
@@ -122,6 +126,8 @@ def save_results(name, results_dict, file_path='results.json'):
     FIVE_KEYS = ('dice', 'iou', 'precision', 'recall', 'hd95')
     # Tag once; re-saving an already tagged name must not add gpuN_gpuN_.
     name = str(name)
+    if RESULT_SUFFIX and not name.endswith(RESULT_SUFFIX):
+        name = f'{name}{RESULT_SUFFIX}'
     if not re.match(r'^(gpu\d+|cpu)_', name):
         name = results_name_prefix() + name
     if all(k in results_dict for k in FIVE_KEYS):

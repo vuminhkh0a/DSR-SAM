@@ -83,16 +83,13 @@ export PYTHONHASHSEED=42
 # ========== YOLOv8 (vendored autogyro/yolo-V8, 8.0.8) ==========
 # Full matrix: default sizes (n,s) x 3 seeds (42,0,100) x 3 sources -> results_yolo.json
 # Use --sizes m,l,x or --sizes n,s,m,l,x to override the default set.
-nohup python3 -u -m yolo.main > log_yolo.txt 2>&1 &
+# nohup python3 -u -m yolo.main > log_yolo.txt 2>&1 &
 #
 # Smoke: first configured size (n), seed 42, all sources, 1 epoch -> results_yolo_smoke.json
 # nohup python3 -u -m yolo.main --smoke > log_yolo_smoke.txt 2>&1 &
 
-# ========== DG DSR-SAM L_tsd alpha -> d_delta study (run_sota, rank=8 fixed, 3 seeds, OVATUS+USOVA) ==========
-# nohup python3 -u -m DG.sota.run_sota --methods dsr_sam_study > "$LOG_FILE" 2>&1 &
-
-# ========== DG SOTA (all methods consecutively, fresh log each run) ==========
-# nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
+# ========== DG SOTA (all methods except dsr_sam/dsr_sam2, seeds 42/0/100, yolov8x prompts) ==========
+nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
 
 echo "Tailing $LOG_FILE"
 tail -f "$LOG_FILE"
