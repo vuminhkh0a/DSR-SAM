@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import torch
 import torch.nn.functional as F
@@ -19,6 +20,10 @@ except ImportError:
 # Optional global suffix appended by DG.sota.run_sota, e.g.
 # '_yolov8x_seed42'.  Empty during normal per-method runs.
 RESULT_SUFFIX = ''
+
+# Results file written by save_results() when no explicit path is passed.
+# DG.sota.run_sota overrides this to give each seed process its own file.
+RESULT_FILE = 'results.json'
 
 def metric_dice_iou_prec_rec_hd95(y_pred, y_true, with_hd95=True, threshold=0.5, eps=1e-7):
     B, C, H, W = y_pred.shape
@@ -111,8 +116,11 @@ def results_name_prefix():
     return f'gpu{idx}_' if idx is not None else 'cpu_'
 
 
-def save_results(name, results_dict, file_path='results.json'):
+def save_results(name, results_dict, file_path=None):
     """Insert or update one test case in results.json (2 lines per case).
+
+    ``file_path`` defaults to the module-level ``RESULT_FILE`` (normally
+    ``results.json``); ``run_sota.py`` can point it at a per-seed file.
 
     Line 1: {"name": "<name>",
     Line 2:  "results": {"dice":.., "iou":.., "precision":.., "recall":.., "hd95":..}}
@@ -123,6 +131,8 @@ def save_results(name, results_dict, file_path='results.json'):
     Re-running the same case updates its existing entry in place instead of
     appending a duplicate, so results.json never accumulates overlapping rows.
     """
+    if file_path is None:
+        file_path = RESULT_FILE
     FIVE_KEYS = ('dice', 'iou', 'precision', 'recall', 'hd95')
     # Tag once; re-saving an already tagged name must not add gpuN_gpuN_.
     name = str(name)
@@ -157,6 +167,7 @@ def save_results(name, results_dict, file_path='results.json'):
     if not inserted:
         updated.append(entry)
     existing_data = updated
+    os.makedirs(os.path.dirname(file_path) or '.', exist_ok=True)
     with open(file_path, 'w', encoding='utf-8') as f:
         if not existing_data:
             f.write('[]\n')

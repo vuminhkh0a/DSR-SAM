@@ -36,8 +36,8 @@ pip install "setuptools==80.9.0"   # pkg_resources was removed in setuptools 82
 
 ```bash
 # Smoke test: first configured size (n), seed 42, all 3 sources, 1 epoch.
-# Writes results_yolo_smoke.json and box_coords_yolov8_n_smoke.json and does
-# NOT overwrite the full-run files.
+# Writes logs_results/results_yolo_smoke.json and box_coords_yolov8_n_smoke.json
+# and does NOT overwrite the full-run files.
 python -m yolo.main --smoke
 
 # Full matrix: default sizes n,s x 3 seeds x 3 sources = 18 trainings.
@@ -72,13 +72,13 @@ All tqdm progress bars from the reference code are disabled at import time by
 | `weights/yolo/yolov8<n,s,m,l,x>.pt` | Pretrained COCO checkpoints; n/s are auto-downloaded on first use. |
 | `weights/yolo/runs/yolov8<size>_seed<seed>_s_<source>/weights/best.pt` | Full-run checkpoints. |
 | `weights/yolo/runs_smoke/...` | Smoke-run checkpoints (kept separate so a 1-epoch smoke model can never block a full run). |
-| `results_yolo.json` | Full detection results (or `results_yolo_smoke.json`). |
+| `logs_results/results_yolo.json` | Full detection results (or `logs_results/results_yolo_smoke.json`). |
 | `box_coords_yolov8_{n,s,m,l,x}.json` | Full seed-42 prompt boxes, one file per size (or `..._n_smoke.json`). |
 | `yolo/datasets/<OTU2D|OVATUS|USOVA3D>/` | Copied images + YOLO labels + `data*.yaml`. |
 
 No existing weight file and **no `box_coords.json` content is changed**.
 
-### `results_yolo.json`
+### `logs_results/results_yolo.json`
 
 A list of records, one per (size, seed, source, target):
 

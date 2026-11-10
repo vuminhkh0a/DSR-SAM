@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Build the DSR-SAM2 ablation table from results.json into tables.tex.
 
-Reads the three seed runs per ablation case:
-  * no seed suffix -> seed 42
-  * _seed0         -> seed 0
-  * _seed100       -> seed 100
+Reads the three seed runs per ablation case. Both naming schemes are accepted:
+  * run_sota: ..._best_yolov8x_seed42 / _seed0 / _seed100
+  * legacy:   no seed suffix -> seed 42, _seed0 -> seed 0, _seed100 -> seed 100
 
 Reports mean +/- sample standard deviation (ddof=1) over the three seeds.
 Best mean per metric per source->target group is bold; HD95 uses the
@@ -62,15 +61,20 @@ TARGETS_FOR = {
     'USOVA': ('OTU', 'OVATUS'),
 }
 
+# Accepts the run_sota names written by the 8-variant study
+#   ..._best_yolov8x_seed<seed>
+# as well as the older
+#   ..._seed<seed>_sam_s_..._best   (and no suffix for seed 42).
 NAME_RE = re.compile(
     r'^(?P<gpu>gpu\d+|cpu)_vit_b_dsr_sam2_ab_(?P<tag>.+?)'
-    r'(?P<seed>_seed\d+)?_sam_s_'
-    r'(?P<source>OTU|OVATUS|USOVA)_t_(?P<target>OTU|OVATUS|USOVA)_best$'
+    r'(?:_seed(?P<seed_old>\d+))?_sam_s_'
+    r'(?P<source>OTU|OVATUS|USOVA)_t_(?P<target>OTU|OVATUS|USOVA)_best'
+    r'(?:_yolov8x_seed(?P<seed_new>\d+))?$'
 )
 
 
 def load_runs():
-    """Return {(tag, source, target): {seed: results}}."""
+    """Return ({(tag, source, target): {seed: results}}, present_sources)."""
     data = json.loads(RESULTS_PATH.read_text())
     runs = {}
     duplicates = []
@@ -81,8 +85,10 @@ def load_runs():
         tag = m.group('tag')
         if tag not in TAGS:
             continue
-        seed_raw = m.group('seed')
-        seed = 42 if seed_raw is None else int(seed_raw[len('_seed'):])
+        seed_old = m.group('seed_old')
+        seed_new = m.group('seed_new')
+        seed = (int(seed_new) if seed_new is not None
+                else 42 if seed_old is None else int(seed_old))
         key = (tag, m.group('source'), m.group('target'))
         by_seed = runs.setdefault(key, {})
         if seed in by_seed:
@@ -91,9 +97,14 @@ def load_runs():
     if duplicates:
         raise SystemExit('Duplicate seed entries:\n  ' + '\n  '.join(duplicates))
 
+    present_sources = [s for s in SOURCES
+                       if any(key[1] == s for key in runs)]
+    if not present_sources:
+        raise SystemExit('No dsr_sam2_ab rows found in results.json')
+
     missing = []
     for tag, *_ in ABLATIONS:
-        for source in SOURCES:
+        for source in present_sources:
             for target in TARGETS_FOR[source]:
                 have = runs.get((tag, source, target), {})
                 for seed in SEEDS:
@@ -101,7 +112,7 @@ def load_runs():
                         missing.append(f'{tag} | {source}->{target} | seed {seed}')
     if missing:
         raise SystemExit('Missing ablation entries:\n  ' + '\n  '.join(missing))
-    return runs
+    return runs, present_sources
 
 
 def fmt_cell(mean, std, bold):
@@ -109,7 +120,7 @@ def fmt_cell(mean, std, bold):
     return f'\\textbf{{{cell}}}' if bold else cell
 
 
-def build_table(runs):
+def build_table(runs, sources=SOURCES):
     lines = [
         r'{\scriptsize',
         r'\setlength{\tabcolsep}{2pt}',
@@ -137,7 +148,7 @@ def build_table(runs):
         r'\endlastfoot',
     ]
 
-    for source in SOURCES:
+    for source in sources:
         for target in TARGETS_FOR[source]:
             means = {}
             stds = {}
@@ -196,10 +207,13 @@ def update_tables_tex(table):
 
 
 def main():
-    runs = load_runs()
-    table = build_table(runs)
+    runs, present_sources = load_runs()
+    skipped = [s for s in SOURCES if s not in present_sources]
+    table = build_table(runs, present_sources)
     update_tables_tex(table)
     print(f'Updated {TABLES_PATH}')
+    print(f'Sources: {present_sources}'
+          + (f' (skipped, no rows: {skipped})' if skipped else ''))
     print(f'Cases: {len(runs)}; seeds per case: {len(SEEDS)}; '
           f'variants: {len(ABLATIONS)}')
 

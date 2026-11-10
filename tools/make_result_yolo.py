@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write result_yolo.tex directly from results_yolo.json.
+"""Write result_yolo.tex directly from logs_results/results_yolo.json.
 
 Output format:
   * exactly 3 tables, one per source domain (OTU, OVATUS, USOVA);
@@ -22,7 +22,7 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_RESULTS = ROOT / 'results_yolo.json'
+DEFAULT_RESULTS = ROOT / 'logs_results' / 'results_yolo.json'
 DEFAULT_OUT = ROOT / 'result_yolo.tex'
 
 SIZES = ('n', 's', 'm', 'l', 'x')
@@ -154,7 +154,7 @@ def make_document(stats):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Write result_yolo.tex from results_yolo.json')
+        description='Write result_yolo.tex from logs_results/results_yolo.json')
     parser.add_argument('--results', default=str(DEFAULT_RESULTS))
     parser.add_argument('--out', default=str(DEFAULT_OUT))
     args = parser.parse_args()

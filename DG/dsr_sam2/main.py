@@ -5,12 +5,12 @@ ImageNet1k-v1 ResNet18 CNN branch. ``cba_last_n = n`` appends n extra
 768->768 CNN ResBlocks after the always-kept layer4 and enables 2n
 CKA-scaled Cross-Branch Attention blocks in the last n ViT blocks
 (no ViT block is added). Each CBA uses
-``f_gated_cnn = AttentionGate(f_cnn, f_vit)`` (Oktay et al. 2018) and
-``f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2``, where ``C_weight``
-is the per-channel linear CKA. The final fusion is plain
-``x = x + cnn_final`` (no CKA, no gate).
+``f'_cnn = AttentionGate(f_cnn, f_vit)`` (Oktay et al. 2018) and
+``f_vit + (1 - C) * f'_cnn``, where ``C`` is the global linear CKA
+between the full ViT and CNN feature maps (H*W examples, C features).
+The final fusion is plain ``x = x + cnn_final`` (no CKA, no gate).
 Training adds ``cka_loss_weight * L_CKA`` (default 0.1): ``L_CKA`` is the
-normalized sum of all CBA ``C_weight`` terms.
+mean of all per-sample CKA scores over the 2n CBA modules.
 LoRA/EMA are inherited from DSR-SAM.
 
 Single-source DG: trains on ONE source domain, evaluates on the two
@@ -40,10 +40,19 @@ def run_single_source(source, targets, cfg, runner):
     # Phase 2 (reproducibility): reseed per source so a source's run no longer
     # depends on RNG consumed by previously run sources/cases.
     set_seed(cfg.get('seed', ENV_SEED))
-    cfg['model_dir'] = 'weights/dsr_sam2/'
-    # `weight_name_tag` lets variants save to distinct weights; ablations pass
-    # the same tag so their checkpoints overwrite one set of files.
-    cfg['prefix'] = f'{cfg["model_type"]}_{cfg.get("weight_name_tag", "dsr_sam2_cka")}_s_{source}'
+    # `overwrite_name` (used by the run_sota ablation study) sends every
+    # variant and seed to ONE shared checkpoint under weights/dsr_sam2/analysis/
+    # so at most one weight is kept on disk.
+    overwrite_name = cfg.get('overwrite_name')
+    if overwrite_name:
+        cfg['model_dir'] = cfg.get('overwrite_dir') or os.path.join(
+            'weights', 'dsr_sam2', 'analysis')
+        cfg['prefix'] = f'{cfg["model_type"]}_{overwrite_name}'
+    else:
+        cfg['model_dir'] = 'weights/dsr_sam2/'
+        # `weight_name_tag` lets variants save to distinct weights; ablations
+        # pass the same tag so their checkpoints overwrite one set of files.
+        cfg['prefix'] = f'{cfg["model_type"]}_{cfg.get("weight_name_tag", "dsr_sam2_cka")}_s_{source}'
     cfg['source'] = source
 
     print(f'\n{"="*70}')
@@ -135,6 +144,7 @@ CONFIG = {
     'n_epochs': 100,
     'base_lr': 0.0005,          # paper Sec. 3 (initial learning rate)
     'warmup_period': 250,       # paper Sec. 3 (warm-up iterations)
+    'grad_clip_norm': 1.0,      # global grad-norm clip (0 = disabled); keeps CKA stable
     'patience': 20,              # early stopping on val loss (0 = disabled)
 
     'num_classes': 1,
@@ -163,14 +173,13 @@ CONFIG = {
     # default: 8
     'cba_last_n': 8,
 
-    # CBA fusion: f_vit + ((1 - C_weight)*f_cnn + f_gated_cnn) / 2, where
-    # C_weight is the per-channel linear CKA between same-index channels of
-    # f_vit and f_cnn, and f_gated_cnn = AttentionGate(f_cnn, f_vit) uses
-    # f_vit as the gating signal. C_weight in [0, 1] (1 = aligned,
-    # 0 = uncorrelated), so the CNN branch contributes most where the two
-    # branches are least aligned. Off-diagonal channel pairs are not used.
+    # CBA fusion: f_vit + (1 - C) * f'_cnn, where C is one global linear
+    # CKA score between the full ViT and CNN feature maps (H*W spatial
+    # examples, C channels), and f'_cnn = AttentionGate(f_cnn, f_vit) uses
+    # f_vit as the gating signal. C in [0, 1] (1 = aligned, 0 = unrelated),
+    # so the CNN branch contributes most when the branches are least aligned.
     # True  -> CKA + attention-gated fusion (DSR-SAM2)
-    # False -> f_vit + f_cnn (ablation: gate bypassed)
+    # False -> f_vit + f'_cnn (gate on) / f_vit + f_cnn (gate off); no CKA
     'cka_fusion': True,
 
     # Paper-style additive AttentionGate (Oktay et al. 2018) at the 2n CBA
@@ -185,9 +194,9 @@ CONFIG = {
     # Final ViT/CNN fusion (after the last ViT block, before the SAM neck):
     # plain x = x + cnn_final (no CKA, no attention gate).
 
-    # L_CKA = normalized sum of every CBA C_weight term, added to the
-    # training loss as cka_loss_weight * L_CKA.  The model exposes it as
-    # outputs['cka_loss'].
+    # L_CKA = mean of all per-sample CKA scores over the 2n CBA modules,
+    # added to the training loss as cka_loss_weight * L_CKA.  The model
+    # exposes it as outputs['cka_loss'].
     'compute_cka_loss': True,
     'cka_loss_weight': 0.1,
 

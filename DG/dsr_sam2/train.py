@@ -5,8 +5,8 @@ DSR-SAM training (paper Sec. 2.2-2.3 + repo sam_lora_image_encoder.py).
     L_seg = CE + Dice (paper Sec. 2.3, "combination of cross entropy loss
     and dice loss") computed on the 256-res sigmoid predictions, and
     L_distill = mean binary KL divergence between the EMA teacher and the
-    LoRA student (Eq. 4).  L_CKA is the normalized sum of the per-channel
-    CKA terms from all CBA blocks, computed on the student forward;
+    LoRA student (Eq. 4).  L_CKA is the mean of the per-sample global CKA
+    scores from all CBA blocks, computed on the student forward;
     lambda_cka = cka_loss_weight (0.1).
   * Optimizer: AdamW (filtered to trainable params, weight_decay 0.1),
     base_lr = 5e-4 with a linear warm-up of 250 iterations (paper Sec. 3).
@@ -102,7 +102,26 @@ def train_one_epoch(model, loader, device, optimizer, seg_loss, cfg, iter_num):
             loss_cka = outputs['cka_loss']
             loss = loss + cfg.get('cka_loss_weight', 0.1) * loss_cka
 
+        # Never let one bad batch (NaN/Inf loss or gradient) corrupt the
+        # weights: skip its update and keep the previous finite state.
+        if not torch.isfinite(loss):
+            print(f'  [warn] non-finite loss ({loss.item()}); skipping batch')
+            optimizer.zero_grad(set_to_none=True)
+            continue
+
         loss.backward()
+
+        grad_clip = cfg.get('grad_clip_norm', 1.0)
+        if grad_clip and grad_clip > 0:
+            grad_norm = torch.nn.utils.clip_grad_norm_(
+                [p for group in optimizer.param_groups for p in group['params']],
+                grad_clip)
+            if not torch.isfinite(grad_norm):
+                print(f'  [warn] non-finite gradient (norm={grad_norm.item()}); '
+                      f'skipping batch')
+                optimizer.zero_grad(set_to_none=True)
+                continue
+
         optimizer.step()
 
         if cfg.get('ema_mode', True):

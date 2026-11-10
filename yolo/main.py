@@ -7,7 +7,7 @@ Full run (default):
 
 Smoke run (all sources, 1 epoch, first configured size, seed 42):
     python -m yolo.main --smoke
-    -> results_yolo_smoke.json and box_coords_yolov8_n_smoke.json
+    -> logs_results/results_yolo_smoke.json and box_coords_yolov8_n_smoke.json
 
 Examples:
     python -m yolo.main --smoke

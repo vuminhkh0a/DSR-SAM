@@ -11,25 +11,24 @@ new layer4 projection (256->768, 16x16x768) -- 7 ResBlocks in total.
 (layer5 ... layer(4+n), chained after layer4). The last n ViT blocks pair
 one-to-one with those extra ResBlocks, and each hosts two CBA blocks
 (2n total): CBA1 after norm1 with the ResBlock "before" feature, CBA2 after
-norm2 with its "after" feature. Each CBA computes the
-per-channel linear CKA (Centered Kernel Alignment) between the same-index
-pair and an AttentionGate (Oktay et al. 2018) that uses f_vit as the gating
-signal to filter f_cnn:
+norm2 with its "after" feature. Each CBA computes one global linear CKA
+(Centered Kernel Alignment) between the full ViT and CNN feature maps,
+using the H*W spatial positions as examples and the C channels as features:
 
-``f_gated_cnn = AttentionGate(f_cnn, f_vit)``
-``fused = f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2``
+``f'_cnn = AttentionGate(f_cnn, f_vit)``
+``C      = CKA(f_vit, f'_cnn)``
+``fused  = f_vit + (1 - C) * f'_cnn``
 
-where ``C_weight`` in [0, 1] is 1 for aligned channels and 0 for
-uncorrelated ones.  ``use_attention_gate=False`` falls back to
-``f_vit + (1 - C_weight) * f_cnn``.
+where ``C`` in [0, 1] is one score per sample (1 = aligned, 0 =
+uncorrelated).  ``use_attention_gate=False`` uses ``f_cnn`` instead of
+``f'_cnn`` and still computes CKA.
 
 Before the SAM neck, the final ViT/CNN fusion is plain addition:
 ``x = x + cnn_final``, using the last extra ResBlock output as ``cnn_final``
 (no CKA and no attention gate).
 
-Training adds ``cka_loss_weight * L_CKA`` (default 0.1).  ``L_CKA`` sums
-every CBA ``C_weight`` term, normalized by the literal
-``batch_size * total_CBA_in_model * total_channels_in_all_CBA``.
+Training adds ``cka_loss_weight * L_CKA`` (default 0.1).  ``L_CKA`` is the
+mean of all per-sample CKA scores over the 2n CBA modules.
 
 Shared config helpers are used by every DSR-SAM2 entry point (``main``,
 ``main_a``, ``main_h``) and by the SOTA runner overrides in

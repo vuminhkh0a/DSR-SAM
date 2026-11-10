@@ -47,6 +47,9 @@ export PYTHONHASHSEED=42
 # ========== DG DSR-SAM2 (dual-branch ViT + ResNet18 CNN, CKA CBA) ==========
 # nohup python3 -m DG.dsr_sam2.main > "$LOG_FILE" 2>&1 &
 
+# ========== DG SAM + LoRA rank 8 (plain baseline: SAM + LoRA only) ==========
+# nohup python3 -u -m DG.sam_novel1.main > "$LOG_FILE" 2>&1 &
+
 # ========== DG SAMMed (leveraging SAM for single-source DG) ==========
 # nohup python3 -m DG.sammed.main > "$LOG_FILE" 2>&1 &
 
@@ -81,15 +84,43 @@ export PYTHONHASHSEED=42
 # nohup python3 -m DG.ultrasam.main > "$LOG_FILE" 2>&1 &
 
 # ========== YOLOv8 (vendored autogyro/yolo-V8, 8.0.8) ==========
-# Full matrix: default sizes (n,s) x 3 seeds (42,0,100) x 3 sources -> results_yolo.json
+# Full matrix: default sizes (n,s) x 3 seeds (42,0,100) x 3 sources -> logs_results/results_yolo.json
 # Use --sizes m,l,x or --sizes n,s,m,l,x to override the default set.
-# nohup python3 -u -m yolo.main > log_yolo.txt 2>&1 &
+# nohup python3 -u -m yolo.main > logs_results/log_yolo.txt 2>&1 &
 #
-# Smoke: first configured size (n), seed 42, all sources, 1 epoch -> results_yolo_smoke.json
-# nohup python3 -u -m yolo.main --smoke > log_yolo_smoke.txt 2>&1 &
+# Smoke: first configured size (n), seed 42, all sources, 1 epoch -> logs_results/results_yolo_smoke.json
+# nohup python3 -u -m yolo.main --smoke > logs_results/log_yolo_smoke.txt 2>&1 &
 
-# ========== DG SOTA (all methods except dsr_sam/dsr_sam2, seeds 42/0/100, yolov8x prompts) ==========
-nohup python3 -u -m DG.sota.run_sota > "$LOG_FILE" 2>&1 &
+# ========== DSR-SAM2 ab2 ablation study — 3 parallel processes, one per seed ==========
+# 8 variants x all 3 sources x one seed per process, MANUAL box prompts
+# (box_coords.json, prompt_method='gt').
+# Each process writes its own log, results file and checkpoint:
+#   logs_results/log_dsr_sam2_manual_ablation_seed<seed>.txt
+#   logs_results/results_dsr_sam2_manual_ablation_seed<seed>.json
+#   weights/dsr_sam2/vit_b_dsr_sam2_manual_ablation_overwrite_seed<seed>_best.pth
+# Result names use the suffix _manual_seed<seed>.
+# All three run on physical GPU 2 (CUDA_DEVICE=cuda:2). If the GPU runs out
+# of memory, lower 'batch_size' in DG/dsr_sam2/main.py or run the seeds
+# sequentially instead.
+OUT_DIR="logs_results"
+mkdir -p "$OUT_DIR"
+ABL_TAG="dsr_sam2_manual_ablation"
+for SEED in 42 0 100; do
+    nohup env \
+        CUDA_DEVICE=cuda:2 \
+        PYTHONHASHSEED="$SEED" \
+        SOTA_SEEDS="$SEED" \
+        SOTA_PROMPT_METHOD="gt" \
+        SOTA_PROMPT_TAG="manual" \
+        SOTA_WEIGHT_PREFIX="dsr_sam2_manual_ablation_overwrite" \
+        SOTA_WEIGHT_SUFFIX="_seed${SEED}" \
+        SOTA_LOG_FILE="${OUT_DIR}/log_${ABL_TAG}_seed${SEED}.txt" \
+        SOTA_RESULTS_FILE="${OUT_DIR}/results_${ABL_TAG}_seed${SEED}.json" \
+        python3 -u -m DG.sota.run_sota \
+        > "${OUT_DIR}/log_${ABL_TAG}_seed${SEED}.txt" 2>&1 &
+done
 
-echo "Tailing $LOG_FILE"
-tail -f "$LOG_FILE"
+echo "Tailing per-seed logs (Ctrl-C stops tailing, not the runs)"
+tail -f "${OUT_DIR}/log_${ABL_TAG}_seed42.txt" \
+        "${OUT_DIR}/log_${ABL_TAG}_seed0.txt" \
+        "${OUT_DIR}/log_${ABL_TAG}_seed100.txt"

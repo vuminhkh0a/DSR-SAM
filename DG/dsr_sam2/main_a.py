@@ -89,7 +89,7 @@ def get_base_config():
         'cnn_pretrained': True,
         # n -> last n ViT blocks get CBA and n extra CNN ResBlocks are added.
         'cba_last_n': 4,
-        'cka_fusion': True,  # True: CKA + AttentionGate fusion | False: f_vit + f_cnn
+        'cka_fusion': True,  # True: CKA-weighted fusion | False: f_vit + f'_cnn/f_cnn
         'use_attention_gate': True,
         'use_attention_gate_cba': True,
         'attention_gate_channels': 768,

@@ -6,7 +6,13 @@ from torch.utils.data import DataLoader
 def cleanup_resources(device=None):
     gc.collect()
     if device is not None and 'cuda' in str(device):
-        torch.cuda.empty_cache()
+        # After a CUDA device-side assert the context is already broken and
+        # empty_cache() raises again; never let cleanup mask the original
+        # training error (or abort the remaining runs in a study loop).
+        try:
+            torch.cuda.empty_cache()
+        except Exception:
+            pass
 
 
 class SequentialDomainRunner:

@@ -31,13 +31,15 @@ def _make_loader(dataset, batch_size, shuffle, num_workers, pin_memory, drop_las
 
 
 class Custom_Dataset(Dataset):
-    def __init__(self, images, masks, transform=None, name=None, image_size=None):
+    def __init__(self, images, masks, transform=None, name=None, image_size=None, labels=None):
 
         self.images = images
         self.masks = masks
         self.name = name
         self.transform = transform
         self.image_size = image_size
+        # Optional benign/malignant label per sample (breast-US datasets only).
+        self.labels = labels
 
         self.no_transform = A.Compose([A.ToTensorV2()])
     
@@ -151,8 +153,60 @@ def get_datasets(name, image_size, transform, filter_blank_gt=True):
             elif split == 'test':
                 test_x.append(img)
                 test_y.append(ann)
-    
-    
+
+
+    elif name in ('BUS_UC', 'BUSBRA', 'BUSI_WHU'):
+        # Breast-ultrasound datasets. BUS_UC and BUSBRA use leakage-safe
+        # stratified manifests produced by tools/make_breast_splits.py;
+        # BUSI_WHU keeps its original train/valid/test folders (described in
+        # the same manifest format). Images/masks are resized to `image_size`
+        # (256 by default) exactly like OTU / OVATUS.
+        KHOAVM = '/mnt/nvme0/home/utbt/KhoaVM'
+        with open(os.path.join(KHOAVM, 'splits', f'{name}.json'), 'r', encoding='utf-8') as f:
+            manifest = json.load(f)['split']
+
+        labels = {}
+        for split_key, xs, ys in (('train', train_x, train_y),
+                                  ('val', valid_x, valid_y),
+                                  ('test', test_x, test_y)):
+            for rec in manifest[split_key]:
+                xs.append(os.path.join(KHOAVM, rec['image']))
+                ys.append(os.path.join(KHOAVM, rec['mask']))
+                labels[xs[-1]] = rec.get('label')
+
+        if filter_blank_gt:
+            def _filter_triples(imgs, masks):
+                kept_i, kept_m, n_skipped = [], [], 0
+                for img_p, mask_p in zip(imgs, masks):
+                    if _is_blank_mask(mask_p):
+                        n_skipped += 1
+                        continue
+                    kept_i.append(img_p)
+                    kept_m.append(mask_p)
+                return kept_i, kept_m, n_skipped
+            train_x, train_y, n_tr = _filter_triples(train_x, train_y)
+            valid_x, valid_y, n_va = _filter_triples(valid_x, valid_y)
+            test_x, test_y, n_te = _filter_triples(test_x, test_y)
+            if n_tr or n_va or n_te:
+                print(f"Dataset: {name} | skipped blank-GT samples "
+                      f"(train={n_tr}, val={n_va}, test={n_te})")
+
+        train_labels = [labels[p] for p in train_x]
+        valid_labels = [labels[p] for p in valid_x]
+        test_labels = [labels[p] for p in test_x]
+
+        train_dataset = Custom_Dataset(images=train_x, masks=train_y, name=name,
+                                       image_size=image_size, transform=transform,
+                                       labels=train_labels)
+        valid_dataset = Custom_Dataset(images=valid_x, masks=valid_y, name=name,
+                                       image_size=image_size, transform=False,
+                                       labels=valid_labels)
+        test_dataset = Custom_Dataset(images=test_x, masks=test_y, name=name,
+                                      image_size=image_size, transform=False,
+                                      labels=test_labels)
+        print(f"Dataset: {name} | Training data: {len(train_x)} | Validation data: {len(valid_x)} | Testing data: {len(test_x)}")
+        return train_dataset, valid_dataset, test_dataset
+
     
     print(f"Dataset: {name} | Training data: {len(train_x)} | Validation data: {len(valid_x)} | Testing data: {len(test_x)}")
 

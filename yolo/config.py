@@ -17,7 +17,7 @@ WEIGHTS_DIR = PROJECT_ROOT / 'weights' / 'yolo'
 RUNS_DIR = WEIGHTS_DIR / 'runs'
 RUNS_SMOKE_DIR = WEIGHTS_DIR / 'runs_smoke'
 DATASETS_DIR = YOLO_ROOT / 'datasets'
-RESULTS_PATH = PROJECT_ROOT / 'results_yolo.json'
+RESULTS_PATH = PROJECT_ROOT / 'logs_results' / 'results_yolo.json'
 BOX_FILE_TEMPLATE = str(PROJECT_ROOT / 'box_coords_yolov8_{size}.json')
 BOX_COORDS_PATH = PROJECT_ROOT / 'box_coords.json'
 
@@ -149,5 +149,5 @@ def box_file(size: str, smoke: bool = False) -> str:
 
 def results_path(smoke: bool = False) -> Path:
     if smoke:
-        return PROJECT_ROOT / 'results_yolo_smoke.json'
+        return PROJECT_ROOT / 'logs_results' / 'results_yolo_smoke.json'
     return RESULTS_PATH

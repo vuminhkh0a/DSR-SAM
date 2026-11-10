@@ -17,30 +17,27 @@ Architecture (input 256x256 -> ViT 16x16 tokens):
       Each ViT block has two CBA blocks:
         * after norm1, with the resblock "before" feature;
         * after norm2, with the resblock "after" feature.
-      Each CBA computes the per-channel linear CKA (Centered Kernel
-      Alignment) between the same-index spatial channels:
-          C_weight[c] = CKA(f_vit[..., c], f_cnn[..., c])
-                      = <v_c, n_c>^2 / (||v_c||^2 ||n_c||^2)
-      where v_c and n_c are the H*W spatial vectors centered over space, so
-      C_weight lies in [0, 1] (the squared Pearson correlation).  An
-      AttentionGate (Oktay et al. 2018) uses f_vit as the gating signal to
-      filter f_cnn:
-          f_gated_cnn = AttentionGate(f_cnn, f_vit)
-      and the ViT features are expanded by
-          f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2
+      Each CBA computes one global linear CKA (Centered Kernel Alignment)
+      between the full ViT and CNN feature maps:
+          C = CKA(f_vit, f'_cnn)  in [0, 1]
+      where the CNN feature is attention-gated:
+          f'_cnn = AttentionGate(f_cnn, f_vit)
+      CKA treats the H*W spatial positions as examples and the C channels
+      as features (Raghu et al. 2021 convention).  The ViT features are
+      expanded by
+          f_vit + (1 - C) * f'_cnn
       so the CNN branch contributes most when the two branches are least
       aligned, while the gate highlights the relevant CNN regions.
-      Off-diagonal channel pairs are not used.
       Then BUSSAM's spatial-attention + MLP adapter runs.
 
   Final ViT/CNN fusion:
       x = x + cnn_final
       (plain addition, no CKA and no attention gate).
 
-  ``use_attention_gate=False`` removes the CBA gates and falls back to
-  ``f_vit + (1 - C_weight) * f_cnn``.  ``cka_fusion=False`` bypasses the
-  CBA gate and CKA weighting for its ablation.  CKA and the CBA gates are
-  always differentiable.
+  ``use_attention_gate=False`` uses f_cnn instead of f'_cnn and still
+  computes CKA.  ``cka_fusion=False`` skips CKA entirely: the CBA returns
+  f_vit + f'_cnn (gate on) or f_vit + f_cnn (gate off), and L_CKA = 0.
+  CKA and the CBA gates are always differentiable.
 
   Everything else (LoRA/EMA, prompt encoder, mask decoder) is
   inherited from DSR-SAM.
@@ -210,8 +207,8 @@ class Block(nn.Module):
 
     The ViT/CNN fusion itself is not BUSSAM's direct ``f_vit + f_cnn``: the
     CNN branch is added as
-    ``f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2`` per channel, as
-    described in ``CrossBranchAttention``.
+    ``f_vit + (1 - C) * f'_cnn`` with one global CKA score ``C`` per sample,
+    as described in ``CrossBranchAttention``.
     """
 
     def __init__(self, dim: int, num_heads: int, mlp_ratio: float = 4.0,
@@ -270,7 +267,7 @@ class Block(nn.Module):
 
 
 # ============================================================
-# DSR-SAM2 CNN branch, per-channel CKA and CBA (BUSSAM cross-branch
+# DSR-SAM2 CNN branch, global CKA and CBA (BUSSAM cross-branch
 # attention, ViT features expanded by the CKA disagreement weight)
 # ============================================================
 
@@ -379,78 +376,90 @@ def _align_spatial(f_vit: torch.Tensor, f_cnn: torch.Tensor) -> torch.Tensor:
     return f_cnn
 
 
-def per_channel_cka_score(f_vit: torch.Tensor, f_cnn: torch.Tensor,
-                          eps: float = 1e-12) -> torch.Tensor:
-    """Per-channel linear CKA ``C_weight`` between ViT and CNN features.
+def global_cka_score(f_vit: torch.Tensor, f_cnn: torch.Tensor,
+                     eps: float = 1e-6) -> torch.Tensor:
+    """Global linear CKA between one ViT and one CNN feature map.
 
-    ``f_vit`` and ``f_cnn`` are ``(B, H, W, C)`` (here ``B, 16, 16, 768``).
-    For each same-index channel pair, the ``H*W`` spatial values are centered
-    over space and compared with the linear CKA, which for two 1-D variables
-    is exactly the squared Pearson correlation:
+    ``f_vit`` and ``f_cnn`` are ``(B, H, W, C)``.  For each sample, the
+    ``H*W`` spatial positions are the examples and the ``C`` channels are
+    the features, matching the CKA convention of Raghu et al. (2021):
 
-        C_weight[c] = <v_c, n_c>^2 / (||v_c||^2 ||n_c||^2)  in [0, 1]
+        X, Y in R^(H*W x C)
+        C = HSIC(K, L) / sqrt(HSIC(K, K) HSIC(L, L))
 
-    ``C_weight = 1`` means the two channels are perfectly aligned, ``0``
-    means they are uncorrelated.  Only same-index channel pairs are used.
-    Returns ``(B, C)``.  The score is always differentiable.
+    with ``K = X X^T`` and ``L = Y Y^T`` after centering the features over
+    the H*W examples.  Returns ``(B,)`` in ``[0, 1]``.
+
+    CKA is scale invariant, so each feature map is Frobenius-normalized
+    before forming the Gram matrices.  This is mathematically redundant but
+    numerically essential: without it, a nearly-zero CNN feature map (e.g.
+    early in training, or when the attention gate suppresses a region) makes
+    ``sqrt(HSIC(K, K) HSIC(L, L))`` tiny and its gradient explode.  That
+    produced ``inf``/``NaN`` gradients and eventually the CUDA
+    ``input_val >= 0 && input_val <= 1`` assertion in BCE.  The final score
+    is clamped to ``[0, 1]`` to absorb residual floating-point error.
     """
     if f_vit.shape[1:3] != f_cnn.shape[1:3]:
-        # Defensive: the CNN and ViT maps must have the same spatial grid.
         f_cnn = _align_spatial(f_vit, f_cnn)
     # CKA is evaluated in fp32 even if the branches run under autocast.
     f_vit = f_vit.float()
     f_cnn = f_cnn.float()
     b, h, w, c = f_vit.shape
-    v = f_vit.reshape(b, h * w, c)
-    n = f_cnn.reshape(b, h * w, c)
-    # Center each channel over its H*W spatial positions.
-    v = v - v.mean(dim=1, keepdim=True)
-    n = n - n.mean(dim=1, keepdim=True)
-    cross = (v * n).sum(dim=1)                            # (B, C)
-    var_v = (v * v).sum(dim=1)                            # (B, C)
-    var_n = (n * n).sum(dim=1)                            # (B, C)
-    c_weight = (cross * cross) / (var_v * var_n).clamp_min(eps)
-    return c_weight.clamp(0.0, 1.0)
+    x = f_vit.reshape(b, h * w, c)
+    y = f_cnn.reshape(b, h * w, c)
+    # Center each channel over the H*W spatial examples (the columns).
+    x = x - x.mean(dim=1, keepdim=True)
+    y = y - y.mean(dim=1, keepdim=True)
+    # Frobenius-normalize each sample (scale invariance of the linear CKA).
+    # The eps lives *inside* the square root: with a plain norm().clamp_min()
+    # an all-zero (constant) feature map has norm 0 and ``d||x||/dx = 0/0``,
+    # which backpropagates as NaN even though the forward value is finite.
+    x = x / torch.sqrt((x * x).sum(dim=(1, 2), keepdim=True) + eps * eps)
+    y = y / torch.sqrt((y * y).sum(dim=(1, 2), keepdim=True) + eps * eps)
+    # Centered Gram matrices over the H*W examples.
+    k = x @ x.transpose(1, 2)
+    l = y @ y.transpose(1, 2)
+    hsic_kl = (k * l).sum(dim=(1, 2))
+    hsic_kk = (k * k).sum(dim=(1, 2))
+    hsic_ll = (l * l).sum(dim=(1, 2))
+    # Same eps-inside-the-sqrt trick as above, so a zero HSIC term yields a
+    # finite derivative instead of 0 * inf = NaN.
+    denom = torch.sqrt(hsic_kk * hsic_ll + eps * eps)
+    return (hsic_kl / denom).clamp(0.0, 1.0)
 
 
 def cka_fused_features(f_vit: torch.Tensor, f_cnn: torch.Tensor,
                        gate: Optional[nn.Module] = None,
                        use_weight: bool = True,
                        return_weight: bool = False):
-    """Fuse ``f_vit``/``f_cnn`` with CKA and an optional attention gate.
+    """Fuse ``f_vit`` and ``f_cnn`` with the global CKA score.
 
-    With ``gate`` (paper-style additive attention gate) and
-    ``use_weight=True``:
+    With ``use_weight=True``:
 
-        f_gated_cnn = gate(f_cnn, f_vit)          # f_vit gates f_cnn
-        fused = f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2
+        f'_cnn = gate(f_cnn, f_vit) if gate is not None else f_cnn
+        fused  = f_vit + (1 - C) * f'_cnn
 
-    Without a gate, the legacy fusion is used:
+    With ``use_weight=False`` (CKA-fusion ablation):
 
-        fused = f_vit + (1 - C_weight) * f_cnn
+        fused = f_vit + f'_cnn  (gate on)
+        fused = f_vit + f_cnn   (gate off)
 
-    ``use_weight=False`` returns the unweighted ``f_vit + f_cnn`` and bypasses
-    the gate (the CKA term is still computed when ``return_weight=True`` so
-    ``L_CKA`` remains available for the ablation).
+    and no CKA is computed, so ``L_CKA`` is zero on this path.
 
-    ``return_weight=True`` also returns ``C_weight``; the CBA blocks use this
-    to collect the per-channel terms for ``L_CKA``.
+    ``return_weight=True`` also returns ``C`` with shape ``(B,)``, or
+    ``None`` when ``use_weight=False``.
     """
-    if not use_weight and not return_weight:
-        return f_vit + f_cnn
-    # Align once so the CKA score, the gate, and the fused residual share a grid.
-    f_cnn = _align_spatial(f_vit, f_cnn)
-    c_weight = per_channel_cka_score(f_vit, f_cnn)
-    if use_weight:
-        w = (1.0 - c_weight)[:, None, None, :]   # (B, 1, 1, C)
-        cnn_term = w * f_cnn
+    if not use_weight:
         if gate is not None:
-            f_gated_cnn = gate(f_cnn, f_vit)
-            fused = f_vit + (cnn_term + f_gated_cnn) / 2.0
-        else:
-            fused = f_vit + cnn_term
-    else:
+            f_cnn = gate(f_cnn, f_vit)
         fused = f_vit + f_cnn
+        return (fused, None) if return_weight else fused
+
+    f_cnn = _align_spatial(f_vit, f_cnn)
+    if gate is not None:
+        f_cnn = gate(f_cnn, f_vit)
+    c_weight = global_cka_score(f_vit, f_cnn)  # (B,)
+    fused = f_vit + (1.0 - c_weight)[:, None, None, None] * f_cnn
     if return_weight:
         return fused, c_weight
     return fused
@@ -495,26 +504,27 @@ class CrossBranchAttention(nn.Module):
     """CBA block: CKA + attention-gated ViT/CNN expansion + MLP adapter.
 
     BUSSAM's MLPAdapter starts with ``x = f_vit + f_cnn``.  DSR-SAM2 replaces
-    that sum by, for every channel c (with C_weight in [0, 1]),
+    that sum by one global CKA-weighted expansion per sample:
 
-        f_gated_cnn[c] = AttentionGate(f_cnn, f_vit)
-        fused[..., c] = f_vit[..., c]
-                        + ((1 - C_weight[c]) * f_cnn[..., c]
-                           + f_gated_cnn[c]) / 2
+        f'_cnn = AttentionGate(f_cnn, f_vit)
+        C      = CKA(f_vit, f'_cnn)
+        fused  = f_vit + (1 - C) * f'_cnn
 
     so the CNN branch expands the ViT representation instead of replacing it.
-    C_weight[c] is the per-channel linear CKA between the same-index channels
-    of ``f_cnn`` and ``f_vit``.  Other channel pairs are not used.  The block
-    then continues with BUSSAM's SpatialAttention + Linear/GELU/Linear.  With
-    ``skip_connect=False`` the returned tensor is the adapter output (the
-    owning ``Block`` applies the residual, exactly like BUSSAM).
+    ``C`` is the global linear CKA between the full ViT and CNN feature maps
+    (H*W spatial examples, C channels).  With the gate disabled,
+    ``f'_cnn = f_cnn``.  The block then continues with BUSSAM's
+    SpatialAttention + Linear/GELU/Linear.  With ``skip_connect=False`` the
+    returned tensor is the adapter output (the owning ``Block`` applies the
+    residual, exactly like BUSSAM).
 
     ``fusion`` selects the f_vit/f_cnn combination:
-      * ``True``  (default) -> CKA + attention-gated fusion above
-      * ``False`` (ablation) -> f_vit + f_cnn (gate bypassed)
+      * ``True``  (default) -> CKA-weighted fusion above
+      * ``False`` (ablation) -> f_vit + f'_cnn (gate on) or f_vit + f_cnn
+        (gate off); no CKA is computed and L_CKA is zero
 
-    ``last_cka`` stores the ``(B, C)`` C_weight of the most recent forward so
-    the encoder can aggregate ``L_CKA`` across all CBA modules.
+    ``last_cka`` stores the ``(B,)`` score of the most recent forward so the
+    encoder can aggregate ``L_CKA`` across all CBA modules.
     """
 
     def __init__(self, dim: int, mlp_ratio: float = 0.25,
@@ -529,11 +539,10 @@ class CrossBranchAttention(nn.Module):
         self.fusion = fusion
         self.skip_connect = skip_connect
         self.last_cka = None
-        if use_attention_gate and fusion:
+        if use_attention_gate:
             self.attention_gate = AttentionGate(
                 dim, inter_channels=attention_gate_channels)
         else:
-            # fusion=False bypasses the gate entirely; don't allocate it.
             self.attention_gate = None
         hidden = int(dim * mlp_ratio)
         self.act = act_layer()
@@ -664,26 +673,21 @@ class ImageEncoderViT(nn.Module):
         return x
 
     def cka_loss(self, clear: bool = True) -> torch.Tensor:
-        """Aggregate the normalized ``L_CKA`` from the last forward.
+        """Mean ``L_CKA`` over the last forward.
 
-        With ``n = cba_last_n`` CBA-enabled blocks there are ``2n`` CBA
-        modules, each producing a ``(B, C)`` C_weight.  The CBA part is
-        normalized exactly as
+        Each of the ``2n`` CBA modules produces one CKA score per sample,
+        i.e. a ``(B,)`` tensor.  The loss is the mean over all ``B * 2n``
+        values:
 
-            (1 / (B * 2n * ((2n) * C))) * sum(C_weight over all CBAs)
+            L_CKA = mean_{b, m} C_{m,b}
 
-        i.e. the literal ``batch_size * total_CBA_in_model *
-        total_channels_in_all_CBA`` denominator (the CBA count is applied
-        twice).
-
-        Returns a scalar; returns zero when the model has no CBA modules.
-        The stored tensors are cleared afterwards so their graphs are not
-        retained across iterations.
+        Returns zero when the model has no CBA modules or when CKA fusion
+        is disabled (no scores were stored).  Stored tensors are cleared
+        afterwards so their graphs are not retained across iterations.
         """
         cb_as = [m for m in self.modules() if isinstance(m, CrossBranchAttention)]
-        n_cba = len(cb_as)
         device = self.neck[0].weight.device
-        if n_cba == 0:
+        if not cb_as:
             return torch.zeros((), device=device)
 
         terms = [m.last_cka for m in cb_as if m.last_cka is not None]
@@ -693,9 +697,7 @@ class ImageEncoderViT(nn.Module):
         if not terms:
             return torch.zeros((), device=device)
 
-        batch = terms[0].shape[0]
-        channels = terms[0].shape[1]
-        return sum(t.sum() for t in terms) / (batch * n_cba * (n_cba * channels))
+        return torch.cat([t.reshape(-1) for t in terms]).mean()
 
 
 # ============================================================
@@ -1325,7 +1327,7 @@ def _build_sam(image_size, num_classes, checkpoint=None, model_type='vit_h',
     sam.train()
     if checkpoint is not None:
         with open(checkpoint, 'rb') as f:
-            state_dict = torch.load(f, map_location='cpu')
+            state_dict = torch.load(f, map_location='cpu', weights_only=True)
         _load_from(sam, state_dict, image_size, vit_patch_size,
                    cfg['encoder_global_attn_indexes'])
     return sam, image_embedding_size
@@ -1345,9 +1347,12 @@ def build_dsr_sam2(checkpoint=None, model_type='vit_b', image_size=256,
     ResNet18 branch, the CBA blocks and the final CNN fusion, i.e. plain
     SAM + LoRA (ablation control).
 
-    ``cka_fusion``: CBA combination rule. ``True`` (default) uses
-    ``f_vit + ((1 - C_weight) * f_cnn + f_gated_cnn) / 2``; ``False`` is the
-    unweighted ``f_vit + f_cnn`` and bypasses the gate.
+    ``cka_fusion``: CBA combination rule. ``True`` (default) computes the
+    global CKA score ``C = CKA(f_vit, f'_cnn)`` and uses
+    ``f_vit + (1 - C) * f'_cnn``, where ``f'_cnn`` is the attention-gated CNN
+    feature (or ``f_cnn`` when the gate is disabled).  ``False`` skips CKA
+    entirely and uses ``f_vit + f'_cnn`` (gate on) or ``f_vit + f_cnn``
+    (gate off).
 
     ``use_attention_gate``: master switch for the CBA AttentionGate
     (Oktay et al. 2018); ``use_attention_gate_cba`` selects the 2n CBA gates.
@@ -1359,9 +1364,8 @@ def build_dsr_sam2(checkpoint=None, model_type='vit_b', image_size=256,
     last ``n`` ViT blocks (one additional ResBlock per CBA-enabled block).
 
     Every forward also exposes the scalar ``L_CKA`` in ``outputs['cka_loss']``:
-    the sum of all ``2n`` CBA ``C_weight`` terms normalized by
-    ``batch * (2n) * ((2n) * C)``.  Training adds
-    ``cka_loss_weight * L_CKA`` to the segmentation loss.
+    the mean of all per-sample CKA scores over the ``2n`` CBA modules.
+    Training adds ``cka_loss_weight * L_CKA`` to the segmentation loss.
     """
     assert model_type in VIT_CONFIGS
     sam, _ = _build_sam(image_size=image_size, num_classes=num_classes,

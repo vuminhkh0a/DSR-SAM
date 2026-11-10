@@ -1,0 +1,102 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\setlength{\LTcapwidth}{\textwidth}
+
+\begin{document}
+
+{\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{longtable}{lccccc rrrrr}
+\caption{DSR-SAM2 ablation study with manual (ground-truth) box prompts from \texttt{box\_coords.json} (CBA $n=8$, gate width $C=768$). Values are mean $\pm$ sample std over seeds 42, 0, 100. $\checkmark$/$\times$ denote enabled/disabled switches; the gate is inactive when CKA fusion is disabled. Best mean per metric per source$\rightarrow$target panel is \textbf{bold} (HD95: lower is better).}
+\label{tab:ablation_dsr_sam2_manual}\\
+\toprule
+& \multicolumn{5}{c}{Configuration} & \multicolumn{5}{c}{Metrics} \\
+\cmidrule(lr){2-6}\cmidrule(lr){7-11}
+Variant & CNN & CBA & Gate & CKA & $L_{\mathrm{CKA}}$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endfirsthead
+\toprule
+Variant & CNN & CBA & Gate & CKA & $L_{\mathrm{CKA}}$ & Dice & IoU & Prec. & Rec. & HD95$\downarrow$ \\
+\midrule
+\endhead
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{11}{l}{\textit{Source: OTU $\rightarrow$ Target: OVATUS}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 94.84 $\pm$ 0.30 & 90.29 $\pm$ 0.52 & 96.58 $\pm$ 0.52 & 93.34 $\pm$ 0.83 & 10.30 $\pm$ 0.68 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 94.63 $\pm$ 0.29 & 89.93 $\pm$ 0.50 & \textbf{97.26 $\pm$ 0.27} & 92.30 $\pm$ 0.72 & 10.64 $\pm$ 1.02 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & \textbf{95.17 $\pm$ 0.17} & \textbf{90.88 $\pm$ 0.31} & 96.26 $\pm$ 0.30 & \textbf{94.27 $\pm$ 0.60} & 9.40 $\pm$ 0.43 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 94.65 $\pm$ 0.61 & 90.00 $\pm$ 1.07 & 96.89 $\pm$ 1.20 & 92.74 $\pm$ 2.06 & 10.47 $\pm$ 0.75 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 95.14 $\pm$ 0.16 & 90.83 $\pm$ 0.28 & 96.68 $\pm$ 0.59 & 93.82 $\pm$ 0.83 & \textbf{9.37 $\pm$ 0.31} \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 94.58 $\pm$ 0.55 & 89.86 $\pm$ 0.93 & 96.85 $\pm$ 0.77 & 92.63 $\pm$ 1.68 & 10.58 $\pm$ 1.48 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 94.95 $\pm$ 0.21 & 90.49 $\pm$ 0.40 & 96.72 $\pm$ 0.59 & 93.40 $\pm$ 0.90 & 10.34 $\pm$ 1.18 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & 94.86 $\pm$ 0.17 & 90.36 $\pm$ 0.25 & 96.33 $\pm$ 0.52 & 93.63 $\pm$ 0.56 & 10.49 $\pm$ 0.30 \\
+\addlinespace[4pt]
+\multicolumn{11}{l}{\textit{Source: OTU $\rightarrow$ Target: USOVA}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & \textbf{84.53 $\pm$ 0.71} & \textbf{74.61 $\pm$ 1.11} & 85.10 $\pm$ 1.41 & \textbf{85.87 $\pm$ 2.79} & \textbf{29.09 $\pm$ 0.11} \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 83.72 $\pm$ 0.97 & 73.37 $\pm$ 1.42 & 84.63 $\pm$ 3.14 & 84.79 $\pm$ 4.59 & 30.22 $\pm$ 2.29 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 83.02 $\pm$ 1.03 & 72.27 $\pm$ 1.48 & 83.26 $\pm$ 2.39 & 84.89 $\pm$ 4.17 & 32.04 $\pm$ 2.93 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 82.57 $\pm$ 0.88 & 71.70 $\pm$ 1.40 & \textbf{85.66 $\pm$ 0.56} & 81.63 $\pm$ 1.98 & 33.49 $\pm$ 0.95 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 83.63 $\pm$ 2.28 & 73.38 $\pm$ 3.40 & 83.81 $\pm$ 1.43 & 85.18 $\pm$ 4.69 & 31.27 $\pm$ 3.69 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 84.46 $\pm$ 0.46 & 74.37 $\pm$ 0.58 & 85.06 $\pm$ 0.76 & 85.45 $\pm$ 0.26 & 29.27 $\pm$ 0.90 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 84.03 $\pm$ 0.35 & 73.82 $\pm$ 0.41 & 85.60 $\pm$ 2.84 & 84.87 $\pm$ 2.12 & 30.90 $\pm$ 0.09 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & 84.09 $\pm$ 0.84 & 73.90 $\pm$ 1.35 & 85.16 $\pm$ 1.40 & 84.67 $\pm$ 3.01 & 29.45 $\pm$ 2.74 \\
+\addlinespace[4pt]
+\multicolumn{11}{l}{\textit{Source: OVATUS $\rightarrow$ Target: OTU}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 90.26 $\pm$ 0.28 & 83.49 $\pm$ 0.27 & \textbf{91.14 $\pm$ 1.26} & 90.60 $\pm$ 1.36 & 12.11 $\pm$ 1.15 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 89.50 $\pm$ 0.79 & 82.65 $\pm$ 0.86 & 89.11 $\pm$ 1.78 & 91.10 $\pm$ 0.58 & 14.04 $\pm$ 2.85 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 90.27 $\pm$ 0.72 & 83.52 $\pm$ 0.81 & 90.13 $\pm$ 1.47 & 91.41 $\pm$ 1.80 & \textbf{11.74 $\pm$ 1.11} \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 89.88 $\pm$ 0.30 & 83.01 $\pm$ 0.33 & 89.67 $\pm$ 1.82 & 91.54 $\pm$ 2.12 & 12.81 $\pm$ 0.73 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 90.15 $\pm$ 1.00 & 83.45 $\pm$ 1.22 & 90.46 $\pm$ 1.12 & 91.02 $\pm$ 1.69 & 12.64 $\pm$ 1.81 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 90.00 $\pm$ 0.46 & 83.16 $\pm$ 0.46 & 90.00 $\pm$ 0.72 & 91.35 $\pm$ 1.01 & 12.95 $\pm$ 2.02 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{91.09 $\pm$ 0.21} & \textbf{84.55 $\pm$ 0.21} & 89.76 $\pm$ 0.61 & \textbf{93.28 $\pm$ 1.09} & 13.06 $\pm$ 0.49 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & 90.26 $\pm$ 0.34 & 83.61 $\pm$ 0.40 & 89.15 $\pm$ 1.74 & 92.70 $\pm$ 1.61 & 13.25 $\pm$ 2.51 \\
+\addlinespace[4pt]
+\multicolumn{11}{l}{\textit{Source: OVATUS $\rightarrow$ Target: USOVA}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 80.08 $\pm$ 2.39 & 68.40 $\pm$ 3.45 & 86.69 $\pm$ 2.15 & 76.42 $\pm$ 5.70 & 34.61 $\pm$ 1.91 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 78.69 $\pm$ 1.24 & 66.44 $\pm$ 2.12 & 87.26 $\pm$ 1.12 & 72.93 $\pm$ 2.95 & 39.65 $\pm$ 2.24 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 80.86 $\pm$ 2.00 & 69.41 $\pm$ 2.94 & 87.84 $\pm$ 1.89 & 76.55 $\pm$ 4.67 & \textbf{34.16 $\pm$ 2.45} \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 78.14 $\pm$ 1.15 & 65.72 $\pm$ 1.57 & 86.25 $\pm$ 1.33 & 73.16 $\pm$ 1.93 & 40.50 $\pm$ 4.18 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 81.41 $\pm$ 1.71 & 70.22 $\pm$ 2.40 & 87.82 $\pm$ 1.55 & 77.51 $\pm$ 3.74 & 35.21 $\pm$ 3.83 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 80.42 $\pm$ 2.43 & 69.31 $\pm$ 2.88 & 86.59 $\pm$ 2.37 & 77.24 $\pm$ 5.20 & 36.06 $\pm$ 1.63 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 79.63 $\pm$ 0.87 & 67.69 $\pm$ 1.06 & \textbf{88.07 $\pm$ 1.55} & 74.37 $\pm$ 2.26 & 39.36 $\pm$ 1.48 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{81.68 $\pm$ 1.62} & \textbf{70.71 $\pm$ 2.12} & 85.87 $\pm$ 1.88 & \textbf{79.39 $\pm$ 4.34} & 35.09 $\pm$ 1.23 \\
+\addlinespace[4pt]
+\multicolumn{11}{l}{\textit{Source: USOVA $\rightarrow$ Target: OTU}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 81.68 $\pm$ 1.61 & 70.39 $\pm$ 2.25 & 81.71 $\pm$ 1.27 & 83.78 $\pm$ 2.72 & 23.17 $\pm$ 2.66 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 79.63 $\pm$ 6.36 & 68.43 $\pm$ 7.36 & 86.21 $\pm$ 3.24 & 77.74 $\pm$ 10.92 & 21.57 $\pm$ 3.69 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 82.96 $\pm$ 0.51 & 71.91 $\pm$ 0.56 & 83.28 $\pm$ 3.29 & 84.24 $\pm$ 2.99 & 20.85 $\pm$ 1.73 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 77.67 $\pm$ 4.46 & 65.65 $\pm$ 4.92 & \textbf{86.36 $\pm$ 2.71} & 73.79 $\pm$ 7.50 & 23.58 $\pm$ 1.90 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 83.84 $\pm$ 0.65 & 73.25 $\pm$ 0.81 & 84.18 $\pm$ 1.32 & 85.27 $\pm$ 2.27 & 19.31 $\pm$ 2.79 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 82.76 $\pm$ 0.90 & 71.71 $\pm$ 1.18 & 84.09 $\pm$ 1.25 & 83.43 $\pm$ 1.77 & 20.36 $\pm$ 1.85 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 84.84 $\pm$ 0.12 & 74.66 $\pm$ 0.17 & 84.93 $\pm$ 1.23 & 86.07 $\pm$ 1.51 & 18.26 $\pm$ 1.83 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{85.17 $\pm$ 0.78} & \textbf{75.05 $\pm$ 1.05} & 84.65 $\pm$ 2.93 & \textbf{87.39 $\pm$ 4.26} & \textbf{16.28 $\pm$ 0.61} \\
+\addlinespace[4pt]
+\multicolumn{11}{l}{\textit{Source: USOVA $\rightarrow$ Target: OVATUS}} \\
+\midrule
+Full & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & 87.53 $\pm$ 1.64 & 78.20 $\pm$ 2.55 & 89.22 $\pm$ 1.27 & 86.63 $\pm$ 2.50 & 20.01 $\pm$ 2.11 \\
+No $L_{\mathrm{CKA}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$ & 85.99 $\pm$ 3.94 & 76.25 $\pm$ 5.20 & 90.03 $\pm$ 0.72 & 83.76 $\pm$ 6.39 & 22.20 $\pm$ 3.71 \\
+No gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\checkmark$ & 88.24 $\pm$ 0.20 & 79.18 $\pm$ 0.29 & 90.49 $\pm$ 0.99 & 86.64 $\pm$ 0.81 & 20.35 $\pm$ 1.39 \\
+No $L_{\mathrm{CKA}}$, no gate & $\checkmark$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ & 81.57 $\pm$ 3.97 & 69.97 $\pm$ 4.93 & 91.31 $\pm$ 2.20 & 75.53 $\pm$ 7.03 & 27.29 $\pm$ 2.62 \\
+No CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ & 89.05 $\pm$ 0.71 & 80.53 $\pm$ 1.14 & 90.96 $\pm$ 1.13 & 87.80 $\pm$ 2.26 & 18.23 $\pm$ 1.64 \\
+No $L_{\mathrm{CKA}}$, no CKA fusion & $\checkmark$ & $\checkmark$ & $\times$ & $\times$ & $\times$ & 87.65 $\pm$ 1.12 & 78.30 $\pm$ 1.73 & 89.06 $\pm$ 0.99 & 86.99 $\pm$ 3.07 & 20.71 $\pm$ 1.90 \\
+No CBA & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & 89.98 $\pm$ 0.79 & 82.01 $\pm$ 1.28 & \textbf{92.58 $\pm$ 1.31} & 87.99 $\pm$ 1.69 & 15.80 $\pm$ 1.89 \\
+No CNN & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & \textbf{90.59 $\pm$ 1.05} & \textbf{83.01 $\pm$ 1.68} & 91.52 $\pm$ 1.57 & \textbf{90.27 $\pm$ 3.33} & \textbf{14.54 $\pm$ 1.44} \\
+\addlinespace[4pt]
+\end{longtable}
+}
+
+\end{document}

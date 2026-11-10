@@ -4,8 +4,8 @@ Metrics are detection-only (the user's choice):
     mAP50, mAP50-95, precision, recall (reference DetectionValidator), and
     mean best-match box IoU (top-1 prediction vs GT boxes).
 
-Results are appended/updated in ``results_yolo.json`` (or
-``results_yolo_smoke.json`` for smoke runs) as a list of records with
+Results are appended/updated in ``logs_results/results_yolo.json`` (or
+``logs_results/results_yolo_smoke.json`` for smoke runs) as a list of records with
 ``yolo_version``, ``size``, ``seed``, ``source``, ``target`` and ``results``.
 """
 from __future__ import annotations
@@ -129,6 +129,7 @@ def save_result(entry, smoke=False):
     data = [e for e in data if e.get('name') != entry['name']]
     data.append(entry)
     data.sort(key=_order)
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2), encoding='utf-8')
     return path
 
